@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 
+interface Message {
+  sender: string;
+  text: string;
+}
+
 const TeammateChat = () => {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
 
   const handleSendMessage = () => {

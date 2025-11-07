@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
+interface Notification {
+  id: number;
+  message: string;
+}
+
 const NotificationSystem = () => {
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
     // Simulate fetching notifications from an API
