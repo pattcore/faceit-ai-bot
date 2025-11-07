@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.9, 3.10, 3.11]
+        python-version: [3.9]  # Начнем с одной версии Python для ускорения сборки
 
     steps:
     - uses: actions/checkout@v3
@@ -21,15 +21,31 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
         pip install -r requirements.txt
-        pip install pytest pytest-asyncio pytest-mock
+        pip install pytest pytest-asyncio pytest-mock pytest-cov
     
-    - name: Run tests
+    - name: Run tests with coverage
       run: |
-        pytest tests/ -v
+        pytest tests/ -v --cov=src --cov-report=xml
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        fail_ci_if_error: false
 
   build:
     needs: test
@@ -41,13 +57,14 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.9'
     
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
         pip install -r requirements.txt
-        pip install build
+        pip install build wheel
     
     - name: Build package
       run: python -m build
@@ -57,10 +74,12 @@ jobs:
       with:
         name: dist
         path: dist/
+        retention-days: 5
 
   docker:
     needs: build
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'  # Собираем Docker только для main ветки
     
     steps:
     - uses: actions/checkout@v3
@@ -68,6 +87,20 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
     
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+      id: buildx
+      with:
+        install: true
+
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-buildx-
+
     - name: Login to Docker Hub
       uses: docker/login-action@v2
       with:
@@ -79,4 +112,13 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/faceit-ai-bot:latest
+        tags: |
+          ${{ secrets.DOCKER_USERNAME }}/faceit-ai-bot:latest
+          ${{ secrets.DOCKER_USERNAME }}/faceit-ai-bot:${{ github.sha }}
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+    
+    - name: Move cache
+      run: |
+        rm -rf /tmp/.buildx-cache
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
