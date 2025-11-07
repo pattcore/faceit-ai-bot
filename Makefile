@@ -1,4 +1,4 @@
-.PHONY: help install build dev deploy clean test logs
+.PHONY: help install build dev deploy clean test logs release
 
 # Цвета для вывода
 BLUE := \033[0;34m
@@ -65,3 +65,8 @@ restart: ## Перезапустить все сервисы
 status: ## Показать статус сервисов
 	@echo "$(BLUE)📊 Статус сервисов:$(NC)"
 	docker-compose ps
+
+release: ## Создать релиз проекта
+	@echo "$(BLUE)🚀 Создание релиза...$(NC)"
+	chmod +x release.sh
+	./release.sh

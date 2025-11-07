@@ -1,0 +1,53 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: faceit
+      POSTGRES_PASSWORD: faceit
+      POSTGRES_DB: faceit
+    ports:
+      - '5432:5432'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    depends_on:
+      db:
+        condition: service_started
+    env_file:
+      - ./.env
+    environment:
+      - DATABASE_URL=postgresql://faceit:faceit@db:5432/faceit
+    ports:
+      - '8000:8000'
+    volumes:
+      - ./:/app:cached
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    depends_on:
+      api:
+        condition: service_healthy
+    env_file:
+      - ./.env
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/ > /dev/null || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+volumes:
+  db_data:
