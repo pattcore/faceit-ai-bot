@@ -1,4 +1,4 @@
-MIT License with Additional Terms
+MIT License with Commercial Restrictions
 
 Copyright (c) 2025 pattmsc (Platon)
 
@@ -12,29 +12,40 @@ furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
-ADDITIONAL TERMS:
+ADDITIONAL TERMS AND RESTRICTIONS:
 
 1. ATTRIBUTION REQUIRED
    Any use, modification, or distribution of this Software must include clear
    attribution to the original author:
    "Original work by pattmsc - https://pattmsc.online"
 
-2. NO DIRECT COPYING FOR COMMERCIAL USE
-   You may NOT directly copy this Software and sell it as your own product
-   without significant modifications and added value.
+2. COMMERCIAL SERVICE RESTRICTIONS
+   This Software is a COMMERCIAL SERVICE with paid subscription tiers (FREE, BASIC, PRO, ELITE).
+   You are PROHIBITED from:
+   - Creating competing paid services using this codebase
+   - Offering subscription-based services based on this Software
+   - Monetizing this Software or its derivatives without written permission
+   - Removing or bypassing the subscription/payment system
 
-3. FORKS AND MODIFICATIONS
-   - You MAY fork and modify this Software
+3. PERMITTED COMMERCIAL USE
+   You MAY use this Software commercially ONLY for:
+   - Integration into your own distinct product (not a competing service)
+   - Internal business tools (not offered as a service to others)
+   - Educational platforms (with proper attribution)
+
+4. FORKS AND MODIFICATIONS
+   - You MAY fork and modify this Software for personal/educational use
    - You MUST clearly indicate what changes were made
    - You MUST maintain attribution to the original author
-   - Modified versions should be clearly distinguished from the original
+   - Modified versions MUST NOT be offered as paid services
+   - Public forks must link back to the original repository
 
-4. EDUCATIONAL AND PERSONAL USE
+5. EDUCATIONAL AND PERSONAL USE
    Free use for educational, personal, and non-commercial purposes is encouraged.
 
-5. COMMERCIAL USE
-   Commercial use is permitted with proper attribution and significant modifications.
-   Direct reselling without modifications is prohibited.
+6. OFFICIAL SERVICE
+   The ONLY official commercial service is available at: https://pattmsc.online
+   Any other commercial deployment requires explicit written permission.
 
 DISCLAIMER:
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
