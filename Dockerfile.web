@@ -19,6 +19,6 @@ COPY --from=builder /app/next.config.js ./next.config.js
 
 EXPOSE 3000
 
-HEALTHCHECK --interval=10s --timeout=3s --retries=5 CMD wget -qO- http://127.0.0.1:3000/ > /dev/null || exit 1
+HEALTHCHECK --interval=10s --timeout=3s --retries=5 CMD node -e "require('http').get('http://127.0.0.1:3000/', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
 
 CMD ["npm","run","start"]
