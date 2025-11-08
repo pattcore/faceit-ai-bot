@@ -18,7 +18,7 @@ module.exports = {
   plugins: [
     {
       apply: (compiler) => {
-        compiler.hooks.afterEmit.tap('AfterEmitPlugin', () => {
+        compiler.hooks.done.tap('AfterBuildPlugin', (stats) => {
           // Создаем структуру для Chrome/Edge/Opera
           const chromeDir = path.resolve(__dirname, 'dist/chrome');
           if (!fs.existsSync(chromeDir)) {
