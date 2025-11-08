@@ -11,6 +11,8 @@
 
 [🌐 Демо](https://pattmsc.online) • [📚 Документация](https://api.pattmsc.online/docs) • [⬇️ Скачать](DOWNLOAD.md)
 
+**Автор:** [pattmsc](https://taplink.cc/mscpat) • [📺 Twitch](https://www.twitch.tv/pattmsc) • [💬 Telegram](https://t.me/mscpatt)
+
 </div>
 
 ---
@@ -50,8 +52,6 @@
 </table>
 
 ## 🚀 Быстрый старт
-
-> 🪟 **Windows пользователи:** См. [WINDOWS_SETUP.md](WINDOWS_SETUP.md) для подробных инструкций
 
 ### Установка
 
@@ -188,7 +188,6 @@ faceit-ai-bot/
 | 📘 [BUILD_DEPLOY.md](BUILD_DEPLOY.md) | Подробная инструкция по сборке и деплою |
 | 🗺️ [ROADMAP.md](ROADMAP.md) | План развития проекта |
 | 🚀 [QUICK_START.md](QUICK_START.md) | Быстрый старт для разработчиков |
-| 🪟 [WINDOWS_SETUP.md](WINDOWS_SETUP.md) | Установка на Windows (PowerShell/Bash/Zsh/Fish) |
 | ⬇️ [DOWNLOAD.md](DOWNLOAD.md) | Скачать расширение и приложение |
 | 🌐 [DEPLOY_PATTMSC_ONLINE.md](DEPLOY_PATTMSC_ONLINE.md) | Деплой на VPS |
 
@@ -218,6 +217,14 @@ faceit-ai-bot/
 
 **Сделано с ❤️ для CS2 комьюнити**
 
-[⭐ Star](https://github.com/pat1one/faceit-ai-bot) • [🐛 Report Bug](https://github.com/pat1one/faceit-ai-bot/issues) • [💡 Request Feature](https://github.com/pat1one/faceit-ai-bot/issues)
+### 💝 Поддержать проект
+
+[⭐ Star на GitHub](https://github.com/pat1one/faceit-ai-bot) • [💰 Донат](https://taplink.cc/mscpat) • [📺 Twitch](https://www.twitch.tv/pattmsc) • [💬 Telegram](https://t.me/mscpatt)
+
+[🐛 Сообщить об ошибке](https://github.com/pat1one/faceit-ai-bot/issues) • [💡 Предложить функцию](https://github.com/pat1one/faceit-ai-bot/issues)
+
+---
+
+**Если проект помог - поставь ⭐ звезду и расскажи друзьям!**
 
 </div>

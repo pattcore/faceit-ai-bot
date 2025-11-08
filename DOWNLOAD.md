@@ -58,22 +58,22 @@
 <td width="25%" align="center">
 <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" width="48" height="48" alt="Chrome"/>
 <br><strong>Chrome</strong>
-<br><a href="https://github.com/pat1one/faceit-ai-bot/releases/latest/download/faceit-ai-bot-chrome.zip">Скачать</a>
+<br><a href="https://pattmsc.online/downloads/faceit-ai-bot-chrome.zip">Скачать</a>
 </td>
 <td width="25%" align="center">
 <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" width="48" height="48" alt="Firefox"/>
 <br><strong>Firefox</strong>
-<br><a href="https://github.com/pat1one/faceit-ai-bot/releases/latest/download/faceit-ai-bot-firefox.xpi">Скачать</a>
+<br><a href="https://pattmsc.online/downloads/faceit-ai-bot-firefox.xpi">Скачать</a>
 </td>
 <td width="25%" align="center">
 <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" width="48" height="48" alt="Edge"/>
 <br><strong>Edge</strong>
-<br><a href="https://github.com/pat1one/faceit-ai-bot/releases/latest/download/faceit-ai-bot-edge.zip">Скачать</a>
+<br><a href="https://pattmsc.online/downloads/faceit-ai-bot-edge.zip">Скачать</a>
 </td>
 <td width="25%" align="center">
 <img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/opera/opera_48x48.png" width="48" height="48" alt="Opera"/>
 <br><strong>Opera</strong>
-<br><a href="https://github.com/pat1one/faceit-ai-bot/releases/latest/download/faceit-ai-bot-opera.zip">Скачать</a>
+<br><a href="https://pattmsc.online/downloads/faceit-ai-bot-opera.zip">Скачать</a>
 </td>
 </tr>
 </table>
@@ -132,7 +132,7 @@
 
 ```bash
 # Скачать готовую сборку
-curl -L https://github.com/pat1one/faceit-ai-bot/releases/latest/download/faceit-ai-bot-docker.tar.gz -o faceit-ai-bot.tar.gz
+curl -L https://pattmsc.online/downloads/faceit-ai-bot-docker.tar.gz -o faceit-ai-bot.tar.gz
 
 # Распаковать
 tar -xzf faceit-ai-bot.tar.gz
@@ -299,7 +299,7 @@ FAQ и решения<br/>
 
 <table>
 <tr>
-<td width="33%" align="center">
+<td width="25%" align="center">
 
 ### ⭐ Star на GitHub
 
@@ -309,26 +309,42 @@ FAQ и решения<br/>
 очень мотивирует!
 
 </td>
-<td width="33%" align="center">
+<td width="25%" align="center">
 
 ### 💰 Донат
 
-[Поддержать](https://github.com/sponsors/pat1one)
+[Поддержать проект](https://taplink.cc/mscpat)
 
 Помогите развитию<br/>
-проекта
+и новым функциям
 
 </td>
-<td width="33%" align="center">
+<td width="25%" align="center">
 
-### 📢 Расскажите друзьям
+### 📺 Twitch
 
-Поделитесь с друзьями<br/>
-и командой
+[Смотреть стримы](https://www.twitch.tv/pattmsc)
+
+CS2, Valorant, PUBG<br/>
+синглы и общение
+
+</td>
+<td width="25%" align="center">
+
+### 💬 Telegram
+
+[Подписаться](https://t.me/mscpatt)
+
+Новости, обновления<br/>
+и общение
 
 </td>
 </tr>
 </table>
+
+### 📢 Расскажите друзьям
+
+Если проект вам помог - поделитесь с друзьями и командой! Это лучшая поддержка 🙏
 
 ---
 
