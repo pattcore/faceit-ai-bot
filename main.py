@@ -134,8 +134,8 @@ class PaymentResponse(BaseModel):
 
 # YooKassa integration
 YOOKASSA_API_URL = "https://api.yookassa.ru/v3/payments"
-YOOKASSA_SHOP_ID = "your_shop_id"
-YOOKASSA_SECRET_KEY = "your_secret_key"
+YOOKASSA_SHOP_ID = os.getenv("YOOKASSA_SHOP_ID", "")
+YOOKASSA_SECRET_KEY = os.getenv("YOOKASSA_SECRET_KEY", "")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -175,13 +175,13 @@ def create_yookassa_payment(payment: PaymentRequest):
     )
 
 # SBP integration
-SBP_API_URL = "https://sbp-api.example.com/create-payment"
-SBP_TOKEN = "your_sbp_token"
+SBP_API_URL = os.getenv("SBP_API_URL", "")
+SBP_TOKEN = os.getenv("SBP_TOKEN", "")
 
 @app.post("/payments/sbp", response_model=PaymentResponse)
 def create_sbp_payment_stub(payment: PaymentRequest):
     return PaymentResponse(
-        payment_url="https://example.com/sbp-payment",
+        payment_url="https://sbp-payment.ru/pay",
         status="pending",
     )
 
