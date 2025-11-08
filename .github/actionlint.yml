@@ -1,0 +1,18 @@
+# Configuration for actionlint - suppress secrets warnings
+# https://github.com/rhysd/actionlint
+
+# Ignore warnings about secrets access
+self-hosted-runner:
+  labels: []
+
+# Define secrets that will be configured in GitHub
+# This prevents "Context access might be invalid" warnings
+config-variables: []
+
+# List of known repository secrets
+secrets:
+  - VPS_SSH_PRIVATE_KEY
+  - VPS_HOST
+  - VPS_USER
+  - VPS_PORT
+  - VPS_DEPLOY_PATH

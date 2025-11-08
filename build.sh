@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 
 # Остановка и удаление старого контейнера, если он существует
 docker stop faceit-ai-bot || true

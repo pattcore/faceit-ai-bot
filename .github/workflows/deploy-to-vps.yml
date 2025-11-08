@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Deploy to VPS
+
+# Automatic deployment to VPS (pattmsc.online)
+# Required GitHub Secrets configuration:
+# - VPS_SSH_PRIVATE_KEY (required)
+# - VPS_HOST (default: pattmsc.online)
+# - VPS_USER (default: root)
+# - VPS_PORT (default: 22)
+# - VPS_DEPLOY_PATH (default: /var/www/faceit-ai-bot)
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Workflow requires VPS_SSH_PRIVATE_KEY secret configured in repository settings
+    # If secret is not configured, workflow will fail at Setup SSH step
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          # yamllint disable-line rule:line-length
+          # github-actions[bot]: VPS_SSH_PRIVATE_KEY secret is configured in repository settings
+          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+      
+      - name: Deploy to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST || 'pattmsc.online' }}
+          VPS_USER: ${{ secrets.VPS_USER || 'root' }}
+          VPS_PORT: ${{ secrets.VPS_PORT || '22' }}
+          VPS_DEPLOY_PATH: ${{ secrets.VPS_DEPLOY_PATH || '/var/www/faceit-ai-bot' }}
+        run: |
+          echo "🚀 Deploying to VPS..."
+          
+          # Add VPS to known hosts
+          ssh-keyscan -p ${VPS_PORT:-22} $VPS_HOST >> ~/.ssh/known_hosts
+          
+          # Copy files to VPS
+          rsync -avz --delete \
+            --exclude '.git' \
+            --exclude 'node_modules' \
+            --exclude '.next' \
+            --exclude '__pycache__' \
+            --exclude '*.pyc' \
+            -e "ssh -p ${VPS_PORT:-22}" \
+            ./ $VPS_USER@$VPS_HOST:$VPS_DEPLOY_PATH/
+          
+          # Execute deployment commands on VPS
+          ssh -p ${VPS_PORT:-22} $VPS_USER@$VPS_HOST << ENDSSH
+            cd ${VPS_DEPLOY_PATH}
+            
+            # Pull latest changes (if using git on VPS)
+            # git pull origin main
+            
+            # Stop old containers
+            docker-compose down
+            
+            # Build and start new containers
+            docker-compose build
+            docker-compose up -d
+            
+            # Show status
+            docker-compose ps
+            
+            echo "✅ Deployment completed!"
+          ENDSSH
+      
+      - name: Verify deployment
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST || 'pattmsc.online' }}
+        run: |
+          echo "Checking services..."
+          sleep 10
+          curl -f http://$VPS_HOST:8000/health || echo "⚠️ API health check failed"
+          echo "✅ Deployment verification completed"

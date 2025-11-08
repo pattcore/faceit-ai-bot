@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 
 # Настройки
 APP_DIR="/opt/faceit-ai-bot"

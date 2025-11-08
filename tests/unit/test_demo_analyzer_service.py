@@ -1,4 +1,4 @@
-"""
+﻿"""
 Unit тесты для сервиса анализа демо
 """
 import pytest
@@ -37,7 +37,7 @@ class TestDemoAnalyzer:
     
     @pytest.mark.asyncio
     async def test_analyze_demo_success(self, analyzer, demo_file):
-        """Тест успешного анализа демо"""
+        """Test successful demo analysis"""
         result = await analyzer.analyze_demo(demo_file)
         
         assert result is not None

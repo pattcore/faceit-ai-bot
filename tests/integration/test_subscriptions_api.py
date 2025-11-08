@@ -1,4 +1,4 @@
-"""
+﻿"""
 Integration тесты для API подписок
 """
 import pytest

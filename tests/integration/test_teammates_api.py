@@ -1,4 +1,4 @@
-"""
+﻿"""
 Integration тесты для API поиска тиммейтов
 """
 import pytest

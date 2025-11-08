@@ -1,4 +1,4 @@
-"""
+﻿"""
 Unit тесты для сервиса платежей
 """
 import pytest
@@ -113,7 +113,7 @@ class TestPaymentService:
             user_id="test_user_id"
         )
         
-        # Тест должен пройти без исключений для валидного запроса
+        # Test should pass without exceptions for valid request
         try:
             payment_service._validate_payment_method(request)
         except Exception as e:

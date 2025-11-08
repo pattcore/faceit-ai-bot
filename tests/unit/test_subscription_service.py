@@ -1,4 +1,4 @@
-"""
+﻿"""
 Unit тесты для сервиса подписок
 """
 import pytest
@@ -89,7 +89,7 @@ class TestSubscriptionService:
         """Тест проверки доступа к функциям для FREE подписки"""
         user_id = "test_user_id"
         
-        # FREE подписка не должна иметь доступа к платным функциям
+        # FREE subscription should not have access to paid features
         has_access = await subscription_service.check_feature_access(user_id, "detailed_analysis")
         assert has_access is False
         
@@ -102,14 +102,14 @@ class TestSubscriptionService:
         user_id = "test_user_id"
         await subscription_service.create_subscription(user_id, SubscriptionTier.BASIC)
         
-        # BASIC подписка должна иметь доступ к базовым функциям
+        # BASIC subscription should have access to basic features
         has_access = await subscription_service.check_feature_access(user_id, "detailed_analysis")
         assert has_access is True
         
         has_access = await subscription_service.check_feature_access(user_id, "teammate_search")
         assert has_access is True
         
-        # Но не к премиум функциям
+        # But not to premium features
         has_access = await subscription_service.check_feature_access(user_id, "ai_coach")
         assert has_access is False
 

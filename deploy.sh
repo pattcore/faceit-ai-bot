@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 
 set -e  # Exit on error
 
@@ -9,7 +9,7 @@ RED='\033[0;31m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🚀 Faceit AI Bot - Деплой${NC}"
+echo -e "${BLUE}Faceit AI Bot - Деплой${NC}"
 echo "=========================================="
 
 # Определяем команду docker compose
@@ -35,7 +35,7 @@ $DOCKER_COMPOSE down
 echo -e "${BLUE}🔨 Сборка сервисов...${NC}"
 $DOCKER_COMPOSE build
 
-echo -e "${BLUE}🚀 Запуск сервисов...${NC}"
+echo -e "${BLUE}Запуск сервисов...${NC}"
 $DOCKER_COMPOSE up -d
 
 echo -e "${YELLOW}⏳ Ожидание запуска сервисов...${NC}"
@@ -43,19 +43,19 @@ sleep 10
 
 # Проверка статуса сервисов
 echo ""
-echo -e "${GREEN}✨ Проверка статуса сервисов:${NC}"
+echo -e "${GREEN}Проверка статуса сервисов:${NC}"
 $DOCKER_COMPOSE ps
 
 echo ""
 echo -e "${GREEN}=========================================="
-echo "✨ Сервисы запущены и доступны:"
+echo "Сервисы запущены и доступны:"
 echo -e "=========================================="${NC}
-echo -e "${BLUE}📱 Frontend (Next.js):${NC}    http://localhost:3000"
-echo -e "${BLUE}🔧 Backend API:${NC}           http://localhost:8000"
-echo -e "${BLUE}🔧 API Docs (Swagger):${NC}    http://localhost:8000/docs"
+echo -e "${BLUE}Frontend (Next.js):${NC}    http://localhost:3000"
+echo -e "${BLUE}Backend API:${NC}           http://localhost:8000"
+echo -e "${BLUE}API Docs (Swagger):${NC}    http://localhost:8000/docs"
 echo -e "${BLUE}💾 PostgreSQL:${NC}            localhost:5432"
 echo ""
-echo -e "${YELLOW}📝 Полезные команды:${NC}"
+echo -e "${YELLOW}Полезные команды:${NC}"
 echo "  $DOCKER_COMPOSE logs -f          - просмотр логов всех сервисов"
 echo "  $DOCKER_COMPOSE logs -f web      - просмотр логов frontend"
 echo "  $DOCKER_COMPOSE logs -f api      - просмотр логов backend"

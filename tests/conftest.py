@@ -8,10 +8,10 @@ from fastapi.testclient import TestClient
 from unittest.mock import Mock, MagicMock, AsyncMock
 import os
 
-# Добавляем путь к корню проекта
+# Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Устанавливаем переменные окружения для тестов
+# Set environment variables for tests
 os.environ["TEST_ENV"] = "true"
 os.environ["DATABASE_URL"] = "sqlite:///./test.db"
 os.environ["SECRET_KEY"] = "test-secret-key-min-32-characters-long-for-testing"
@@ -191,9 +191,9 @@ def mock_demo_analyzer():
 
 @pytest.fixture(autouse=True)
 def cleanup_test_db():
-    """Очистка тестовой базы данных после каждого теста"""
+    """Cleanup test database after each test"""
     yield
-    # Здесь можно добавить логику очистки БД
+    # Database cleanup logic can be added here
     test_db_path = Path("./test.db")
     if test_db_path.exists():
         test_db_path.unlink()

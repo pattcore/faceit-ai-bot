@@ -1,4 +1,4 @@
-"""
+﻿"""
 Integration тесты для API платежей
 """
 import pytest
@@ -45,7 +45,7 @@ class TestPaymentsAPI:
             json=payment_request
         )
         
-        # Может быть 200 или 500 в зависимости от реализации
+        # Can be 200 or 500 depending on implementation
         assert response.status_code in [200, 500]
         
         if response.status_code == 200:
@@ -77,7 +77,7 @@ class TestPaymentsAPI:
             "/payments/status/test_payment_id?provider=YOOKASSA"
         )
         
-        # Может быть 200 или 500 в зависимости от реализации
+        # Can be 200 or 500 depending on implementation
         assert response.status_code in [200, 500]
     
     @patch('src.server.features.payments.service.PaymentService.process_webhook')

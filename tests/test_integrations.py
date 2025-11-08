@@ -1,4 +1,4 @@
-import pytest
+﻿import pytest
 from unittest.mock import patch, MagicMock
 from server.services.external_api_service import ExternalApiService
 from server.services.gpt_service import GptService
@@ -43,7 +43,7 @@ def test_faceit_api_player_stats(mock_faceit_api):
     assert stats["player"]["nickname"] == "test_player"
     assert stats["player"]["games"]["csgo"]["skill_level"] == 7
     
-    # Проверяем, что API был вызван с правильными параметрами
+    # Check that API was called with correct parameters
     mock_faceit_api.assert_called_once()
     assert "Authorization" in mock_faceit_api.call_args.kwargs["headers"]
 
@@ -72,7 +72,7 @@ def test_gpt_service_analysis(mock_gpt_api):
     assert isinstance(analysis, str)
     assert len(analysis) > 0
     
-    # Проверяем, что GPT API был вызван с правильными параметрами
+    # Check that GPT API was called with correct parameters
     mock_gpt_api.assert_called_once()
     call_args = mock_gpt_api.call_args.kwargs
     assert "messages" in call_args
@@ -92,7 +92,7 @@ async def test_api_service_caching():
     """Test кэширования результатов API запросов"""
     api_service = ExternalApiService()
     
-    # Первый запрос должен попасть в API
+    # First request should hit the API
     with patch('server.services.external_api_service.requests.get') as mock_get:
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = {"data": "test"}
@@ -100,9 +100,9 @@ async def test_api_service_caching():
         result1 = await api_service.get_cached_player_stats("test_player")
         assert mock_get.call_count == 1
         
-        # Второй запрос должен взять данные из кэша
+        # Second request should get data from cache
         result2 = await api_service.get_cached_player_stats("test_player")
-        assert mock_get.call_count == 1  # Счетчик вызовов не должен увеличиться
+        assert mock_get.call_count == 1  # Call count should not increase
         
         assert result1 == result2
 
@@ -114,7 +114,7 @@ async def test_concurrent_api_requests():
     async def make_request(player_id):
         return await api_service.get_cached_player_stats(player_id)
     
-    # Делаем несколько одновременных запросов
+    # Make several concurrent requests
     import asyncio
     tasks = [
         make_request(f"player_{i}")

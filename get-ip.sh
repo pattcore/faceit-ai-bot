@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 echo "Внешний IP-адрес сервера:"
 curl -s ifconfig.me
 echo -e "\n"

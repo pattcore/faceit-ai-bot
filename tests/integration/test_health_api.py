@@ -1,4 +1,4 @@
-"""
+﻿"""
 Integration тесты для health check endpoints
 """
 import pytest

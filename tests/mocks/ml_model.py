@@ -1,13 +1,13 @@
-"""
+﻿"""
 This is a mock module for testing purposes
 """
 from typing import Dict, Any
 
 class MockMLModel:
     def predict(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        confidence = 0.95  # Высокая базовая уверенность
+        confidence = 0.95  # High base confidence
         
-        # Если указан порог уверенности, используем его
+        # If confidence threshold is specified, use it
         if "confidence_threshold" in data:
             confidence = max(confidence, float(data["confidence_threshold"]))
             

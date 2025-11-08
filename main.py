@@ -1,6 +1,6 @@
-﻿from fastapi import FastAPI, HTTPException, UploadFile, File, Request
+from fastapi import FastAPI, HTTPException, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 import os
 import logging
 import requests
@@ -127,6 +127,19 @@ class PaymentRequest(BaseModel):
     amount: float
     currency: str
     description: str
+    
+    @validator("amount")
+    def validate_amount(cls, v):
+        if v <= 0:
+            raise ValueError("Amount must be greater than 0")
+        return v
+    
+    @validator("currency")
+    def validate_currency(cls, v):
+        allowed_currencies = ["RUB", "USD", "EUR"]
+        if v not in allowed_currencies:
+            raise ValueError(f"Currency must be one of {allowed_currencies}")
+        return v
 
 class PaymentResponse(BaseModel):
     payment_url: str
@@ -148,6 +161,12 @@ async def disable_auth_dependency(request: Request):
 
 @app.post("/payments/yookassa", response_model=PaymentResponse)
 def create_yookassa_payment(payment: PaymentRequest):
+    if not YOOKASSA_SHOP_ID or not YOOKASSA_SECRET_KEY:
+        raise HTTPException(
+            status_code=500, 
+            detail="YooKassa credentials not configured"
+        )
+    
     headers = {
         "Content-Type": "application/json",
     }
@@ -164,15 +183,21 @@ def create_yookassa_payment(payment: PaymentRequest):
         "description": payment.description,
     }
 
-    response = requests.post(YOOKASSA_API_URL, json=data, headers=headers, auth=auth)
-    if response.status_code != 200:
-        raise HTTPException(status_code=response.status_code, detail=response.json())
+    try:
+        response = requests.post(YOOKASSA_API_URL, json=data, headers=headers, auth=auth, timeout=10)
+        
+        if response.status_code != 200:
+            error_detail = response.json() if response.content else {"error": "Unknown error"}
+            raise HTTPException(status_code=response.status_code, detail=error_detail)
 
-    payment_data = response.json()
-    return PaymentResponse(
-        payment_url=payment_data["confirmation"]["confirmation_url"],
-        status=payment_data["status"],
-    )
+        payment_data = response.json()
+        return PaymentResponse(
+            payment_url=payment_data["confirmation"]["confirmation_url"],
+            status=payment_data["status"],
+        )
+    except requests.exceptions.RequestException as e:
+        logger.error(f"YooKassa API error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Payment service unavailable")
 
 # SBP integration
 SBP_API_URL = os.getenv("SBP_API_URL", "")

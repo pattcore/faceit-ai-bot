@@ -37,10 +37,10 @@ make deploy
 ### Доступные сервисы
 
 После запуска:
-- Frontend**: http://localhost:3000
-- Backend API**: http://localhost:8000
-- API Docs**: http://localhost:8000/docs
-- PostgreSQL**: localhost:5432
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
+- API Docs: http://localhost:8000/docs
+- PostgreSQL: localhost:5432
 
 ## Документация
 

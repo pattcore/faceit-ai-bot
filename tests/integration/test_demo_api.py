@@ -1,4 +1,4 @@
-"""
+﻿"""
 Integration тесты для API анализа демо
 """
 import pytest
@@ -13,8 +13,8 @@ class TestDemoAPI:
     """Тесты для API анализа демо"""
     
     def test_analyze_demo_success(self, client):
-        """Тест успешного анализа демо"""
-        # Создаем мок файла
+        """Test successful demo analysis"""
+        # Create mock file
         demo_file = ("test_demo.dem", BytesIO(b"fake demo content"), "application/octet-stream")
         
         response = client.post(
@@ -22,7 +22,7 @@ class TestDemoAPI:
             files={"demo": demo_file}
         )
         
-        # Проверяем, что запрос обработан (может быть 200 или 500 в зависимости от реализации)
+        # Check that request is processed (can be 200 or 500 depending on implementation)
         assert response.status_code in [200, 500]
         
         if response.status_code == 200:

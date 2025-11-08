@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 
 set -e  # Exit on error
 
@@ -14,7 +14,7 @@ VERSION=$(node -p "require('./package.json').version")
 RELEASE_NAME="faceit-ai-bot-v${VERSION}"
 RELEASE_DIR="releases/${RELEASE_NAME}"
 
-echo -e "${BLUE}🚀 Faceit AI Bot - Создание релиза v${VERSION}${NC}"
+echo -e "${BLUE}Faceit AI Bot - Создание релиза v${VERSION}${NC}"
 echo "=========================================="
 
 # Создаем директорию для релиза
@@ -34,7 +34,7 @@ if [ ! -f "public/background.js" ] || [ ! -f "public/popup.js" ]; then
 fi
 
 # Копируем необходимые файлы
-echo -e "${YELLOW}📦 Копирование файлов...${NC}"
+echo -e "${YELLOW}Копирование файлов...${NC}"
 
 # 1. Browser Extension
 echo "  - Browser Extension..."
@@ -70,25 +70,25 @@ cp README.md "${RELEASE_DIR}/"
 cp LICENSE "${RELEASE_DIR}/" 2>/dev/null || true
 
 # 5. Создаем архив browser extension
-echo -e "${YELLOW}📦 Создание архива расширения для браузера...${NC}"
+echo -e "${YELLOW}Создание архива расширения для браузера...${NC}"
 cd "${RELEASE_DIR}/browser-extension"
 zip -r "../faceit-ai-bot-extension-v${VERSION}.zip" ./* > /dev/null
 cd - > /dev/null
 echo -e "${GREEN}✓ Архив расширения создан: ${RELEASE_DIR}/faceit-ai-bot-extension-v${VERSION}.zip${NC}"
 
 # 6. Создаем полный архив релиза
-echo -e "${YELLOW}📦 Создание полного архива релиза...${NC}"
+echo -e "${YELLOW}Создание полного архива релиза...${NC}"
 cd releases
 tar -czf "${RELEASE_NAME}.tar.gz" "${RELEASE_NAME}" > /dev/null
 cd - > /dev/null
 echo -e "${GREEN}✓ Полный архив создан: releases/${RELEASE_NAME}.tar.gz${NC}"
 
 # 7. Создаем RELEASE_NOTES.md
-echo -e "${YELLOW}📝 Создание release notes...${NC}"
+echo -e "${YELLOW}Создание release notes...${NC}"
 cat > "${RELEASE_DIR}/RELEASE_NOTES.md" << EOF
 # Faceit AI Bot v${VERSION}
 
-## 📦 Что включено в релиз
+## Что включено в релиз
 
 ### 🌐 Browser Extension
 - \`faceit-ai-bot-extension-v${VERSION}.zip\` - готовое расширение для браузера
@@ -103,7 +103,7 @@ cat > "${RELEASE_DIR}/RELEASE_NOTES.md" << EOF
 - README.md - основная документация
 - Примеры конфигурации (.env.example)
 
-## 🚀 Быстрый старт
+## Быстрый старт
 
 ### Установка расширения для браузера
 1. Распакуйте \`faceit-ai-bot-extension-v${VERSION}.zip\`
@@ -129,18 +129,18 @@ chmod +x *.sh
 
 ## 📊 Доступные сервисы после деплоя
 - 🌐 Frontend: http://localhost:3000
-- 🔧 Backend API: http://localhost:8000
+- Backend API: http://localhost:8000
 - 📚 API Docs: http://localhost:8000/docs
 - 💾 PostgreSQL: localhost:5432
 
-## 🔧 Технологии
+## Технологии
 - Frontend: Next.js 15, React 19, TypeScript
 - Backend: FastAPI, Python 3.9+
 - Database: PostgreSQL 16
 - Browser Extension: Webpack, Babel
 - Deployment: Docker, Docker Compose
 
-## 📝 Changelog
+## Changelog
 - Первый релиз проекта
 - Базовая функциональность AI-ассистента
 - Расширение для браузера
@@ -155,7 +155,7 @@ echo -e "${GREEN}✓ Release notes созданы${NC}"
 # Вывод итоговой информации
 echo ""
 echo -e "${GREEN}=========================================="
-echo "✨ Релиз v${VERSION} успешно создан!"
+echo "Релиз v${VERSION} успешно создан!"
 echo -e "==========================================${NC}"
 echo ""
 echo -e "${BLUE}📁 Файлы релиза:${NC}"
@@ -167,11 +167,11 @@ echo "  ├── scripts/"
 echo "  ├── README.md"
 echo "  └── RELEASE_NOTES.md"
 echo ""
-echo -e "${BLUE}📦 Архивы:${NC}"
+echo -e "${BLUE}Архивы:${NC}"
 echo "  releases/${RELEASE_NAME}.tar.gz (полный релиз)"
 echo "  releases/${RELEASE_NAME}/faceit-ai-bot-extension-v${VERSION}.zip (только расширение)"
 echo ""
-echo -e "${YELLOW}📝 Следующие шаги:${NC}"
+echo -e "${YELLOW}Следующие шаги:${NC}"
 echo "  1. Проверьте содержимое: cd releases/${RELEASE_NAME}"
 echo "  2. Протестируйте расширение"
 echo "  3. Создайте GitHub Release с тегом v${VERSION}"
