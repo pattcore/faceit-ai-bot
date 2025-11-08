@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+﻿from fastapi import APIRouter, Depends, HTTPException
 from typing import Dict, Optional
 from ..subscriptions.service import SubscriptionService
 from ..subscriptions.models import Subscription, UserSubscription, SubscriptionTier
@@ -33,7 +33,7 @@ async def create_subscription(user_id: str, tier: SubscriptionTier):
 @router.get("/{user_id}/check-feature")
 async def check_feature_access(user_id: str, feature: str):
     """
-    Проверка доступа к определенной функции для пользователя
+    Check feature access for user
     """
     has_access = await subscription_service.check_feature_access(user_id, feature)
     return {"has_access": has_access}

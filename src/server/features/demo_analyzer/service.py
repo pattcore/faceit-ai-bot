@@ -107,12 +107,12 @@ class DemoAnalyzer:
         }
 
     async def _analyze_player_performance(self, demo_data: Dict) -> Dict[str, PlayerPerformance]:
-        """Анализ производительности игроков"""
+        """Analyze player performance"""
         # ML analysis not implemented
         return {}
 
     async def _analyze_rounds(self, demo_data: Dict) -> List[RoundAnalysis]:
-        """Анализ раундов"""
+        """Analyze rounds"""
         # Round analysis not implemented
         return []
 

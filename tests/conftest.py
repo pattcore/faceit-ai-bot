@@ -1,4 +1,4 @@
-"""
+﻿"""
 Глобальные фикстуры для тестов
 """
 import pytest
@@ -98,7 +98,7 @@ def payment_request():
     return {
         "amount": 500.0,
         "currency": "RUB",
-        "description": "Оплата анализа демки",
+        "description": "Demo analysis payment",
         "provider": "YOOKASSA",
         "user_id": "test_user_id"
     }

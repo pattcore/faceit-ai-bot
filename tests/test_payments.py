@@ -17,7 +17,7 @@ def payment_request():
     return {
         "amount": 500.0,
         "currency": "RUB",
-        "description": "Оплата анализа демки",
+        "description": "Demo analysis payment",
     }
 
 # Обновил тесты для использования заглушек и корректных данных

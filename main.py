@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, Request
+﻿from fastapi import FastAPI, HTTPException, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
@@ -50,7 +50,7 @@ def health_check():
 @app.post("/analyze-demo")
 async def analyze_demo(demo: UploadFile = File(...)):
     """
-    Анализ демки CS2 с использованием модели машинного обучения
+    CS2 demo analysis using machine learning model
     """
     if not demo.filename.endswith('.dem'):
         return {"error": "Invalid file format. Only .dem files are supported"}

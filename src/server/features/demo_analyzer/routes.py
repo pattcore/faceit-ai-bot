@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, File, UploadFile
+﻿from fastapi import APIRouter, Depends, File, UploadFile
 from typing import List, Dict
 from ..demo_analyzer.service import DemoAnalyzer
 from ..demo_analyzer.models import DemoAnalysis
@@ -18,14 +18,14 @@ demo_analyzer = DemoAnalyzer()
 @router.post(
     "/analyze",
     response_model=DemoAnalysis,
-    summary="Анализ демо-файла",
-    description="Анализирует загруженный демо-файл CS2 и возвращает детальный анализ",
+    summary="Demo file analysis",
+    description="Analyzes uploaded CS2 demo file and returns detailed analysis",
     responses={
         200: {
-            "description": "Анализ успешно выполнен"
+            "description": "Analysis completed successfully"
         },
         400: {
-            "description": "Невалидный файл",
+            "description": "Invalid file",
             "content": {
                 "application/json": {
                     "example": {
@@ -42,7 +42,7 @@ demo_analyzer = DemoAnalyzer()
 )
 async def analyze_demo(demo: UploadFile = File(...)):
     """
-    Анализ демо файла CS2
+    CS2 demo file analysis
     
     Принимает демо-файл в формате .dem и возвращает детальный анализ игры,
     включая производительность игроков, анализ раундов и рекомендации.

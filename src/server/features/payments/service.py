@@ -57,7 +57,7 @@ class PaymentService:
         payment_id: str,
         provider: PaymentProvider
     ) -> PaymentStatus:
-        """Проверка статуса платежа"""
+        """Check payment status"""
         try:
             if provider == PaymentProvider.SBP:
                 return await self._check_sbp_status(payment_id)
@@ -187,7 +187,7 @@ class PaymentService:
             raise
 
     def _validate_payment_method(self, request: PaymentRequest):
-        """Проверка доступности метода оплаты для региона"""
+        """Check payment method availability for region"""
         region = self._detect_region(request)
         region_config = REGION_PAYMENT_CONFIG.get(region)
         

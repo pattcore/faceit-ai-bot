@@ -1,4 +1,4 @@
-import pytest
+﻿import pytest
 from fastapi.testclient import TestClient
 from src.server.main import create_app
 import os
@@ -22,7 +22,7 @@ def payment_request():
     return {
         "amount": 500.0,
         "currency": "RUB",
-        "description": "Оплата анализа демки"
+        "description": "Demo analysis payment"
     }
 
 @pytest.fixture

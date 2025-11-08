@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+﻿from fastapi import APIRouter, Depends, HTTPException, Header
 from typing import Optional, Dict
 from .service import PaymentService
 from .models import (
@@ -53,7 +53,7 @@ async def check_payment_status(
     payment_service: PaymentService = Depends(get_payment_service)
 ) -> PaymentStatus:
     """
-    Проверка статуса платежа
+    Check payment status
     """
     return await payment_service.check_payment_status(payment_id, provider)
 

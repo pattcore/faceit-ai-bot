@@ -127,7 +127,7 @@ class SubscriptionService:
         user_id: str,
         feature: str
     ) -> bool:
-        """Проверка доступа к определенной функции"""
+        """Check feature access"""
         try:
             subscription = await self.get_user_subscription(user_id)
             plan = self.subscription_plans[subscription.subscription_tier]

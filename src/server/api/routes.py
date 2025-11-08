@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, File, UploadFile
+﻿from fastapi import APIRouter, Depends, File, UploadFile
 from ..services.ml import MLService
 from ..services.payment import PaymentService
 from ..models.payment import PaymentRequest, PaymentResponse
@@ -30,11 +30,11 @@ async def get_voice_commands():
     """Get available voice commands"""
     return {
         "available_commands": [
-            {"command": "analyze round", "description": "Анализ текущего раунда"},
-            {"command": "team strategy", "description": "Рекомендации по командной тактике"},
-            {"command": "economy advice", "description": "Советы по экономике"},
-            {"command": "position check", "description": "Проверка позиции"},
-            {"command": "utility usage", "description": "Советы по использованию утилит"}
+            {"command": "analyze round", "description": "Analyze current round"},
+            {"command": "team strategy", "description": "Team strategy recommendations"},
+            {"command": "economy advice", "description": "Economy advice"},
+            {"command": "position check", "description": "Position check"},
+            {"command": "utility usage", "description": "Utility usage advice"}
         ],
         "languages_supported": ["ru", "en"],
         "status": "active"
