@@ -1,4 +1,4 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 
 // Пример сбора данных пользователей
 function collectUserData(userId, action, result) {
@@ -11,7 +11,7 @@ function collectUserData(userId, action, result) {
 
   // Сохранение данных в файл
   fs.appendFileSync('user_data.json', JSON.stringify(data) + '\n');
-  console.log('Данные сохранены:', data);
+  
 }
 
 module.exports = { collectUserData };

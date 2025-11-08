@@ -1,4 +1,4 @@
-const tf = require('@tensorflow/tfjs-node');
+﻿const tf = require('@tensorflow/tfjs-node');
 const fs = require('fs');
 
 // Загрузка данных из файла
@@ -36,7 +36,7 @@ async function trainModel() {
     loss: 'meanSquaredError',
   });
 
-  console.log('Начало обучения модели...');
+  
 
   await model.fit(trainingData, outputData, {
     epochs: 100,
@@ -47,7 +47,7 @@ async function trainModel() {
     },
   });
 
-  console.log('Обучение завершено.');
+  
 
   // Сохранение модели
   await model.save('file://./model');

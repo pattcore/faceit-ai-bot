@@ -137,12 +137,11 @@ YOOKASSA_API_URL = "https://api.yookassa.ru/v3/payments"
 YOOKASSA_SHOP_ID = "your_shop_id"
 YOOKASSA_SECRET_KEY = "your_secret_key"
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 async def disable_auth_dependency(request: Request):
     test_env = os.getenv("TEST_ENV")
-    logger.debug(f"TEST_ENV: {test_env}")
     if test_env == "true":
         return
     raise HTTPException(status_code=401, detail="Unauthorized")
@@ -188,11 +187,5 @@ def create_sbp_payment_stub(payment: PaymentRequest):
 
 @app.middleware("http")
 async def log_request_middleware(request: Request, call_next):
-    logger.debug(f"Incoming request: {request.method} {request.url}")
     response = await call_next(request)
-    logger.debug(f"Response status: {response.status_code}")
     return response
-
-@app.get("/debug-env")
-def debug_env():
-    return {"TEST_ENV": os.getenv("TEST_ENV")}

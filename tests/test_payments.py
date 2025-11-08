@@ -73,8 +73,6 @@ def test_sbp_payment_service_unavailable(payment_request):
             status=503,
             json={"error": "Service unavailable"}
         )
-        # Отладочный вывод для проверки URL и заголовков
-        print("Mocked URLs:", rsps.calls)
         response = client.post("/payments/sbp", json=payment_request)
         assert response.status_code == 503
         data = response.json()

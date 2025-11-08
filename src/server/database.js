@@ -1,4 +1,4 @@
-const { Sequelize } = require('sequelize');
+﻿const { Sequelize } = require('sequelize');
 
 // Initialize Sequelize with SQLite for simplicity
 const sequelize = new Sequelize({
@@ -41,7 +41,7 @@ Subscription.belongsTo(User);
 
 // Sync database
 sequelize.sync({ force: true }).then(() => {
-  console.log('Database & tables created!');
+  
 });
 
 module.exports = { sequelize, User, Subscription };
