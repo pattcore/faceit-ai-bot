@@ -2,6 +2,8 @@
 name: Deploy to VPS
 
 # Automatic deployment to VPS (pattmsc.online)
+# Note: IDE warnings about "Context access might be invalid" for secrets are false positives
+# Secrets are defined in .github/actionlint.yml and will be available at runtime
 # Required GitHub Secrets configuration:
 # - VPS_SSH_PRIVATE_KEY (required)
 # - VPS_HOST (default: pattmsc.online)
