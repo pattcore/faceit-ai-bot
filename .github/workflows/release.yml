@@ -34,8 +34,31 @@ jobs:
             echo "version=v$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
           fi
       
-      - name: Create releases directory
-        run: mkdir -p dist/releases
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build extension
+        run: npm run webpack:build
+      
+      - name: Create extension packages
+        run: |
+          mkdir -p dist/releases
+          
+          # Chrome/Edge/Opera (ZIP)
+          if [ -d "dist/chrome" ]; then
+            cd dist
+            zip -r releases/faceit-ai-bot-chrome-${{ steps.version.outputs.version }}.zip chrome/
+            zip -r releases/faceit-ai-bot-edge-${{ steps.version.outputs.version }}.zip chrome/
+            zip -r releases/faceit-ai-bot-opera-${{ steps.version.outputs.version }}.zip chrome/
+            cd ..
+          fi
+          
+          # Firefox (XPI)
+          if [ -d "dist/firefox" ]; then
+            cd dist/firefox
+            zip -r ../releases/faceit-ai-bot-firefox-${{ steps.version.outputs.version }}.xpi *
+            cd ../..
+          fi
       
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -88,6 +111,13 @@ jobs:
           
           ### ⬇️ Скачать
           
+          #### 🧩 Расширение для браузера
+          
+          - **Chrome**: `faceit-ai-bot-chrome-${{ steps.version.outputs.version }}.zip`
+          - **Firefox**: `faceit-ai-bot-firefox-${{ steps.version.outputs.version }}.xpi`
+          - **Edge**: `faceit-ai-bot-edge-${{ steps.version.outputs.version }}.zip`
+          - **Opera**: `faceit-ai-bot-opera-${{ steps.version.outputs.version }}.zip`
+          
           #### 🐳 Docker
           
           - **Docker Compose**: `faceit-ai-bot-docker-${{ steps.version.outputs.version }}.tar.gz`
@@ -122,6 +152,8 @@ jobs:
           name: Release ${{ steps.version.outputs.version }}
           body_path: release_notes.md
           files: |
+            dist/releases/*.zip
+            dist/releases/*.xpi
             dist/*.tar.gz
           draft: false
           prerelease: false
@@ -134,8 +166,31 @@ jobs:
           # Создать структуру для загрузки
           mkdir -p website-upload/downloads
           
-          # Копировать Docker Compose пакет
-          cp dist/faceit-ai-bot-docker-${{ steps.version.outputs.version }}.tar.gz website-upload/downloads/faceit-ai-bot-docker.tar.gz 2>/dev/null || true
+          # Копировать все релизы
+          cp dist/releases/*.zip website-upload/downloads/ 2>/dev/null || true
+          cp dist/releases/*.xpi website-upload/downloads/ 2>/dev/null || true
+          cp dist/*.tar.gz website-upload/downloads/ 2>/dev/null || true
+          
+          # Переименовать файлы для постоянных ссылок (latest)
+          if [ -f "dist/releases/faceit-ai-bot-chrome-${{ steps.version.outputs.version }}.zip" ]; then
+            cp dist/releases/faceit-ai-bot-chrome-${{ steps.version.outputs.version }}.zip website-upload/downloads/faceit-ai-bot-chrome.zip
+          fi
+          
+          if [ -f "dist/releases/faceit-ai-bot-firefox-${{ steps.version.outputs.version }}.xpi" ]; then
+            cp dist/releases/faceit-ai-bot-firefox-${{ steps.version.outputs.version }}.xpi website-upload/downloads/faceit-ai-bot-firefox.xpi
+          fi
+          
+          if [ -f "dist/releases/faceit-ai-bot-edge-${{ steps.version.outputs.version }}.zip" ]; then
+            cp dist/releases/faceit-ai-bot-edge-${{ steps.version.outputs.version }}.zip website-upload/downloads/faceit-ai-bot-edge.zip
+          fi
+          
+          if [ -f "dist/releases/faceit-ai-bot-opera-${{ steps.version.outputs.version }}.zip" ]; then
+            cp dist/releases/faceit-ai-bot-opera-${{ steps.version.outputs.version }}.zip website-upload/downloads/faceit-ai-bot-opera.zip
+          fi
+          
+          if [ -f "dist/faceit-ai-bot-docker-${{ steps.version.outputs.version }}.tar.gz" ]; then
+            cp dist/faceit-ai-bot-docker-${{ steps.version.outputs.version }}.tar.gz website-upload/downloads/faceit-ai-bot-docker.tar.gz
+          fi
           
           echo "📦 Files prepared for upload to pattmsc.online"
           ls -lah website-upload/downloads/
