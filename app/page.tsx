@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import DemoUpload from '../components/DemoUpload';
 import TeammateChat from '../src/components/TeammateChat';
 import NotificationSystem from '../src/components/NotificationSystem';
+import { API_ENDPOINTS } from '../src/config/api';
 
 export default function DemoPage() {
   const [analysisResult, setAnalysisResult] = useState(null);
@@ -16,7 +17,7 @@ export default function DemoPage() {
       const formData = new FormData();
       formData.append('demo', file);
 
-      const response = await fetch('http://localhost:8000/analyze-demo', {
+      const response = await fetch(API_ENDPOINTS.DEMO_ANALYZE, {
         method: 'POST',
         body: formData,
       });
@@ -32,7 +33,7 @@ export default function DemoPage() {
 
   const handlePayment = async () => {
     try {
-      const response = await fetch('http://localhost:8000/payments/yookassa', {
+      const response = await fetch(API_ENDPOINTS.PAYMENTS_CREATE, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,6 +42,7 @@ export default function DemoPage() {
           amount: 500,
           currency: 'RUB',
           description: 'Оплата анализа демки',
+          provider: 'YOOKASSA',
         }),
       });
 
@@ -53,7 +55,7 @@ export default function DemoPage() {
 
   const handleSBPPayment = async () => {
     try {
-      const response = await fetch('http://localhost:8000/payments/sbp', {
+      const response = await fetch(API_ENDPOINTS.PAYMENTS_CREATE, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,6 +64,7 @@ export default function DemoPage() {
           amount: 500,
           currency: 'RUB',
           description: 'Оплата анализа демки через СБП',
+          provider: 'SBP',
         }),
       });
 

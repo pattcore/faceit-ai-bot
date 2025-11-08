@@ -1,18 +1,46 @@
-from pydantic import BaseModel
+try:
+    from pydantic_settings import BaseSettings
+except ImportError:
+    # Fallback for older pydantic versions
+    from pydantic import BaseSettings
+
+from pydantic import validator
 from functools import lru_cache
 import os
 from typing import List, Optional
 
-class Settings(BaseModel):
+class Settings(BaseSettings):
     # App settings
     APP_TITLE: str = "Faceit AI Bot Service"
     APP_VERSION: str = "0.2.0"
     NODE_ENV: str = "production"
     REPLIT_DEV_DOMAIN: Optional[str] = None
     
+    # Database settings
+    DATABASE_URL: str = "postgresql://user:password@localhost:5432/faceit_ai_bot"
+    
+    # Faceit API settings
+    FACEIT_API_KEY: Optional[str] = None
+    
+    # Security settings
+    SECRET_KEY: str = "change-me-in-production-min-32-characters-long"
+    ALGORITHM: str = "HS256"
+    
     # Payment settings
     WEBSITE_URL: str = "http://localhost:3000"
     API_URL: str = "http://localhost:8000"
+    
+    @validator('DATABASE_URL')
+    def validate_database_url(cls, v):
+        if not v.startswith(('postgresql://', 'postgresql+asyncpg://', 'sqlite://')):
+            raise ValueError('Invalid database URL. Must start with postgresql://, postgresql+asyncpg://, or sqlite://')
+        return v
+    
+    @validator('SECRET_KEY')
+    def validate_secret_key(cls, v):
+        if len(v) < 32:
+            raise ValueError('SECRET_KEY must be at least 32 characters long for security')
+        return v
     
     # СБП API settings
     SBP_TINKOFF_API_URL: str = "https://securepay.tinkoff.ru/v2"
@@ -36,11 +64,6 @@ class Settings(BaseModel):
     # Crypto settings (Binance API)
     BINANCE_API_KEY: Optional[str] = None
     BINANCE_SECRET_KEY: Optional[str] = None
-    
-    # Stripe settings (для нероссийских платежей)
-    STRIPE_API_URL: str = "https://api.stripe.com"
-    STRIPE_SECRET_KEY: Optional[str] = None
-    STRIPE_PUBLISHABLE_KEY: Optional[str] = None
     
     # PayPal settings (для нероссийских платежей)
     PAYPAL_API_URL: str = "https://api.paypal.com"
@@ -69,11 +92,21 @@ class Settings(BaseModel):
     SBP_API_URL: Optional[str] = None
     SBP_TOKEN: Optional[str] = None
 
+    # Redis settings (для кэширования)
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    REDIS_PASSWORD: Optional[str] = None
+    
     # Test settings
     TEST_ENV: bool = False
 
     class Config:
         env_file = ".env"
+        env_file_encoding = "utf-8"
         case_sensitive = True
 
-settings = Settings()
+@lru_cache()
+def get_settings() -> Settings:
+    return Settings()
+
+settings = get_settings()

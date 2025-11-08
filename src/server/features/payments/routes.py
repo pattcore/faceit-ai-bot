@@ -10,9 +10,19 @@ from .models import (
     RegionPaymentMethods
 )
 import logging
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).parent.parent.parent))
+from config.settings import settings
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/payments", tags=["payments"])
+
+
+def get_payment_service() -> PaymentService:
+    """Dependency для получения сервиса платежей"""
+    return PaymentService(settings)
 
 @router.get("/methods/{region}")
 async def get_payment_methods(region: str) -> RegionPaymentMethods:
@@ -29,7 +39,7 @@ async def get_payment_methods(region: str) -> RegionPaymentMethods:
 @router.post("/create", response_model=PaymentResponse)
 async def create_payment(
     request: PaymentRequest,
-    payment_service: PaymentService = Depends()
+    payment_service: PaymentService = Depends(get_payment_service)
 ):
     """
     Создание нового платежа
@@ -40,7 +50,7 @@ async def create_payment(
 async def check_payment_status(
     payment_id: str,
     provider: PaymentProvider,
-    payment_service: PaymentService = Depends()
+    payment_service: PaymentService = Depends(get_payment_service)
 ) -> PaymentStatus:
     """
     Проверка статуса платежа
@@ -51,7 +61,7 @@ async def check_payment_status(
 async def sbp_webhook(
     data: Dict,
     signature: Optional[str] = Header(None),
-    payment_service: PaymentService = Depends()
+    payment_service: PaymentService = Depends(get_payment_service)
 ):
     """
     Вебхук для СБП платежей
@@ -63,7 +73,7 @@ async def sbp_webhook(
 async def yookassa_webhook(
     data: Dict,
     signature: Optional[str] = Header(None),
-    payment_service: PaymentService = Depends()
+    payment_service: PaymentService = Depends(get_payment_service)
 ):
     """
     Вебхук для ЮKassa платежей
@@ -75,7 +85,7 @@ async def yookassa_webhook(
 async def qiwi_webhook(
     data: Dict,
     signature: Optional[str] = Header(None),
-    payment_service: PaymentService = Depends()
+    payment_service: PaymentService = Depends(get_payment_service)
 ):
     """
     Вебхук для QIWI платежей
