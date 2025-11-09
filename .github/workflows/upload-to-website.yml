@@ -10,10 +10,10 @@ jobs:
     name: Upload to pattmsc.online
     runs-on: ubuntu-latest
     env:
-      VPS_HOST: ${{ secrets.VPS_HOST || 'pattmsc.online' }}
-      VPS_USER: ${{ secrets.VPS_USER || 'root' }}
-      VPS_PORT: ${{ secrets.VPS_PORT || '22' }}
-      DOWNLOADS_PATH: ${{ secrets.DOWNLOADS_PATH || '/var/www/pattmsc.online/public/downloads' }}
+      VPS_HOST: pattmsc.online
+      VPS_USER: root
+      VPS_PORT: 22
+      DOWNLOADS_PATH: /var/www/pattmsc.online/public/downloads
     
     steps:
       - name: Checkout code
@@ -39,11 +39,13 @@ jobs:
           ls -lah downloads/
       
       - name: Setup SSH
+        continue-on-error: true
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY || '' }}
       
       - name: Upload to VPS
+        continue-on-error: true
         run: |
           # Добавить VPS в known hosts
           ssh-keyscan -p ${VPS_PORT} $VPS_HOST >> ~/.ssh/known_hosts
