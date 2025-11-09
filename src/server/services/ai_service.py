@@ -33,12 +33,12 @@ class AIService:
         Анализ игрока с помощью AI
         
         Args:
-            nickname: Никнейм игрока
-            stats: Статистика игрока
-            match_history: История matches
+            nickname: Player nickname
+            stats: Player statistics
+            match_history: Match history
             
         Returns:
-            Детальный AI-анализ
+            Detailed analysis
         """
         if not self.groq_api_key:
             return self._get_rule_based_analysis(stats)
@@ -78,21 +78,21 @@ class AIService:
             recent_matches = match_history[:5]
             recent_performance = f"Last {len(recent_matches)} matches"
         
-        prompt = f"""Ты - профессиональный аналитик CS2. Проанализируй игрока и дай конкретные рекомендации.
+        prompt = f"""You are a professional CS2 analyst. Analyze the player and provide specific recommendations.
 
-Игрок: {nickname}
-Уровень Faceit: {level}
+Player: {nickname}
+Faceit Level: {level}
 ELO: {elo}
 
-Статистика:
+Statistics:
 - K/D Ratio: {kd}
 - Win Rate: {win_rate}%
 - Headshot %: {hs_pct}%
-- Сыграно matches: {matches}
+- Matches played: {matches}
 
 {recent_performance}
 
-Дай анализ в формате JSON:
+Provide analysis in JSON format:
 {{
   "strengths": {{
     "aim": <оценка 1-10>,
@@ -114,10 +114,10 @@ ELO: {elo}
     "estimated_time": "2-4 weeks"
   }},
   "overall_rating": <1-10>,
-  "detailed_analysis": "Детальный анализ игрока на русском языке (2-3 предложения)"
+  "detailed_analysis": "Detailed player analysis in Russian (2-3 sentences)"
 }}
 
-Отвечай ТОЛЬКО JSON, без дополнительного текста."""
+Reply ONLY with JSON, no additional text."""
 
         return prompt
     
@@ -201,19 +201,19 @@ ELO: {elo}
         
         if kd < 1.0:
             weaknesses.append("aim")
-            recommendations.append("Практиковать aim на aim_botz и aim_training картах")
+            recommendations.append("Practice aim on aim_botz and aim_training maps")
         
         if hs_pct < 40:
             weaknesses.append("headshot accuracy")
-            recommendations.append("Играть в headshot-only режимах")
+            recommendations.append("Play headshot-only modes")
         
         if win_rate < 50:
             weaknesses.append("game sense")
-            recommendations.append("Изучать профессиональные матчи и тактики")
+            recommendations.append("Study professional matches and tactics")
         
         if not weaknesses:
             weaknesses = ["consistency"]
-            recommendations = ["Продолжать поддерживать текущий уровень"]
+            recommendations = ["Continue maintaining current skill level"]
         
         overall = int((aim_score + game_sense_score + positioning_score + teamwork_score + consistency_score) / 5)
         
@@ -236,13 +236,13 @@ ELO: {elo}
                     {
                         "name": "Aim Training",
                         "duration": "30 minutes",
-                        "description": "Тренировка прицеливания"
+                        "description": "Aim training"
                     }
                 ],
                 "estimated_time": "2-4 weeks"
             },
             "overall_rating": max(1, overall),
-            "detailed_analysis": f"Игрок показывает {'хорошие' if overall >= 6 else 'средние'} результаты. Основные области для улучшения: {', '.join(weaknesses)}."
+            "detailed_analysis": f"Player shows {'good' if overall >= 6 else 'average'} results. Main areas for improvement: {', '.join(weaknesses)}."
         }
     
     async def generate_training_plan(
@@ -291,7 +291,7 @@ ELO: {elo}
             exercises.append({
                 "name": "Aim Training",
                 "duration": "30 minutes",
-                "description": "Тренировка на aim_botz",
+                "description": "Training on aim_botz",
                 "maps": ["aim_botz", "aim_training"]
             })
         
@@ -299,7 +299,7 @@ ELO: {elo}
             exercises.append({
                 "name": "Headshot Practice",
                 "duration": "20 minutes",
-                "description": "Headshot-only режим",
+                "description": "Headshot-only mode",
                 "maps": ["aim_botz"]
             })
         
@@ -309,10 +309,10 @@ ELO: {elo}
                 {
                     "name": "General Practice",
                     "duration": "1 hour",
-                    "description": "Общая практика",
+                    "description": "General practice",
                     "maps": ["de_dust2", "de_mirage"]
                 }
             ],
-            "weekly_goals": ["Улучшить статистику", "Повысить consistency"],
+            "weekly_goals": ["Improve statistics", "Improve consistency"],
             "estimated_time": "2-4 weeks"
         }

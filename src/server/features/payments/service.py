@@ -219,7 +219,7 @@ class PaymentService:
         elif request.currency == Currency.EUR:
             return "EU"
         else:
-            return "US"  # значение по умолчанию
+            return "US"  # значение by default
 
     async def process_webhook(self, provider: PaymentProvider, data: Dict) -> None:
         """Обработка вебхуков от платежных систем"""

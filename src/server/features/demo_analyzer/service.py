@@ -150,13 +150,13 @@ class DemoAnalyzer:
         return recommendations[:10]  # Максимум 10 рекомендаций
     
     def _get_default_recommendations(self) -> List[str]:
-        """Дефолтные рекомендации"""
+        """Default recommendations"""
         return [
-            "Улучшить aim в голову",
-            "Работать над экономикой команды",
-            "Улучшить использование утилит",
-            "Практиковать позиционирование",
-            "Изучить тайминги на картах"
+            "Improve headshot aim",
+            "Work on team economy",
+            "Improve utility usage",
+            "Practice positioning",
+            "Learn map timings"
         ]
 
     async def _identify_improvement_areas(

@@ -65,7 +65,7 @@ class RateLimiter:
         # Clean old requests
         self.minute_requests[client_ip] = self._clean_old_requests(
             self.minute_requests[client_ip],
-            60  # 1 minutesа
+            60  # 1 minute
         )
         self.hour_requests[client_ip] = self._clean_old_requests(
             self.hour_requests[client_ip],

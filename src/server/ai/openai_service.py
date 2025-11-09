@@ -72,7 +72,7 @@ class OpenAIService:
         Генерация персонального плана тренировок
         
         Args:
-            player_stats: Статистика игрока
+            player_stats: Player statistics
             focus_areas: Области для улучшения
             
         Returns:
@@ -85,7 +85,7 @@ class OpenAIService:
             prompt = f"""
             Создай детальный план тренировок для CS2 игрока:
             
-            Статистика:
+            Statistics:
             - K/D: {player_stats.get('kd_ratio', 'N/A')}
             - Headshot %: {player_stats.get('hs_percentage', 'N/A')}
             - Win Rate: {player_stats.get('win_rate', 'N/A')}
@@ -140,7 +140,7 @@ class OpenAIService:
                 {
                     "name": "Aim Training",
                     "duration": 30,
-                    "description": "Тренировка прицеливания на aim_botz"
+                    "description": "Aim training на aim_botz"
                 },
                 {
                     "name": "Spray Control",

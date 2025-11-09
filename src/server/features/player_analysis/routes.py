@@ -23,7 +23,7 @@ async def analyze_player(
     Анализ игрока по никнейму
     
     Args:
-        nickname: Никнейм игрока на Faceit
+        nickname: Player nickname на Faceit
         
     Returns:
         Детальный анализ игрока с рекомендациями
@@ -55,10 +55,10 @@ async def get_player_stats(
     Получить статистику игрока
     
     Args:
-        nickname: Никнейм игрока
+        nickname: Player nickname
         
     Returns:
-        Статистика игрока
+        Player statistics
     """
     try:
         stats = await service.get_player_stats(nickname)
@@ -85,14 +85,14 @@ async def get_player_matches(
     service: PlayerAnalysisService = Depends()
 ):
     """
-    Получить историю matches игрока
+    Get player match history
     
     Args:
-        nickname: Никнейм игрока
-        limit: Количество matches (по умолчанию 20)
+        nickname: Player nickname
+        limit: Number of matches (by default 20)
         
     Returns:
-        История matches
+        Match history
     """
     try:
         matches = await service.get_player_matches(nickname, limit)

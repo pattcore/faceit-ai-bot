@@ -30,7 +30,7 @@ class FaceitAPIClient:
         Получить информацию об игроке по никнейму
         
         Args:
-            nickname: Никнейм игрока на Faceit
+            nickname: Player nickname на Faceit
             
         Returns:
             Информация об игроке или None
@@ -61,10 +61,10 @@ class FaceitAPIClient:
         
         Args:
             player_id: ID игрока на Faceit
-            game: Игра (по умолчанию cs2)
+            game: Игра (by default cs2)
             
         Returns:
-            Статистика игрока
+            Player statistics
         """
         if not self.api_key:
             return self._get_mock_stats()
@@ -91,12 +91,12 @@ class FaceitAPIClient:
         limit: int = 20
     ) -> List[Dict]:
         """
-        Получить историю matches игрока
+        Get player match history
         
         Args:
             player_id: ID игрока
             game: Игра
-            limit: Количество matches
+            limit: Number of matches
             
         Returns:
             Список matches

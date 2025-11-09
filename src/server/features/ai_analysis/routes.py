@@ -67,7 +67,7 @@ async def analyze_player(request: PlayerAnalysisRequest):
             'avg_damage': float(lifetime_stats.get('Average K/D Ratio', '1.0'))
         }
         
-        # Получение истории matches
+        # Fetch match history
         player_id = request.faceit_id or player_data['player_id']
         match_history = await faceit_client.get_match_history(player_id, limit=20)
         
