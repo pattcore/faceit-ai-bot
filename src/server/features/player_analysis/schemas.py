@@ -84,7 +84,7 @@ class PlayerAnalysisResponse(BaseModel):
                     "priority": "positioning",
                     "recommendations": [
                         "Практиковать удержание позиций",
-                        "Изучить карты детальнее"
+                        "Изучить cardsы детальнее"
                     ]
                 },
                 "training_plan": {

@@ -129,8 +129,8 @@ class FaceitAPIClient:
         Search players by nickname
         
         Args:
-            nickname: Никнейм for поиска
-            country: Страна (опционально)
+            nickname: Nickname for search
+            country: Country (optional)
             limit: Result limit
             
         Returns:
@@ -159,7 +159,7 @@ class FaceitAPIClient:
             return []
     
     def _get_mock_stats(self) -> Dict:
-        """Моковые данные for тестирования"""
+        """Mock data for testing"""
         return {
             "lifetime": {
                 "K/D Ratio": "1.15",

@@ -8,7 +8,7 @@ class PaymentProvider(str, Enum):
     SBP_SBERBANK = "sbp_sberbank"
     SBP_VTB = "sbp_vtb"
     SBP_ALPHA = "sbp_alpha"
-    STRIPE = "stripe"  # for международных карт
+    STRIPE = "stripe"  # for international cards
     CRYPTO = "crypto"
 
 class Currency(str, Enum):
@@ -67,7 +67,7 @@ class PaymentStatus(BaseModel):
     created_at: datetime
     paid_at: Optional[datetime]
 
-# Региональные настройки платежей
+# Региональные настройки payments
 REGION_PAYMENT_CONFIG = {
     "RU": RegionPaymentMethods(
         region="RU",

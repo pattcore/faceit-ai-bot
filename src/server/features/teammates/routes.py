@@ -19,6 +19,6 @@ async def search_teammates(preferences: TeammatePreferences, user_id: str):
 @router.put("/preferences", response_model=TeammatePreferences)
 async def update_preferences(preferences: TeammatePreferences, user_id: str):
     """
-    Обновление предпочтений поиска тиммейтов
+    Обновление предпочтений search тиммейтов
     """
     return await teammate_service.update_preferences(user_id, preferences)

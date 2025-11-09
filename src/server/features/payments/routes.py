@@ -21,7 +21,7 @@ router = APIRouter(prefix="/payments", tags=["payments"])
 
 
 def get_payment_service() -> PaymentService:
-    """Dependency for получения сервиса платежей"""
+    """Dependency for получения сервиса payments"""
     return PaymentService(settings)
 
 @router.get("/methods/{region}")
@@ -64,7 +64,7 @@ async def sbp_webhook(
     payment_service: PaymentService = Depends(get_payment_service)
 ):
     """
-    Вебхук for СБП платежей
+    Вебхук for СБП payments
     """
     await payment_service.process_webhook(PaymentProvider.SBP, data)
     return {"status": "success"}
@@ -76,7 +76,7 @@ async def yookassa_webhook(
     payment_service: PaymentService = Depends(get_payment_service)
 ):
     """
-    Вебхук for ЮKassa платежей
+    Вебхук for ЮKassa payments
     """
     await payment_service.process_webhook(PaymentProvider.YOOKASSA, data)
     return {"status": "success"}
@@ -88,7 +88,7 @@ async def qiwi_webhook(
     payment_service: PaymentService = Depends(get_payment_service)
 ):
     """
-    Вебхук for QIWI платежей
+    Вебхук for QIWI payments
     """
     await payment_service.process_webhook(PaymentProvider.QIWI, data)
     return {"status": "success"}

@@ -61,7 +61,7 @@ class Settings(BaseSettings):
     SBP_ALPHA_API_URL: str = "https://alfabank.ru/api"
     SBP_ALPHA_TOKEN: Optional[str] = None
     
-    # Stripe settings (for международных карт)
+    # Stripe settings (for international cards)
     STRIPE_API_URL: str = "https://api.stripe.com"
     STRIPE_SECRET_KEY: Optional[str] = None
     STRIPE_PUBLISHABLE_KEY: Optional[str] = None
@@ -70,7 +70,7 @@ class Settings(BaseSettings):
     BINANCE_API_KEY: Optional[str] = None
     BINANCE_SECRET_KEY: Optional[str] = None
     
-    # PayPal settings (for нероссийских платежей)
+    # PayPal settings (for non-Russian payments)
     PAYPAL_API_URL: str = "https://api.paypal.com"
     PAYPAL_CLIENT_ID: Optional[str] = None
     PAYPAL_SECRET_KEY: Optional[str] = None
@@ -95,7 +95,7 @@ class Settings(BaseSettings):
     SBP_API_URL: Optional[str] = None
     SBP_TOKEN: Optional[str] = None
 
-    # Redis settings (for кэширования)
+    # Redis settings (for caching)
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: Optional[str] = None

@@ -13,7 +13,7 @@ class BaseAPIException(HTTPException):
 
 
 class PaymentException(BaseAPIException):
-    """Исключение при обработке платежей"""
+    """Исключение при обработке payments"""
     def __init__(self, detail: str, error_code: Optional[str] = None):
         super().__init__(status_code=400, detail=detail, error_code=error_code or "PAYMENT_ERROR")
 
