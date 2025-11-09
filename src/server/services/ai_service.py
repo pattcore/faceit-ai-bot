@@ -270,7 +270,7 @@ Create plan in JSON format:
       "maps": ["map1", "map2"]
     }}
   ],
-  "weekly_goals": ["цель1", "цель2"],
+  "weekly_goals": ["goal1", "goal2"],
   "estimated_time": "improvement time"
 }}
 
