@@ -18,7 +18,7 @@ Translation files for project internationalization.
 npm install react-i18next i18next next-i18next
 ```
 
-2. Создайте конфигурацию `i18n.ts`:
+1. Создайте конфигурацию `i18n.ts`:
 
 ```typescript
 import i18n from 'i18next';
@@ -43,7 +43,7 @@ i18n
 export default i18n;
 ```
 
-3. Используйте в компонентах:
+1. Используйте в компонентах:
 
 ```typescript
 import { useTranslation } from 'react-i18next';
