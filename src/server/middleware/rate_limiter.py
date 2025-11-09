@@ -27,7 +27,7 @@ class RateLimiter:
         self.hour_requests: Dict[str, list] = defaultdict(list)
     
     def _clean_old_requests(self, requests_list: list, time_window: int) -> list:
-        """Очистить старые запросы"""
+        """Clean old requests"""
         current_time = time.time()
         return [
             (timestamp, count)
@@ -36,7 +36,7 @@ class RateLimiter:
         ]
     
     def _get_client_ip(self, request: Request) -> str:
-        """Получить IP клиента"""
+        """Get client IP"""
         # Check proxy headers
         forwarded = request.headers.get("X-Forwarded-For")
         if forwarded:

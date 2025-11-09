@@ -62,7 +62,7 @@ class AIService:
         stats: Dict,
         match_history: List[Dict]
     ) -> str:
-        """Создание промпта для AI"""
+        """Create prompt for analysis"""
         
         # Extract key metrics
         kd = stats.get("kd_ratio", 1.0)
@@ -122,7 +122,7 @@ ELO: {elo}
         return prompt
     
     async def _call_groq_api(self, prompt: str) -> str:
-        """Вызов Groq API"""
+        """Call Groq API"""
         headers = {
             "Authorization": f"Bearer {self.groq_api_key}",
             "Content-Type": "application/json"
@@ -160,7 +160,7 @@ ELO: {elo}
                 return data["choices"][0]["message"]["content"]
     
     def _parse_ai_response(self, response: str) -> Dict:
-        """Парсинг ответа AI"""
+        """Parse analysis response"""
         try:
             # Remove markdown if present
             response = response.strip()
@@ -183,7 +183,7 @@ ELO: {elo}
             raise
     
     def _get_rule_based_analysis(self, stats: Dict) -> Dict:
-        """Базовый анализ без AI (fallback)"""
+        """Basic rule-based analysis (fallback)"""
         kd = stats.get("kd_ratio", 1.0)
         win_rate = stats.get("win_rate", 50.0)
         hs_pct = stats.get("headshot_percentage", 40.0)
@@ -250,7 +250,7 @@ ELO: {elo}
         weaknesses: List[str],
         player_level: int
     ) -> Dict:
-        """Генерация персонального плана тренировок"""
+        """Generate personalized training plan"""
         if not self.groq_api_key:
             return self._get_basic_training_plan(weaknesses)
         
@@ -284,7 +284,7 @@ ELO: {elo}
             return self._get_basic_training_plan(weaknesses)
     
     def _get_basic_training_plan(self, weaknesses: List[str]) -> Dict:
-        """Базовый план тренировок"""
+        """Basic training plan"""
         exercises = []
         
         if "прицеливание" in weaknesses or "aim" in weaknesses:

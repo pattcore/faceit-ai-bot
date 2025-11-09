@@ -39,7 +39,7 @@ class CacheService:
                 self.enabled = False
     
     async def get(self, key: str) -> Optional[Any]:
-        """Получить значение из кэша"""
+        """Get value from cache"""
         if not self.enabled:
             return None
         
@@ -58,7 +58,7 @@ class CacheService:
         value: Any,
         ttl: int = 3600  # 1 час по умолчанию
     ) -> bool:
-        """Сохранить значение в кэш"""
+        """Save value to cache"""
         if not self.enabled:
             return False
         
@@ -71,7 +71,7 @@ class CacheService:
             return False
     
     async def delete(self, key: str) -> bool:
-        """Удалить значение из кэша"""
+        """Delete value from cache"""
         if not self.enabled:
             return False
         
@@ -83,7 +83,7 @@ class CacheService:
             return False
     
     async def exists(self, key: str) -> bool:
-        """Проверить существование ключа"""
+        """Check if key exists"""
         if not self.enabled:
             return False
         
@@ -94,11 +94,11 @@ class CacheService:
             return False
     
     def get_player_cache_key(self, nickname: str) -> str:
-        """Получить ключ кэша для игрока"""
+        """Get cache key for player"""
         return f"player:analysis:{nickname.lower()}"
     
     def get_stats_cache_key(self, nickname: str) -> str:
-        """Получить ключ кэша для статистики"""
+        """Get cache key for stats"""
         return f"player:stats:{nickname.lower()}"
 
 
