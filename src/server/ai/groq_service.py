@@ -4,7 +4,8 @@ Service for Groq AI models
 """
 from typing import Dict, List, Optional
 import logging
-# Groq uses standard HTTP requests
+import aiohttp
+import json
 from ..config.settings import settings
 
 logger = logging.getLogger(__name__)
@@ -15,11 +16,11 @@ class GroqService:
     
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or getattr(settings, 'GROQ_API_KEY', None)
+        self.groq_base_url = "https://api.groq.com/openai/v1/chat/completions"
+        self.model = "llama-3.1-70b-versatile"
+        
         if not self.api_key:
             logger.warning("Groq API key not configured")
-            self.client = None
-        else:
-            self.client = GroqClient(api_key=self.api_key)
     
     async def analyze_player_performance(
         self, 
@@ -36,31 +37,44 @@ class GroqService:
         Returns:
             Detailed analysis and recommendations
         """
-        if not self.client:
-            return "AI analysis unavailable - API key not configured"
+        if not self.api_key:
+            return "Analysis unavailable - API key not configured"
         
         try:
             prompt = self._build_analysis_prompt(stats, match_history or [])
             
-            response = await self.client.chat.completions.create(
-                model="llama-3.1-70b-versatile",
-                messages=[
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            }
+            
+            payload = {
+                "model": self.model,
+                "messages": [
                     {
-                        "role": "system", 
+                        "role": "system",
                         "content": "You are a professional CS2 coach with over 10 years of experience. "
                                  "Analyze player statistics and provide specific, "
                                  "actionable recommendations for improvement."
                     },
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.7,
-                max_tokens=1500
-            )
+                "temperature": 0.7,
+                "max_tokens": 1500
+            }
             
-            return response.choices[0].message.content
+            async with aiohttp.ClientSession() as session:
+                async with session.post(self.groq_base_url, headers=headers, json=payload) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        return data["choices"][0]["message"]["content"]
+                    else:
+                        error_text = await response.text()
+                        logger.error(f"Groq API error: {response.status} - {error_text}")
+                        return f"Error analyzing performance: {response.status}"
             
         except Exception as e:
-            logger.error(f"OpenAI API error: {str(e)}")
+            logger.error(f"Groq API error: {str(e)}")
             return f"Error analyzing performance: {str(e)}"
     
     async def generate_training_plan(
@@ -78,7 +92,7 @@ class GroqService:
         Returns:
             Structured training plan
         """
-        if not self.client:
+        if not self.api_key:
             return self._get_default_training_plan()
         
         try:
@@ -95,18 +109,28 @@ class GroqService:
             Return JSON with fields: daily_exercises, weekly_goals, estimated_time
             """
             
-            response = await self.client.chat.completions.create(
-                model="llama-3.1-70b-versatile",
-                messages=[
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            }
+            
+            payload = {
+                "model": self.model,
+                "messages": [
                     {"role": "system", "content": "You are a CS2 coach. Reply only in JSON format."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.5,
-                max_tokens=1000
-            )
+                "temperature": 0.5,
+                "max_tokens": 1000
+            }
             
-            import json
-            return json.loads(response.choices[0].message.content)
+            async with aiohttp.ClientSession() as session:
+                async with session.post(self.groq_base_url, headers=headers, json=payload) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        return json.loads(data["choices"][0]["message"]["content"])
+                    else:
+                        return self._get_default_training_plan()
             
         except Exception as e:
             logger.error(f"Error generating training plan: {str(e)}")
