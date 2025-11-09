@@ -1,6 +1,6 @@
 import React from 'react';
 import './globals.css';
-import Navigation from '../components/Navigation';
+import Navigation from '../src/components/Navigation';
 import type { Metadata, Viewport } from 'next';
 
 export const metadata: Metadata = {

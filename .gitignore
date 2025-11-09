@@ -27,14 +27,29 @@ venv/
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
+*.egg-info/
+.coverage
+htmlcov/
 
 # Editor
 .vscode/
 .idea/
 *.sublime-workspace
+*.swp
+*.swo
+*~
 
 # Misc
 .DS_Store
 Thumbs.db
 
+# Deployment
 .deploy_keys/
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing
+coverage/
+.nyc_output/

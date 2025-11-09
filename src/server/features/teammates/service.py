@@ -1,6 +1,6 @@
 from typing import List, Optional
 from fastapi import HTTPException
-from ..models import TeammateProfile, PlayerStats, TeammatePreferences
+from .models import TeammateProfile, PlayerStats, TeammatePreferences
 import logging
 from datetime import datetime
 

@@ -12,7 +12,7 @@ from typing import List, Optional
 class Settings(BaseSettings):
     # App settings
     APP_TITLE: str = "Faceit AI Bot Service"
-    APP_VERSION: str = "0.2.0"
+    APP_VERSION: str = "0.2.2"
     NODE_ENV: str = "production"
     REPLIT_DEV_DOMAIN: Optional[str] = None
     
@@ -21,6 +21,11 @@ class Settings(BaseSettings):
     
     # Faceit API settings
     FACEIT_API_KEY: Optional[str] = None
+    
+    # AI Services
+    OPENAI_API_KEY: Optional[str] = None
+    ANTHROPIC_API_KEY: Optional[str] = None
+    HUGGINGFACE_TOKEN: Optional[str] = None
     
     # Security settings
     SECRET_KEY: str = "change-me-in-production-min-32-characters-long"
@@ -78,9 +83,7 @@ class Settings(BaseSettings):
     # CORS settings
     ALLOWED_ORIGINS: List[str] = [
         "http://localhost:3000",
-        "http://localhost:4000",
         "http://localhost:8000",
-        "https://89f4cd76-9b36-4cb9-9797-f7bf95690841-00-3isporgvi3p56.picard.replit.dev",
     ]
 
     # Payment settings

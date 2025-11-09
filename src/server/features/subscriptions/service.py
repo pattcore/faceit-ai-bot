@@ -1,6 +1,6 @@
-﻿from typing import Optional, Dict
+from typing import Optional, Dict
 from fastapi import HTTPException
-from ..models import Subscription, UserSubscription, SubscriptionTier
+from .models import SubscriptionTier
 import logging
 from datetime import datetime, timedelta
 

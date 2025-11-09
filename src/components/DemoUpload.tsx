@@ -1,7 +1,13 @@
 import React from 'react';
 
+type AnalysisResult = {
+  filename: string;
+  status: string;
+  message?: string;
+};
+
 type Props = {
-  onAnalysisComplete?: (result: any) => void;
+  onAnalysisComplete?: (result: File | AnalysisResult) => void;
 };
 
 export default function DemoUpload({ onAnalysisComplete }: Props) {

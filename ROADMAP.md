@@ -4,7 +4,7 @@
 
 ### План развития проекта на 2025 год
 
-[![Version](https://img.shields.io/badge/version-v0.2.0-blue.svg)](https://github.com/pat1one/faceit-ai-bot/releases)
+[![Version](https://img.shields.io/badge/version-v0.2.2-blue.svg)](https://github.com/pat1one/faceit-ai-bot/releases)
 [![Status](https://img.shields.io/badge/status-MVP-green.svg)](https://github.com/pat1one/faceit-ai-bot)
 
 **Последнее обновление:** Ноябрь 2024

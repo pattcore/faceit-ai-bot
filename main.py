@@ -5,18 +5,17 @@ import os
 import logging
 import requests
 
-app = FastAPI(title="Faceit AI Bot Service", version="0.2.0")
+app = FastAPI(title="Faceit AI Bot Service", version="0.2.2")
 
 # Configure CORS for development and production
 origins = [
-    "http://localhost:5000",
-    "http://localhost:4000",
-    "https://89f4cd76-9b36-4cb9-9797-f7bf95690841-00-3isporgvi3p56.picard.replit.dev",
+    "http://localhost:3000",
+    "http://localhost:8000",
 ]
 
-# Allow all Replit domains in development
-if os.getenv("NODE_ENV") == "development" or os.getenv("REPLIT_DEV_DOMAIN"):
-    origins.append("*")  # Allow all origins in development
+# Allow all origins in development
+if os.getenv("NODE_ENV") == "development":
+    origins.append("*")
 
 app.add_middleware(
     CORSMiddleware,

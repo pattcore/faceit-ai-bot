@@ -2,7 +2,7 @@
 
 ## Готовые сборки для быстрой установки
 
-[![Version](https://img.shields.io/badge/version-v0.2.0-blue.svg)](https://github.com/pat1one/faceit-ai-bot/releases)
+[![Version](https://img.shields.io/badge/version-v0.2.2-blue.svg)](https://github.com/pat1one/faceit-ai-bot/releases)
 [![Downloads](https://img.shields.io/github/downloads/pat1one/faceit-ai-bot/total.svg)](https://github.com/pat1one/faceit-ai-bot/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 

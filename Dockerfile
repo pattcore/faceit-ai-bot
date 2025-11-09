@@ -15,8 +15,6 @@ WORKDIR /app
 
 # Копируем только файлы зависимостей
 COPY requirements.txt .
-COPY setup.py .
-COPY README.md .
 
 # Установка зависимостей
 RUN pip install --no-cache-dir -r requirements.txt

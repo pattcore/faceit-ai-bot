@@ -1,17 +1,25 @@
 'use client';
 
 import React, { useState } from 'react';
-import DemoUpload from '../components/DemoUpload';
+import DemoUpload from '../src/components/DemoUpload';
 import TeammateChat from '../src/components/TeammateChat';
 import NotificationSystem from '../src/components/NotificationSystem';
 import { API_ENDPOINTS } from '../src/config/api';
 
-export default function DemoPage() {
-  const [analysisResult, setAnalysisResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [paymentUrl, setPaymentUrl] = useState(null);
+interface AnalysisResult {
+  filename?: string;
+  status?: string;
+  message?: string;
+  error?: string;
+  [key: string]: any;
+}
 
-  const handleAnalysisComplete = async (file) => {
+export default function DemoPage() {
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+
+  const handleAnalysisComplete = async (file: File) => {
     setLoading(true);
     try {
       const formData = new FormData();
@@ -71,7 +79,8 @@ export default function DemoPage() {
       const paymentData = await response.json();
       setPaymentUrl(paymentData.payment_url);
     } catch (error) {
-      console.error('Error during SBP payment:', error);
+      // TODO: Implement proper error handling with user notification
+      alert('SBP payment failed. Please try again.');
     }
   };
 

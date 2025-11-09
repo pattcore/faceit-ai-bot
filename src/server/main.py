@@ -16,6 +16,7 @@ from features.demo_analyzer.routes import router as demo_router
 from features.payments.routes import router as payments_router
 from features.subscriptions.routes import router as subscriptions_router
 from features.teammates.routes import router as teammates_router
+from features.ai_analysis.routes import router as ai_router
 
 # Configure logging
 logging.basicConfig(
@@ -71,6 +72,7 @@ app.include_router(demo_router)
 app.include_router(payments_router)
 app.include_router(subscriptions_router)
 app.include_router(teammates_router)
+app.include_router(ai_router)
 
 @app.get("/", tags=["health"])
 def root():
