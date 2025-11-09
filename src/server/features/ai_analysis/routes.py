@@ -39,7 +39,7 @@ async def analyze_player(request: PlayerAnalysisRequest):
         from ...ai.openai_service import OpenAIService
         from ...integrations.faceit_client import FaceitAPIClient
         
-        # Инициализация сервисов
+        # Initialization сервисов
         ai_service = OpenAIService()
         faceit_client = FaceitAPIClient()
         

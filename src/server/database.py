@@ -11,7 +11,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 from config.settings import settings
 
-# Создание engine
+# Creation engine
 if settings.DATABASE_URL.startswith('sqlite'):
     engine = create_engine(
         settings.DATABASE_URL,
@@ -26,7 +26,7 @@ else:
         max_overflow=20
     )
 
-# Создание session factory
+# Creation session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Базовый класс для моделей

@@ -42,7 +42,7 @@ class PaymentService:
             # Проверяем доступность метода оплаты для региона
             self._validate_payment_method(request)
 
-            # Обработка платежа через соответствующий провайдер
+            # Processing платежа через соответствующий провайдер
             return await self.providers[request.provider](request)
 
         except Exception as e:

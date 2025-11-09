@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class AIService:
-    """Сервис для работы с AI моделью"""
+    """Service for intelligent analysis"""
     
     def __init__(self):
         # Groq API (бесплатный, быстрый)
@@ -44,10 +44,10 @@ class AIService:
             return self._get_rule_based_analysis(stats)
         
         try:
-            # Формируем промпт для AI
+            # Create промпт для AI
             prompt = self._create_analysis_prompt(nickname, stats, match_history)
             
-            # Запрос к Groq API
+            # Request to Groq API
             analysis = await self._call_groq_api(prompt)
             
             return self._parse_ai_response(analysis)
@@ -173,7 +173,7 @@ ELO: {elo}
             
             response = response.strip()
             
-            # Парсим JSON
+            # Parse JSON
             analysis = json.loads(response)
             return analysis
             

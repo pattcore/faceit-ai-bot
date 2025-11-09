@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class DemoAnalyzer:
     def __init__(self):
-        # Инициализация AI сервисов
+        # Initialization AI сервисов
         from ...ai.openai_service import OpenAIService
         from ...integrations.faceit_client import FaceitAPIClient
         
@@ -25,7 +25,7 @@ class DemoAnalyzer:
 
     async def analyze_demo(self, demo_file: UploadFile) -> DemoAnalysis:
         try:
-            # Валидация файла
+            # Validation файла
             if not demo_file.filename or not demo_file.filename.endswith('.dem'):
                 raise DemoAnalysisException(
                     detail="Invalid file format. Only .dem files are supported",
