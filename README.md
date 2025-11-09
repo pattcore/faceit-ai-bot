@@ -34,6 +34,7 @@
 ## 🛠️ Технологический стек
 
 ### Backend
+
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
@@ -42,12 +43,14 @@
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
 ### Frontend
+
 ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)
 ![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
 ### DevOps & Tools
+
 ![Docker Compose](https://img.shields.io/badge/Docker_Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)
 ![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
@@ -78,7 +81,7 @@
 **Установите расширение для быстрого доступа:**
 
 **Chrome / Edge / Brave:**
-1. Скачайте расширение из [Chrome Web Store](#) (скоро)
+1. Расширение скоро появится в Chrome Web Store
 2. Или установите вручную:
    - Скачайте [последний релиз](https://github.com/pat1one/faceit-ai-bot/releases)
    - Откройте `chrome://extensions/`
@@ -87,7 +90,7 @@
    - Выберите папку `extension/`
 
 **Firefox:**
-1. Скачайте из [Firefox Add-ons](#) (скоро)
+1. Расширение скоро появится в Firefox Add-ons
 2. Или установите вручную через `about:debugging`
 
 **Возможности расширения:**
@@ -181,16 +184,14 @@ npm run dev
 
 ---
 
-
----
-
 ## 🗺️ Roadmap
 
 <details>
 <summary><b>📍 Текущая версия: v0.2.2</b></summary>
 
 ### ✅ Реализовано
-- [x] AI-анализ игроков через GPT-4
+
+- [x] Умный анализ игроков с персональными рекомендациями
 - [x] Интеграция с Faceit API
 - [x] Веб-интерфейс на Next.js
 - [x] PWA поддержка
