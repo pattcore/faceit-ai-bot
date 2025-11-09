@@ -7,6 +7,7 @@ from typing import Optional, List, Dict
 from datetime import datetime
 
 from ...integrations.faceit_client import FaceitAPIClient
+from ...services.ai_service import AIService
 from .schemas import (
     PlayerAnalysisResponse,
     PlayerStats,
@@ -23,6 +24,7 @@ class PlayerAnalysisService:
     
     def __init__(self):
         self.faceit_client = FaceitAPIClient()
+        self.ai_service = AIService()
     
     async def analyze_player(self, nickname: str) -> Optional[PlayerAnalysisResponse]:
         """
@@ -50,15 +52,21 @@ class PlayerAnalysisService:
             # Парсим статистику
             stats = self._parse_stats(stats_data, player)
             
-            # Анализируем сильные и слабые стороны
-            strengths = self._analyze_strengths(stats)
-            weaknesses = self._analyze_weaknesses(stats)
+            # Получаем историю матчей для AI анализа
+            match_history = await self.faceit_client.get_match_history(player_id, limit=10)
             
-            # Генерируем план тренировок
-            training_plan = self._generate_training_plan(weaknesses)
+            # Используем AI для анализа
+            ai_analysis = await self.ai_service.analyze_player_with_ai(
+                nickname,
+                stats.dict(),
+                match_history
+            )
             
-            # Рассчитываем общую оценку
-            overall_rating = self._calculate_overall_rating(strengths)
+            # Парсим AI анализ
+            strengths = PlayerStrengths(**ai_analysis["strengths"])
+            weaknesses = PlayerWeaknesses(**ai_analysis["weaknesses"])
+            training_plan = TrainingPlan(**ai_analysis["training_plan"])
+            overall_rating = ai_analysis["overall_rating"]
             
             return PlayerAnalysisResponse(
                 player_id=player_id,
