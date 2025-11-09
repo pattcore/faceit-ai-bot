@@ -1,6 +1,6 @@
 """
 Player Analysis Service
-Сервис для анализа игроков
+Service for analyzing CS2 players on Faceit
 """
 import logging
 from typing import Optional, List, Dict
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class PlayerAnalysisService:
-    """Сервис анализа игроков"""
+    """Service for player analysis and statistics"""
     
     def __init__(self):
         self.faceit_client = FaceitAPIClient()
@@ -29,16 +29,16 @@ class PlayerAnalysisService:
     
     async def analyze_player(self, nickname: str) -> Optional[PlayerAnalysisResponse]:
         """
-        Полный анализ игрока
+        Complete player analysis
         
         Args:
-            nickname: Никнейм игрока
+            nickname: Player nickname
             
         Returns:
-            Детальный анализ или None
+            Detailed analysis or None
         """
         try:
-            # Проверяем кэш
+            # Check cache
             cache_key = cache_service.get_player_cache_key(nickname)
             cached = await cache_service.get(cache_key)
             if cached:
@@ -46,32 +46,32 @@ class PlayerAnalysisService:
                 return PlayerAnalysisResponse(**cached)
             
             logger.info(f"Cache miss for player {nickname}, analyzing...")
-            # Получаем данные игрока
+            # Fetch player data
             player = await self.faceit_client.get_player_by_nickname(nickname)
             if not player:
                 return None
             
             player_id = player.get("player_id")
             
-            # Получаем статистику
+            # Fetch statistics
             stats_data = await self.faceit_client.get_player_stats(player_id)
             if not stats_data:
                 return None
             
-            # Парсим статистику
+            # Parse statistics
             stats = self._parse_stats(stats_data, player)
             
-            # Получаем историю матчей для AI анализа
+            # Fetch match history for analysis
             match_history = await self.faceit_client.get_match_history(player_id, limit=10)
             
-            # Используем AI для анализа
+            # Use intelligent analysis
             ai_analysis = await self.ai_service.analyze_player_with_ai(
                 nickname,
                 stats.dict(),
                 match_history
             )
             
-            # Парсим AI анализ
+            # Parse analysis results
             strengths = PlayerStrengths(**ai_analysis["strengths"])
             weaknesses = PlayerWeaknesses(**ai_analysis["weaknesses"])
             training_plan = TrainingPlan(**ai_analysis["training_plan"])
@@ -88,7 +88,7 @@ class PlayerAnalysisService:
                 analyzed_at=datetime.utcnow()
             )
             
-            # Сохраняем в кэш (1 час)
+            # Save to cache (1 hour)
             await cache_service.set(cache_key, result.dict(), ttl=3600)
             
             return result
@@ -98,7 +98,7 @@ class PlayerAnalysisService:
             return None
     
     async def get_player_stats(self, nickname: str) -> Optional[Dict]:
-        """Получить статистику игрока"""
+        """Get player statistics"""
         try:
             player = await self.faceit_client.get_player_by_nickname(nickname)
             if not player:
@@ -119,7 +119,7 @@ class PlayerAnalysisService:
             return None
     
     async def get_player_matches(self, nickname: str, limit: int = 20) -> List[Dict]:
-        """Получить историю матчей"""
+        """Get match history"""
         try:
             player = await self.faceit_client.get_player_by_nickname(nickname)
             if not player:
@@ -134,7 +134,7 @@ class PlayerAnalysisService:
             return []
     
     async def search_players(self, query: str, limit: int = 20) -> List[Dict]:
-        """Поиск игроков"""
+        """Search players"""
         try:
             players = await self.faceit_client.search_players(query, limit=limit)
             return players
@@ -143,17 +143,17 @@ class PlayerAnalysisService:
             return []
     
     def _parse_stats(self, stats_data: Dict, player: Dict) -> PlayerStats:
-        """Парсинг статистики из Faceit API"""
+        """Parse statistics from Faceit API"""
         lifetime = stats_data.get("lifetime", {})
         
-        # Безопасное получение значений
+        # Safe value extraction
         kd_ratio = float(lifetime.get("Average K/D Ratio", lifetime.get("K/D Ratio", "1.0")))
         win_rate = float(lifetime.get("Win Rate %", "50"))
         headshot_pct = float(lifetime.get("Headshots %", lifetime.get("Average Headshots %", "40")))
         avg_kills = float(lifetime.get("Average Kills", lifetime.get("Kills", "15")))
         matches = int(lifetime.get("Matches", "0"))
         
-        # Данные из профиля игрока
+        # Data from player profile
         game_data = player.get("games", {}).get("cs2", {})
         elo = game_data.get("faceit_elo")
         level = game_data.get("skill_level")
@@ -169,20 +169,20 @@ class PlayerAnalysisService:
         )
     
     def _analyze_strengths(self, stats: PlayerStats) -> PlayerStrengths:
-        """Анализ сильных сторон на основе статистики"""
-        # Оценка прицеливания на основе K/D и headshot%
+        """Analyze player strengths based on statistics"""
+        # Aim score based on K/D and headshot%
         aim_score = min(10, int((stats.kd_ratio * 4) + (stats.headshot_percentage / 10)))
         
-        # Игровое чутье на основе win rate
+        # Game sense score based on win rate
         game_sense_score = min(10, int(stats.win_rate / 10))
         
-        # Позиционирование (базовая оценка)
+        # Positioning (basic evaluation)
         positioning_score = min(10, max(5, int(stats.win_rate / 12)))
         
-        # Командная игра (оценка на основе win rate и количества матчей)
+        # Teamwork (evaluation based on win rate and match count)
         teamwork_score = min(10, int((stats.win_rate / 10) + (min(stats.matches_played, 100) / 20)))
         
-        # Стабильность (на основе количества матчей)
+        # Consistency (based on match count)
         consistency_score = min(10, int(min(stats.matches_played, 500) / 50))
         
         return PlayerStrengths(
@@ -194,32 +194,32 @@ class PlayerAnalysisService:
         )
     
     def _analyze_weaknesses(self, stats: PlayerStats) -> PlayerWeaknesses:
-        """Анализ слабых сторон"""
+        """Analyze player weaknesses"""
         weaknesses = []
         recommendations = []
         
         if stats.kd_ratio < 1.0:
             weaknesses.append("aim")
-            recommendations.append("Практиковать прицеливание на aim_botz и aim_training картах")
+            recommendations.append("Practice aiming on aim_botz and aim_training maps")
         
         if stats.headshot_percentage < 40:
             weaknesses.append("headshot accuracy")
-            recommendations.append("Фокусироваться на headshot-only режимах")
+            recommendations.append("Focus on headshot-only modes")
         
         if stats.win_rate < 50:
             weaknesses.append("game sense")
-            recommendations.append("Изучать профессиональные матчи и стратегии")
+            recommendations.append("Study professional matches and strategies")
         
         if stats.matches_played < 50:
             weaknesses.append("experience")
-            recommendations.append("Играть больше матчей для набора опыта")
+            recommendations.append("Play more matches to gain experience")
         
-        # Определяем приоритетную область
+        # Determine priority area
         priority = weaknesses[0] if weaknesses else "consistency"
         
         if not weaknesses:
             weaknesses = ["consistency"]
-            recommendations = ["Продолжать поддерживать текущий уровень игры"]
+            recommendations = ["Continue maintaining current skill level"]
         
         return PlayerWeaknesses(
             areas=weaknesses,
@@ -228,55 +228,55 @@ class PlayerAnalysisService:
         )
     
     def _generate_training_plan(self, weaknesses: PlayerWeaknesses) -> TrainingPlan:
-        """Генерация плана тренировок"""
-        focus_areas = weaknesses.areas[:3]  # Топ-3 области
+        """Generate training plan"""
+        focus_areas = weaknesses.areas[:3]  # Top 3 areas
         
         exercises = []
         
         if "aim" in focus_areas:
             exercises.append({
                 "name": "Aim Training",
-                "duration": "30 минут",
-                "description": "Тренировка прицеливания на aim_botz"
+                "duration": "30 minutes",
+                "description": "Aim training on aim_botz"
             })
         
         if "headshot accuracy" in focus_areas:
             exercises.append({
                 "name": "Headshot Practice",
-                "duration": "20 минут",
-                "description": "Headshot-only режим"
+                "duration": "20 minutes",
+                "description": "Headshot-only mode"
             })
         
         if "game sense" in focus_areas:
             exercises.append({
                 "name": "Demo Review",
-                "duration": "30 минут",
-                "description": "Просмотр и анализ профессиональных матчей"
+                "duration": "30 minutes",
+                "description": "Watch and analyze professional matches"
             })
         
         if "experience" in focus_areas:
             exercises.append({
                 "name": "Competitive Matches",
-                "duration": "2-3 матча",
-                "description": "Игра в соревновательном режиме"
+                "duration": "2-3 matches",
+                "description": "Play competitive matches"
             })
         
-        # Если нет специфичных упражнений
+        # If no specific exercises
         if not exercises:
             exercises.append({
                 "name": "General Practice",
-                "duration": "1 час",
-                "description": "Общая практика и поддержание формы"
+                "duration": "1 hour",
+                "description": "General practice and skill maintenance"
             })
         
         return TrainingPlan(
             focus_areas=focus_areas,
             daily_exercises=exercises,
-            estimated_time="2-4 недели"
+            estimated_time="2-4 weeks"
         )
     
     def _calculate_overall_rating(self, strengths: PlayerStrengths) -> int:
-        """Расчет общей оценки"""
+        """Calculate overall rating"""
         total = (
             strengths.aim +
             strengths.game_sense +
