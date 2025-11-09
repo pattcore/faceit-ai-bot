@@ -38,7 +38,7 @@ class CacheService:
                 logger.warning(f"Failed to connect to Redis: {e}")
                 self.enabled = False
     
-    async def get(self, key: str) => Optional[Any]:
+    async def get(self, key: str) -> Optional[Any]:
         """Получить значение из кэша"""
         if not self.enabled:
             return None
