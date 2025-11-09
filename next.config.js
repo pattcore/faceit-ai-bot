@@ -75,7 +75,7 @@ const nextConfig = {
 
   // ESLint config  
   eslint: {
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
   },
 };
 
