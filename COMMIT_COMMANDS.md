@@ -11,13 +11,13 @@ git config --global user.email "pat@pattmsc.online"
 git add .
 
 # 3. Коммит
-git commit -m "feat: AI integration v0.2.2
+git commit -m "feat: обновление v0.2.2
 
-- OpenAI и Faceit API интеграция
-- AI анализ игроков и рекомендации
-- Исправлены все критические проблемы
+- Интеграция с Faceit API
+- Улучшенный анализ игроков
+- Исправления и оптимизация
 - TypeScript strict mode
-- Новая документация"
+- Обновлена документация"
 
 # 4. Пуш
 git push origin main
@@ -29,7 +29,7 @@ git push origin main
 git config --global user.name "pattmsc"; and \
 git config --global user.email "pat@pattmsc.online"; and \
 git add .; and \
-git commit -m "feat: AI integration v0.2.2"; and \
+git commit -m "feat: обновление v0.2.2"; and \
 git push origin main
 ```
 

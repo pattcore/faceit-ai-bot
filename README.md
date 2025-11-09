@@ -66,7 +66,7 @@
 
 1. Откройте [pattmsc.online](https://pattmsc.online)
 2. Введите никнейм игрока Faceit
-3. Получите AI-анализ и рекомендации
+3. Получите детальный анализ и рекомендации
 
 **Преимущества:**
 - ✅ Не требует установки
@@ -146,7 +146,6 @@ cd faceit-ai-bot
 cp .env.example .env
 
 # Заполните API ключи в .env
-# OPENAI_API_KEY=your_key
 # FACEIT_API_KEY=your_key
 
 # Запустите через Docker (рекомендуется)

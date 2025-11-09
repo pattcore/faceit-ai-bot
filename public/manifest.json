@@ -1,7 +1,7 @@
 {
   "name": "Faceit AI Bot - CS2 Stats Analyzer",
   "short_name": "Faceit AI Bot",
-  "description": "AI-powered CS2 статистика и анализ игроков с использованием GPT-4",
+  "description": "Детальная статистика и анализ игроков CS2 на платформе Faceit",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0D1117",
@@ -76,7 +76,7 @@
     {
       "name": "Анализ игрока",
       "short_name": "Анализ",
-      "description": "AI анализ производительности игрока",
+      "description": "Анализ производительности и статистики игрока",
       "url": "/analyze",
       "icons": [{ "src": "/icon-96x96.png", "sizes": "96x96" }]
     },
