@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import PlayerAnalysis from './components/PlayerAnalysis';
 import DemoUpload from '../src/components/DemoUpload';
 import TeammateChat from '../src/components/TeammateChat';
 import NotificationSystem from '../src/components/NotificationSystem';
@@ -86,9 +87,11 @@ export default function DemoPage() {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h1>Faceit AI Bot</h1>
-        <p>Анализ статистики и поиск тиммейтов для CS2. Загрузите демку для AI-анализа или найдите идеальных напарников</p>
+      <PlayerAnalysis />
+
+      <div className="page-header mt-12">
+        <h2 className="text-2xl font-bold text-white mb-4">📊 Анализ демо-файлов</h2>
+        <p>Загрузите демку для детального анализа</p>
       </div>
 
       <DemoUpload onAnalysisComplete={handleAnalysisComplete} />

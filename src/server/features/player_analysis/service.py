@@ -8,6 +8,7 @@ from datetime import datetime
 
 from ...integrations.faceit_client import FaceitAPIClient
 from ...services.ai_service import AIService
+from ...services.cache_service import cache_service
 from .schemas import (
     PlayerAnalysisResponse,
     PlayerStats,
@@ -37,6 +38,14 @@ class PlayerAnalysisService:
             Детальный анализ или None
         """
         try:
+            # Проверяем кэш
+            cache_key = cache_service.get_player_cache_key(nickname)
+            cached = await cache_service.get(cache_key)
+            if cached:
+                logger.info(f"Cache hit for player {nickname}")
+                return PlayerAnalysisResponse(**cached)
+            
+            logger.info(f"Cache miss for player {nickname}, analyzing...")
             # Получаем данные игрока
             player = await self.faceit_client.get_player_by_nickname(nickname)
             if not player:
@@ -68,7 +77,7 @@ class PlayerAnalysisService:
             training_plan = TrainingPlan(**ai_analysis["training_plan"])
             overall_rating = ai_analysis["overall_rating"]
             
-            return PlayerAnalysisResponse(
+            result = PlayerAnalysisResponse(
                 player_id=player_id,
                 nickname=nickname,
                 stats=stats,
@@ -78,6 +87,11 @@ class PlayerAnalysisService:
                 overall_rating=overall_rating,
                 analyzed_at=datetime.utcnow()
             )
+            
+            # Сохраняем в кэш (1 час)
+            await cache_service.set(cache_key, result.dict(), ttl=3600)
+            
+            return result
             
         except Exception as e:
             logger.error(f"Error analyzing player {nickname}: {str(e)}")

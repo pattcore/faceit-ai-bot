@@ -34,6 +34,24 @@ app.add_middleware(
     expose_headers=["*"],
 )
 
+# Подключаем middleware
+try:
+    from src.server.middleware.rate_limiter import rate_limiter
+    
+    @app.middleware("http")
+    async def rate_limit_middleware(request: Request, call_next):
+        # Пропускаем health check
+        if request.url.path in ["/", "/health", "/docs", "/redoc", "/openapi.json"]:
+            return await call_next(request)
+        
+        # Проверяем rate limit
+        await rate_limiter(request)
+        return await call_next(request)
+    
+    logging.info("Rate limiter enabled")
+except Exception as e:
+    logging.warning(f"Could not load rate limiter: {e}")
+
 # Подключаем роутеры
 try:
     from src.server.features.player_analysis import router as player_router
