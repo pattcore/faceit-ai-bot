@@ -74,7 +74,7 @@ python main.py
 
 ## 📁 Структура проекта
 
-```
+```text
 faceit-ai-bot/
 ├── app/                    # Next.js 15 App Router
 │   ├── layout.tsx         # Root layout
