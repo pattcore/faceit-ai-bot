@@ -1,5 +1,5 @@
 """
-Модель платежей
+Model платежей
 """
 from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Float, Integer, Enum as SQLEnum
 from sqlalchemy.sql import func

@@ -27,7 +27,7 @@ class FaceitAPIClient:
     
     async def get_player_by_nickname(self, nickname: str) -> Optional[Dict]:
         """
-        Получить информацию об игроке по никнейму
+        Get информацию об игроке по никнейму
         
         Args:
             nickname: Player nickname на Faceit
