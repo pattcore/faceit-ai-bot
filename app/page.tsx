@@ -87,8 +87,8 @@ export default function DemoPage() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>AI-Анализ демок</h1>
-        <p>Загрузите свою демку CS2 для получения подробного анализа игры и персональных рекомендаций</p>
+        <h1>Faceit AI Bot</h1>
+        <p>Анализ статистики и поиск тиммейтов для CS2. Загрузите демку для AI-анализа или найдите идеальных напарников</p>
       </div>
 
       <DemoUpload onAnalysisComplete={handleAnalysisComplete} />
