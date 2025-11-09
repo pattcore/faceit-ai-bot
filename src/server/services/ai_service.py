@@ -255,26 +255,26 @@ Reply ONLY with JSON, no additional text."""
             return self._get_basic_training_plan(weaknesses)
         
         try:
-            prompt = f"""Создай детальный план тренировок для CS2 игрока уровня {player_level}.
+            prompt = f"""Create detailed training plan for CS2 player level {player_level}.
 
-Слабые стороны: {', '.join(weaknesses)}
+Weaknesses: {', '.join(weaknesses)}
 
-Создай план в формате JSON:
+Create plan in JSON format:
 {{
   "focus_areas": ["area1", "area2"],
   "daily_exercises": [
     {{
-      "name": "название",
+      "name": "name",
       "duration": "time",
-      "description": "детальное description",
-      "maps": ["карта1", "карта2"]
+      "description": "detailed description",
+      "maps": ["map1", "map2"]
     }}
   ],
   "weekly_goals": ["цель1", "цель2"],
-  "estimated_time": "time улучшения"
+  "estimated_time": "improvement time"
 }}
 
-Отвечай ТОЛЬКО JSON."""
+Reply ONLY with JSON."""
 
             response = await self._call_groq_api(prompt)
             return self._parse_ai_response(response)
