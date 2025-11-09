@@ -4,8 +4,16 @@ from pydantic import BaseModel, validator
 import os
 import logging
 import requests
+import sys
 
-app = FastAPI(title="Faceit Bot API Service", version="0.2.2")
+# Добавляем путь к src для импортов
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+
+app = FastAPI(
+    title="Faceit Bot API Service",
+    version="0.2.2",
+    description="API для анализа игроков CS2 на платформе Faceit"
+)
 
 # Configure CORS for development and production
 origins = [
@@ -25,6 +33,14 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
+
+# Подключаем роутеры
+try:
+    from src.server.features.player_analysis import router as player_router
+    app.include_router(player_router)
+    logging.info("Player analysis router loaded successfully")
+except Exception as e:
+    logging.warning(f"Could not load player analysis router: {e}")
 
 # Model loading commented out - uncomment when needed
 # import torch
