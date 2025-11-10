@@ -1,8 +1,8 @@
-# Contributing Guide 🎉
+# Contributing Guide
 
-Hey! Thanks for checking out the project! We love contributions from everyone.
+Thank you for your interest in the project. We welcome all contributions.
 
-## 🚀 How to Contribute
+## How to Contribute
 
 ### 1. Fork & Clone
 
@@ -60,7 +60,7 @@ git push origin feature/your-awesome-feature
 
 Then create a Pull Request on GitHub!
 
-## 💻 Code Style
+## Code Style
 
 ### TypeScript/JavaScript
 
@@ -80,7 +80,7 @@ Then create a Pull Request on GitHub!
 - Write in present tense ("add feature" not "added feature")
 - No AI/ML buzzwords - use simple terms like "analysis", "processing", "stats"
 
-## 🐛 Bug Reports
+## Bug Reports
 
 Found a bug? Create an issue with:
 
@@ -90,18 +90,18 @@ Found a bug? Create an issue with:
 - Version info
 - Your environment (OS, browser, etc.)
 
-## 💡 Feature Requests
+## Feature Requests
 
-Got an idea? Awesome! Create an issue with the `enhancement` tag and tell us:
+Create an issue with the `enhancement` tag and describe:
 
 - What problem it solves
 - How you'd like it to work
 - Any alternatives you considered
 
-## 📝 License
+## License
 
 By contributing, you agree that your contributions will be licensed under the [MIT License](LICENSE).
 
 ---
 
-Thanks for making this project better! 🙌
+**[Russian version](CONTRIBUTING.md)**

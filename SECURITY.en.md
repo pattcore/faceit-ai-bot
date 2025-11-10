@@ -1,4 +1,4 @@
-# Security Policy 🔒
+# Security Policy
 
 ## Supported Versions
 
@@ -51,7 +51,7 @@ We follow responsible disclosure:
 
 ## Acknowledgements
 
-Thanks to all security researchers who report vulnerabilities responsibly!
+We thank security researchers who report vulnerabilities responsibly.
 
 ---
 
