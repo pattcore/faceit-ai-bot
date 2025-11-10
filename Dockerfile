@@ -1,5 +1,5 @@
 # Этап 1: Базовый образ для зависимостей
-FROM python:3.9-slim as builder
+FROM python:3.14-slim as builder
 
 # Установка системных зависимостей
 RUN apt-get update && apt-get install -y \
@@ -20,7 +20,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Этап 2: Окончательный образ
-FROM python:3.9-slim
+FROM python:3.14-slim
 
 # Установка переменных окружения
 ENV PYTHONDONTWRITEBYTECODE=1 \
