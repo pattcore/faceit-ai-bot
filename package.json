@@ -39,6 +39,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:gh-pages": "NODE_ENV=production next build",
     "start": "next start",
     "webpack:build": "npx webpack --config webpack.config.js",
     "test": "jest --passWithNoTests",

@@ -1,0 +1,57 @@
+services:
+  # API Backend
+  - type: web
+    name: faceit-bot-api
+    runtime: python
+    region: frankfurt
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: faceit-bot-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: faceit-bot-redis
+          property: connectionString
+      - key: GROQ_API_KEY
+        sync: false
+      - key: FACEIT_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+    healthCheckPath: /health
+
+  # PostgreSQL Database
+  - type: pserv
+    name: faceit-bot-db
+    runtime: docker
+    plan: free
+    region: frankfurt
+    image:
+      url: postgres:16-alpine
+    envVars:
+      - key: POSTGRES_USER
+        value: faceit
+      - key: POSTGRES_PASSWORD
+        generateValue: true
+      - key: POSTGRES_DB
+        value: faceit
+    disk:
+      name: postgres-data
+      mountPath: /var/lib/postgresql/data
+      sizeGB: 1
+
+  # Redis Cache
+  - type: redis
+    name: faceit-bot-redis
+    region: frankfurt
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []

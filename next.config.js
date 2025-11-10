@@ -4,6 +4,11 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   
+  // GitHub Pages configuration
+  output: 'export',
+  basePath: process.env.NODE_ENV === 'production' ? '/faceit-ai-bot' : '',
+  assetPrefix: process.env.NODE_ENV === 'production' ? '/faceit-ai-bot/' : '',
+  
   // Performance optimizations
   webpack: (config, { dev, isServer }) => {
     if (!dev && !isServer) {
