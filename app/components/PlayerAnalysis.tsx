@@ -55,7 +55,7 @@ export default function PlayerAnalysis() {
 
   const analyzePlayer = async () => {
     if (!nickname.trim()) {
-      setError('Введите никнейм игрока');
+      setError('Enter player nickname');
       return;
     }
 
@@ -68,13 +68,13 @@ export default function PlayerAnalysis() {
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Ошибка при анализе игрока');
+        throw new Error(errorData.detail || 'Player analysis error');
       }
 
       const data = await response.json();
       setAnalysis(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Произошла ошибка');
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }

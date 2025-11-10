@@ -26,7 +26,7 @@ const AnalysisResultsChart = ({ data }) => {
     labels: data.map((item) => item.label),
     datasets: [
       {
-        label: 'Анализ результатов',
+        label: 'Analysis Results',
         data: data.map((item) => item.value),
         borderColor: 'rgba(75, 192, 192, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -42,7 +42,7 @@ const AnalysisResultsChart = ({ data }) => {
       },
       title: {
         display: true,
-        text: 'Результаты анализа',
+        text: 'Analysis Results',
       },
     },
   };

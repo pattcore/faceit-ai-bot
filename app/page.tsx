@@ -23,7 +23,7 @@ export default function DemoPage() {
   const handleAnalysisComplete = async (result: File | AnalysisResult) => {
     setLoading(true);
     try {
-      // Если это File, отправляем на анализ
+      // If it's a File, send for analysis
       if (result instanceof File) {
         const formData = new FormData();
         formData.append('demo', result);
@@ -36,7 +36,7 @@ export default function DemoPage() {
         const analysisData = await response.json();
         setAnalysisResult(analysisData);
       } else {
-        // Если это уже результат анализа
+        // If it's already analysis result
         setAnalysisResult(result);
       }
     } catch (error) {
@@ -56,7 +56,7 @@ export default function DemoPage() {
         body: JSON.stringify({
           amount: 500,
           currency: 'RUB',
-          description: 'Оплата анализа демки',
+          description: 'Demo analysis payment',
           provider: 'YOOKASSA',
         }),
       });
@@ -78,7 +78,7 @@ export default function DemoPage() {
         body: JSON.stringify({
           amount: 500,
           currency: 'RUB',
-          description: 'Оплата анализа демки через СБП',
+          description: 'Demo analysis payment via SBP',
           provider: 'SBP',
         }),
       });
@@ -87,7 +87,7 @@ export default function DemoPage() {
       setPaymentUrl(paymentData.payment_url);
     } catch (error) {
       console.error('Error during SBP payment:', error);
-      alert('Ошибка оплаты через СБП. Попробуйте снова.');
+      alert('SBP payment error. Please try again.');
     }
   };
 
@@ -96,27 +96,27 @@ export default function DemoPage() {
       <PlayerAnalysis />
 
       <div className="page-header mt-12">
-        <h2 className="text-2xl font-bold text-white mb-4">📊 Анализ демо-файлов</h2>
-        <p>Загрузите демку для детального анализа</p>
+        <h2 className="text-2xl font-bold text-white mb-4">📊 Demo File Analysis</h2>
+        <p>Upload demo for detailed analysis</p>
       </div>
 
       <DemoUpload onAnalysisComplete={handleAnalysisComplete} />
 
-      {loading && <p>Анализируем демку...</p>}
+      {loading && <p>Analyzing demo...</p>}
 
       {analysisResult && (
         <div className="analysis-result">
-          <h3>Результаты анализа</h3>
+          <h3>Analysis Results</h3>
           <pre>{JSON.stringify(analysisResult, null, 2)}</pre>
-          <button onClick={handlePayment} className="btn btn-primary">Оплатить через YooKassa</button>
-          <button onClick={handleSBPPayment} className="btn btn-secondary">Оплатить через СБП</button>
+          <button onClick={handlePayment} className="btn btn-primary">Pay via YooKassa</button>
+          <button onClick={handleSBPPayment} className="btn btn-secondary">Pay via SBP</button>
         </div>
       )}
 
       {paymentUrl && (
         <div className="payment-link">
-          <p>Перейдите по ссылке для оплаты:</p>
-          <a href={paymentUrl} target="_blank" rel="noopener noreferrer">Оплатить</a>
+          <p>Go to payment link:</p>
+          <a href={paymentUrl} target="_blank" rel="noopener noreferrer">Pay</a>
         </div>
       )}
 
