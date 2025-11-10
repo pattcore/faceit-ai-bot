@@ -9,7 +9,11 @@
 
 [![CI](https://github.com/pat1one/faceit-ai-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/pat1one/faceit-ai-bot/actions/workflows/ci.yml)
 [![Deploy](https://github.com/pat1one/faceit-ai-bot/actions/workflows/deploy-to-vps.yml/badge.svg)](https://github.com/pat1one/faceit-ai-bot/actions/workflows/deploy-to-vps.yml)
+[![CodeQL](https://github.com/pat1one/faceit-ai-bot/actions/workflows/codeql.yml/badge.svg)](https://github.com/pat1one/faceit-ai-bot/actions/workflows/codeql.yml)
 [![Code Quality](https://img.shields.io/badge/code%20quality-A-brightgreen)](https://github.com/pat1one/faceit-ai-bot)
+[![GitHub issues](https://img.shields.io/github/issues/pat1one/faceit-ai-bot)](https://github.com/pat1one/faceit-ai-bot/issues)
+[![GitHub stars](https://img.shields.io/github/stars/pat1one/faceit-ai-bot)](https://github.com/pat1one/faceit-ai-bot/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/pat1one/faceit-ai-bot)](https://github.com/pat1one/faceit-ai-bot/network)
 
 **Анализ игроков CS2 и поиск тиммейтов на платформе Faceit**
 
