@@ -21,17 +21,17 @@ Instead:
    - Potential impact
    - Suggested fix (if you have one)
 
-We'll respond within 48 hours and work on a fix plan.
+I'll respond within 48 hours and work on a fix plan.
 
 ## Disclosure Policy
 
-We follow responsible disclosure:
+I follow responsible disclosure:
 
 1. You report the vulnerability privately
-2. We acknowledge receipt within 48 hours
-3. We work on a fix
-4. We release a patch and update
-5. After release, we publish vulnerability details
+2. I acknowledge receipt within 48 hours
+3. I work on a fix
+4. I release a patch and update
+5. After release, I publish vulnerability details
 
 ## Security Recommendations
 
@@ -51,7 +51,7 @@ We follow responsible disclosure:
 
 ## Acknowledgements
 
-We thank security researchers who report vulnerabilities responsibly.
+I thank security researchers who report vulnerabilities responsibly.
 
 ---
 

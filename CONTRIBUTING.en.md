@@ -1,6 +1,6 @@
 # Contributing Guide
 
-Thank you for your interest in the project. We welcome all contributions.
+Thank you for your interest in the project. I welcome all contributions.
 
 ## How to Contribute
 
@@ -51,6 +51,13 @@ git commit -m "docs: update readme"
 - `refactor` - code refactoring
 - `test` - adding tests
 - `chore` - updating dependencies
+
+**Examples:**
+```bash
+git commit -m "feat: add player search"
+git commit -m "fix: fix stats display"
+git commit -m "docs: update installation guide"
+```
 
 ### 5. Push & PR
 
