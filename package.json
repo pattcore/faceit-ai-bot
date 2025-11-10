@@ -56,7 +56,7 @@
     "jest-environment-jsdom": "^30.1.2",
     "jest-fetch-mock": "^3.0.3",
     "msw": "^2.11.3",
-    "ts-jest": "^29.1.0",
+    "ts-jest": "^29.4.5",
     "typescript": "^5.2.2",
     "webpack": "^5.101.3",
     "webpack-cli": "^5.1.4",
