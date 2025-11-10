@@ -24,13 +24,19 @@
     "target": "ES2017",
     "strictNullChecks": true,
     "noImplicitAny": true,
-    "strictFunctionTypes": true
+    "strictFunctionTypes": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ]
   },
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
     "app/**/*.ts",
     "app/**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
     "components/**/*.ts",
     "components/**/*.tsx",
     "tests/**/*.ts",
