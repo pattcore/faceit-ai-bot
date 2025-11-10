@@ -44,21 +44,15 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
-# Deployment
-.deploy_keys/
-
 # TypeScript
 *.tsbuildinfo
 
 # Testing
 coverage/
 .nyc_output/
-home
-home.pub
-pat
-pat.pub
-home
-home.pub
-pat
-pat.pub
+
+# SSH keys and sensitive files
 *.pub
+*.pem
+*.key
+.deploy_keys/

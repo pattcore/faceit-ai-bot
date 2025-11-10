@@ -2,8 +2,23 @@
   "name": "faceit-stats-bot",
   "version": "0.3.0",
   "description": "Удобный инструмент для анализа игровой статистики и поиска тиммейтов на Faceit",
+  "keywords": ["faceit", "cs2", "statistics", "analysis", "gaming"],
+  "homepage": "https://pattmsc.online",
+  "bugs": {
+    "url": "https://github.com/pat1one/faceit-ai-bot/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pat1one/faceit-ai-bot.git"
+  },
+  "license": "MIT",
+  "author": "pattmsc",
   "private": true,
   "main": "index.js",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
   "dependencies": {
     "@mswjs/interceptors": "^0.39.7",
     "@swc/core": "^1.13.5",
