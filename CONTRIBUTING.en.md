@@ -53,6 +53,7 @@ git commit -m "docs: update readme"
 - `chore` - updating dependencies
 
 **Examples:**
+
 ```bash
 git commit -m "feat: add player search"
 git commit -m "fix: fix stats display"
