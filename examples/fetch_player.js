@@ -1,5 +1,5 @@
 /**
- * Пример получения данных игрока через API
+ * Example of fetching player data via API
  */
 
 const API_URL = process.env.API_URL || 'http://localhost:8000';
@@ -35,20 +35,20 @@ async function analyzePlayer(nickname) {
   return await response.json();
 }
 
-// Пример использования
+// Usage example
 (async () => {
   try {
     const nickname = 's1mple';
 
-    console.log(`Получение статистики для ${nickname}...`);
+    console.log(`Getting stats for ${nickname}...`);
     const stats = await getPlayerStats(nickname);
-    console.log(`Уровень: ${stats.level}`);
+    console.log(`Level: ${stats.level}`);
     console.log(`ELO: ${stats.elo}`);
 
-    console.log(`\nАнализ игрока ${nickname}...`);
+    console.log(`\nAnalyzing player ${nickname}...`);
     const analysis = await analyzePlayer(nickname);
-    console.log(`Рекомендация: ${analysis.recommendation}`);
+    console.log(`Recommendation: ${analysis.recommendation}`);
   } catch (error) {
-    console.error('Ошибка:', error.message);
+    console.error('Error:', error.message);
   }
 })();

@@ -3,15 +3,18 @@
 ## 📚 Доступные примеры
 
 ### Python API
+
 - [`basic_usage.py`](basic_usage.py) - базовое использование API
 - [`player_analysis.py`](player_analysis.py) - анализ игрока
 - [`teammate_search.py`](teammate_search.py) - поиск тиммейтов
 
 ### JavaScript/TypeScript
+
 - [`fetch_player.js`](fetch_player.js) - получение данных игрока
 - [`react_component.tsx`](react_component.tsx) - React компонент
 
 ### cURL
+
 - [`api_examples.sh`](api_examples.sh) - примеры API запросов
 
 ## 🚀 Быстрый старт

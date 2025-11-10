@@ -1,5 +1,5 @@
 """
-Базовый пример использования Faceit AI Bot API
+Basic usage example for Faceit AI Bot API
 """
 
 import requests
@@ -13,7 +13,7 @@ FACEIT_API_KEY = os.getenv("FACEIT_API_KEY")
 
 
 def get_player_stats(nickname: str):
-    """Получить статистику игрока"""
+    """Get player statistics"""
     response = requests.get(
         f"{API_URL}/api/players/{nickname}/stats",
         headers={"X-API-Key": FACEIT_API_KEY}
@@ -23,7 +23,7 @@ def get_player_stats(nickname: str):
 
 
 def analyze_player(nickname: str):
-    """Анализ игрока"""
+    """Analyze player"""
     response = requests.post(
         f"{API_URL}/api/players/{nickname}/analyze",
         headers={"X-API-Key": FACEIT_API_KEY}
@@ -33,14 +33,14 @@ def analyze_player(nickname: str):
 
 
 if __name__ == "__main__":
-    # Пример использования
+    # Usage example
     nickname = "s1mple"
     
-    print(f"Получение статистики для {nickname}...")
+    print(f"Getting stats for {nickname}...")
     stats = get_player_stats(nickname)
-    print(f"Уровень: {stats.get('level')}")
+    print(f"Level: {stats.get('level')}")
     print(f"ELO: {stats.get('elo')}")
     
-    print(f"\nАнализ игрока {nickname}...")
+    print(f"\nAnalyzing player {nickname}...")
     analysis = analyze_player(nickname)
-    print(f"Рекомендация: {analysis.get('recommendation')}")
+    print(f"Recommendation: {analysis.get('recommendation')}")

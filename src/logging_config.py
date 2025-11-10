@@ -1,5 +1,5 @@
 """
-Настройка структурированного логирования
+Structured logging configuration
 """
 
 import logging
@@ -9,7 +9,7 @@ from pythonjsonlogger import jsonlogger
 
 
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
-    """Кастомный JSON форматтер для логов"""
+    """Custom JSON formatter for logs"""
     
     def add_fields(self, log_record, record, message_dict):
         super().add_fields(log_record, record, message_dict)
@@ -19,13 +19,13 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
 
 
 def setup_logging(log_level=logging.INFO):
-    """Настройка логирования"""
+    """Setup logging configuration"""
     
     # Root logger
     logger = logging.getLogger()
     logger.setLevel(log_level)
     
-    # Console handler с JSON форматом
+    # Console handler with JSON format
     console_handler = logging.StreamHandler()
     formatter = CustomJsonFormatter(
         '%(timestamp)s %(level)s %(name)s %(message)s'
@@ -41,5 +41,5 @@ def setup_logging(log_level=logging.INFO):
     return logger
 
 
-# Создать логгер
+# Create logger
 logger = setup_logging()

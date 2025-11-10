@@ -19,6 +19,7 @@
 - `nickname` (string) - никнейм игрока на Faceit
 
 **Ответ:**
+
 ```json
 {
   "nickname": "s1mple",
@@ -38,6 +39,7 @@
 - `nickname` (string) - никнейм игрока
 
 **Ответ:**
+
 ```json
 {
   "nickname": "s1mple",
@@ -55,6 +57,7 @@
 Поиск подходящих тиммейтов
 
 **Тело запроса:**
+
 ```json
 {
   "min_level": 7,
@@ -66,6 +69,7 @@
 ```
 
 **Ответ:**
+
 ```json
 {
   "teammates": [

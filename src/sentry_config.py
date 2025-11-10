@@ -1,5 +1,5 @@
 """
-Sentry интеграция для error tracking
+Sentry integration for error tracking
 """
 
 import sentry_sdk
@@ -9,7 +9,7 @@ import os
 
 
 def init_sentry():
-    """Инициализация Sentry"""
+    """Initialize Sentry"""
     
     sentry_dsn = os.getenv("SENTRY_DSN")
     environment = os.getenv("ENVIRONMENT", "development")
@@ -26,15 +26,15 @@ def init_sentry():
             FastApiIntegration(),
             RedisIntegration(),
         ],
-        # Фильтрация чувствительных данных
+        # Filter sensitive data
         before_send=before_send,
     )
 
 
 def before_send(event, hint):
-    """Фильтрация перед отправкой в Sentry"""
+    """Filter before sending to Sentry"""
     
-    # Удалить чувствительные данные
+    # Remove sensitive data
     if 'request' in event:
         headers = event['request'].get('headers', {})
         if 'Authorization' in headers:

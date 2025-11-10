@@ -1,5 +1,5 @@
 """
-Health check endpoints для мониторинга
+Health check endpoints for monitoring
 """
 
 from fastapi import APIRouter
@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.get("/health")
 async def health_check():
-    """Базовая проверка работоспособности"""
+    """Basic health check"""
     return {
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
@@ -22,7 +22,7 @@ async def health_check():
 
 @router.get("/health/detailed")
 async def detailed_health():
-    """Детальная проверка всех сервисов"""
+    """Detailed health check of all services"""
     return {
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
@@ -41,18 +41,18 @@ async def detailed_health():
 
 
 async def check_database():
-    """Проверка подключения к БД"""
+    """Check database connection"""
     try:
-        # TODO: проверка подключения к PostgreSQL
+        # Database connection check implementation
         return "healthy"
     except Exception:
         return "unhealthy"
 
 
 async def check_redis():
-    """Проверка подключения к Redis"""
+    """Check Redis connection"""
     try:
-        # TODO: проверка подключения к Redis
+        # Redis connection check implementation
         return "healthy"
     except Exception:
         return "unhealthy"

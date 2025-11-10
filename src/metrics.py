@@ -1,5 +1,5 @@
 """
-Prometheus metrics для мониторинга
+Prometheus metrics for monitoring
 """
 
 from prometheus_client import Counter, Histogram, Gauge, generate_latest
@@ -7,7 +7,7 @@ from fastapi import APIRouter, Response
 
 router = APIRouter()
 
-# Метрики
+# Metrics
 REQUEST_COUNT = Counter(
     'app_requests_total',
     'Total request count',
@@ -38,7 +38,7 @@ TEAMMATE_SEARCHES = Counter(
 
 @router.get("/metrics")
 async def metrics():
-    """Endpoint для Prometheus"""
+    """Endpoint for Prometheus scraping"""
     return Response(
         content=generate_latest(),
         media_type="text/plain"
