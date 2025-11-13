@@ -105,7 +105,9 @@ async def analyze_player(request: PlayerAnalysisRequest):
         analysis_text = analysis.get("detailed_analysis", "Analysis not available")
         strengths_list = list(analysis.get("strengths", {}).keys())
         weaknesses_list = analysis.get("weaknesses", {}).get("areas", [])
-        recommendations_list = analysis.get("weaknesses", {}).get("recommendations", [])
+        recommendations_list = analysis.get("weaknesses", {}).get(
+            "recommendations", []
+        )
 
         return PlayerAnalysisResponse(
             player_id=player_id,
@@ -147,11 +149,10 @@ async def get_training_plan(player_id: str):
             )
 
         lifetime_stats = stats.get('lifetime', {})
-        player_stats = {
-            'kd_ratio': float(lifetime_stats.get('K/D Ratio', '1.0')),
-            'win_rate': float(lifetime_stats.get('Win Rate %', '50')),
-            'hs_percentage': float(lifetime_stats.get('Headshots %', '40'))
-        }
+        # Extract player statistics for analysis
+        kd_ratio = float(lifetime_stats.get('K/D Ratio', '1.0'))
+        win_rate = float(lifetime_stats.get('Win Rate %', '50'))
+        hs_percentage = float(lifetime_stats.get('Headshots %', '40'))
 
         # Generate plan with correct parameters
         training_plan = await ai_service.generate_training_plan(

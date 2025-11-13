@@ -12,10 +12,13 @@ export default function DemoPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-8">
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Please login to upload demos</h2>
-          <button onClick={() => router.push('/auth')} className="btn-primary">
+          <h1 className="text-4xl font-bold mb-8 text-white">Please login to upload demos</h1>
+          <button 
+            onClick={() => router.push('/auth')} 
+            className="px-8 py-3 bg-orange-500 hover:bg-orange-600 rounded-lg font-semibold transition-colors"
+          >
             Go to Login
           </button>
         </div>
@@ -31,8 +34,8 @@ export default function DemoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
-      <div className="container mx-auto px-6 pt-32 pb-16">
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center">
+      <div className="text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">📊 Demo Analysis</h1>
           <p className="text-xl text-gray-300 mb-8">Upload your CS2 demo file for detailed analysis</p>
