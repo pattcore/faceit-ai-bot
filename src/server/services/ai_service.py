@@ -18,7 +18,7 @@ class AIService:
         # Groq API (free, fast)
         self.groq_api_key = os.getenv("GROQ_API_KEY", "")
         self.groq_base_url = "https://api.groq.com/openai/v1/chat/completions"
-        self.model = "llama-3.1-70b-versatile"  # Free model
+        self.model = "llama-3.1-8b-instant"  # Updated free model
 
         if not self.groq_api_key:
             logger.warning("GROQ_API_KEY not set, AI analysis will be limited")

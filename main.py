@@ -91,6 +91,44 @@ def health_check():
     return {"status": "healthy", "service": "analysis"}
 
 
+@app.post("/public/demo-analysis")
+async def public_demo_analysis(request: dict):
+    """
+    Public demo analysis endpoint (no auth required)
+    """
+    try:
+        nickname = request.get("nickname", "test_player")
+        
+        # Mock analysis result
+        return {
+            "nickname": nickname,
+            "status": "completed",
+            "analysis": {
+                "kd_ratio": 1.25,
+                "win_rate": 65.5,
+                "headshot_percentage": 48.2,
+                "avg_kills": 18.5,
+                "avg_deaths": 14.8
+            },
+            "strengths": ["aim", "positioning", "clutch_ability"],
+            "weaknesses": ["consistency", "economy_management"],
+            "recommendations": [
+                "Practice crosshair placement daily",
+                "Study professional demos",
+                "Work on economy decisions"
+            ],
+            "training_plan": {
+                "daily_routine": [
+                    {"exercise": "Aim training", "duration": "30 min"},
+                    {"exercise": "Demo review", "duration": "20 min"},
+                    {"exercise": "Deathmatch", "duration": "15 min"}
+                ]
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post("/analyze-demo")
 async def analyze_demo(demo: UploadFile = File(...)):
     """
