@@ -11,12 +11,17 @@ export default function TeammatesPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-8">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Please login to find teammates</h2>
-          <button onClick={() => router.push('/auth')} className="px-6 py-3 bg-gradient-to-r from-primary to-primary-dark rounded-lg font-semibold">
-            Go to Login
-          </button>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
+        <div className="container mx-auto px-6 pt-32 pb-16">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-white mb-8">Please login to find teammates</h1>
+            <button
+              onClick={() => router.push('/auth')}
+              className="btn-primary"
+            >
+              Go to Login
+            </button>
+          </div>
         </div>
       </div>
     );

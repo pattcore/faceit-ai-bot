@@ -1,50 +1,47 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React from 'react';
 import { useAuth } from '../../src/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function DashboardPage() {
-  const { user, logout, loading } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/auth');
-    }
-  }, [user, loading, router]);
-
-  if (loading || !user) {
-    return <div className="loading">Loading...</div>;
+  if (!user) {
+    router.push('/auth');
+    return null;
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
-        <h1>Dashboard</h1>
-        <button onClick={logout} className="logout-btn">Logout</button>
-      </div>
-
-      <div className="dashboard-grid">
-        {/* Profile Card */}
-        <div className="dashboard-card">
-          <div className="card-header">
-            <h2>👤 Profile</h2>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
+      <div className="container mx-auto px-6 pt-32 pb-16">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
+              🎮 Dashboard
+            </h1>
+            <p className="text-xl text-gray-300">Welcome back, {user.username || user.email}!</p>
           </div>
-          <div className="card-content">
-            <div className="profile-info">
-              <div className="info-row">
-                <span className="label">Username:</span>
-                <span className="value">{user.username || 'Not set'}</span>
-              </div>
-              <div className="info-row">
-                <span className="label">Email:</span>
-                <span className="value">{user.email || 'Not set'}</span>
-              </div>
-              <div className="info-row">
-                <span className="label">Faceit ID:</span>
-                <span className="value">{user.faceit_id || 'Not linked'}</span>
-              </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Link href="/demo" className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg p-8 text-center hover:bg-gray-800/70 transition-colors">
+              <div className="text-4xl mb-4">📊</div>
+              <h3 className="text-xl font-semibold mb-3 text-white">Demo Analysis</h3>
+              <p className="text-gray-400">Upload and analyze CS2 demos</p>
+            </Link>
+            
+            <Link href="/teammates" className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg p-8 text-center hover:bg-gray-800/70 transition-colors">
+              <div className="text-4xl mb-4">👥</div>
+              <h3 className="text-xl font-semibold mb-3 text-white">Find Teammates</h3>
+              <p className="text-gray-400">Connect with players</p>
+            </Link>
+            
+            <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg p-8 text-center">
+              <div className="text-4xl mb-4">🎯</div>
+              <h3 className="text-xl font-semibold mb-3 text-white">Player Stats</h3>
+              <p className="text-gray-400">Track your performance</p>
             </div>
           </div>
         </div>

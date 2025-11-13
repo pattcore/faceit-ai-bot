@@ -17,9 +17,9 @@ services:
     image: postgres:16
     restart: always
     environment:
-      POSTGRES_USER: faceit
-      POSTGRES_PASSWORD: faceit
-      POSTGRES_DB: faceit
+      POSTGRES_USER: faceit_user
+      POSTGRES_PASSWORD: FaceitDB_Secure_Pass_2024!
+      POSTGRES_DB: faceit_user
     ports:
       - '5432:5432'
     volumes:
@@ -37,7 +37,7 @@ services:
     env_file:
       - ./.env
     environment:
-      - DATABASE_URL=postgresql://faceit:faceit@db:5432/faceit
+      - DATABASE_URL=postgresql://faceit_user:FaceitDB_Secure_Pass_2024!@db:5432/faceit_user
       - REDIS_URL=redis://redis:6379
     ports:
       - '8000:8000'
@@ -59,7 +59,7 @@ services:
     env_file:
       - ./.env
     environment:
-      - DATABASE_URL=postgresql://faceit:faceit@db:5432/faceit
+      - DATABASE_URL=postgresql://faceit_user:FaceitDB_Secure_Pass_2024!@db:5432/faceit_user
       - REDIS_URL=redis://redis:6379
     volumes:
       - ./:/app:cached
@@ -76,7 +76,7 @@ services:
     env_file:
       - ./.env
     environment:
-      - DATABASE_URL=postgresql://faceit:faceit@db:5432/faceit
+      - DATABASE_URL=postgresql://faceit_user:FaceitDB_Secure_Pass_2024!@db:5432/faceit_user
       - REDIS_URL=redis://redis:6379
     volumes:
       - ./:/app:cached
