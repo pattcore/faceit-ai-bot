@@ -3,7 +3,6 @@ Structured logging configuration
 """
 
 import logging
-import json
 from datetime import datetime
 from pythonjsonlogger import jsonlogger
 

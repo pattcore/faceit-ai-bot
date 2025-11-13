@@ -2,7 +2,7 @@
 import logging
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
-from .schemas import UserRegister, UserLogin, Token, UserResponse
+from .schemas import UserRegister, Token, UserResponse
 from .security import (
     verify_password,
     get_password_hash,
@@ -61,8 +61,6 @@ async def login(
     db: Session = Depends(get_db)
 ):
     """Login user"""
-    from fastapi import Form
-    import json
     
     # Try to get form data first
     try:

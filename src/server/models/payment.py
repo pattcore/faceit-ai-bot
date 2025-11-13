@@ -1,13 +1,16 @@
 """
 Model payments
 """
-from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Float, Integer, Enum as SQLEnum
+from sqlalchemy import (
+    Column, String, DateTime, ForeignKey, Float, Enum as SQLEnum
+)
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import sys
 from pathlib import Path
 import enum
 
+# Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent))
 from database import Base
 
@@ -38,7 +41,11 @@ class Payment(Base):
     provider = Column(SQLEnum(PaymentProvider), index=True)
     amount = Column(Float)
     currency = Column(String, default="RUB")
-    status = Column(SQLEnum(PaymentStatus), default=PaymentStatus.PENDING, index=True)
+    status = Column(
+        SQLEnum(PaymentStatus), 
+        default=PaymentStatus.PENDING, 
+        index=True
+    )
     description = Column(String, nullable=True)
     payment_url = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -49,4 +56,7 @@ class Payment(Base):
     user = relationship("User", backref="payments")
 
     def __repr__(self):
-        return f"<Payment(id={self.id}, amount={self.amount}, status={self.status})>"
+        return (
+            f"<Payment(id={self.id}, amount={self.amount}, "
+            f"status={self.status})>"
+        )

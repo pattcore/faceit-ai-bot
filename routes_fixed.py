@@ -151,10 +151,6 @@ async def get_training_plan(player_id: str):
             )
 
         lifetime_stats = stats.get('lifetime', {})
-        # Extract player statistics for analysis
-        kd_ratio = float(lifetime_stats.get('K/D Ratio', '1.0'))
-        win_rate = float(lifetime_stats.get('Win Rate %', '50'))
-        hs_percentage = float(lifetime_stats.get('Headshots %', '40'))
 
         # Generate plan with correct parameters
         training_plan = await ai_service.generate_training_plan(

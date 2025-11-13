@@ -45,7 +45,9 @@ class AIService:
 
         try:
             # Create prompt for analysis
-            prompt = self._create_analysis_prompt(nickname, stats, match_history)
+            prompt = self._create_analysis_prompt(
+                nickname, stats, match_history
+            )
 
             # Request to Groq API
             analysis = await self._call_groq_api(prompt)

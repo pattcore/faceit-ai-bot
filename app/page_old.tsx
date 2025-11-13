@@ -1,215 +1,72 @@
 'use client';
 
-import React from 'react';
 import Link from 'next/link';
-import { useAuth } from '../src/contexts/AuthContext';
 
-interface AnalysisResult {
-  filename?: string;
-  status?: string;
-  message?: string;
-  error?: string;
-  [key: string]: any;
-}
-
-export default function DemoPage() {
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
-
-  const handleAnalysisComplete = async (result: File | AnalysisResult) => {
-    setLoading(true);
-    try {
-      // If it's a File, send for analysis
-      if (result instanceof File) {
-        const formData = new FormData();
-        formData.append('demo', result);
-
-        const response = await fetch(API_ENDPOINTS.DEMO_ANALYZE, {
-          method: 'POST',
-          body: formData,
-        });
-
-        const analysisData = await response.json();
-        setAnalysisResult(analysisData);
-      } else {
-        // If it's already analysis result
-        setAnalysisResult(result);
-      }
-    } catch (error) {
-      console.error('Error during analysis:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePayment = async () => {
-    try {
-      const response = await fetch(API_ENDPOINTS.PAYMENTS_CREATE, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount: 500,
-          currency: 'RUB',
-          description: 'Demo analysis payment',
-          provider: 'YOOKASSA',
-        }),
-      });
-
-      const paymentData = await response.json();
-      setPaymentUrl(paymentData.payment_url);
-    } catch (error) {
-      console.error('Error during payment:', error);
-    }
-  };
-
-  const handleSBPPayment = async () => {
-    try {
-      const response = await fetch(API_ENDPOINTS.PAYMENTS_CREATE, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount: 500,
-          currency: 'RUB',
-          description: 'Demo analysis payment via SBP',
-          provider: 'SBP',
-        }),
-      });
-
-      const paymentData = await response.json();
-      setPaymentUrl(paymentData.payment_url);
-    } catch (error) {
-      console.error('Error during SBP payment:', error);
-      alert('SBP payment error. Please try again.');
-    }
-  };
-
+export default function HomePage() {
+  
   return (
-    <div className="page-container">
-      <PlayerAnalysis />
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center">
+      <div className="text-center mb-16">
+        <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">
+          Faceit AI Bot
+        </h1>
+        <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+          Advanced CS2 statistics analysis and teammate search platform
+        </p>
+          
+          <div className="flex gap-6 justify-center flex-wrap">
+            {user ? (
+              <Link 
+                href="/dashboard" 
+                className="btn-primary text-lg px-10 py-4"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link 
+                  href="/auth" 
+                  className="btn-primary text-lg px-10 py-4"
+                >
+                  Get Started
+                </Link>
+                <Link 
+                  href="/demo" 
+                  className="btn-secondary text-lg px-10 py-4"
+                >
+                  Try Demo
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
 
-      <div className="page-header mt-12">
-        <h2 className="text-2xl font-bold text-white mb-4">📊 Demo File Analysis</h2>
-        <p>Upload demo for detailed analysis</p>
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="card text-center group">
+            <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-2xl text-white">
+              📊
+            </div>
+            <h3 className="text-2xl font-bold mb-4 text-white">Demo Analysis</h3>
+            <p className="text-gray-300 text-lg">Upload and analyze CS2 demos with advanced statistics</p>
+          </div>
+          
+          <div className="card text-center group">
+            <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center text-2xl text-white">
+              🎯
+            </div>
+            <h3 className="text-2xl font-bold mb-4 text-white">Player Statistics</h3>
+            <p className="text-gray-300 text-lg">Track detailed performance metrics and improvements</p>
+          </div>
+          
+          <div className="card text-center group">
+            <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center text-2xl text-white">
+              👥
+            </div>
+            <h3 className="text-2xl font-bold mb-4 text-white">Find Teammates</h3>
+            <p className="text-gray-300 text-lg">Connect with compatible players for better matches</p>
+          </div>
+        </div>
       </div>
-
-      <DemoUpload onAnalysisComplete={handleAnalysisComplete} />
-
-      {loading && <p>Analyzing demo...</p>}
-
-      {analysisResult && (
-        <div className="analysis-result">
-          <h3>Analysis Results</h3>
-          <pre>{JSON.stringify(analysisResult, null, 2)}</pre>
-          <button onClick={handlePayment} className="btn btn-primary">Pay via YooKassa</button>
-          <button onClick={handleSBPPayment} className="btn btn-secondary">Pay via SBP</button>
-        </div>
-      )}
-
-      {paymentUrl && (
-        <div className="payment-link">
-          <p>Go to payment link:</p>
-          <a href={paymentUrl} target="_blank" rel="noopener noreferrer">Pay</a>
-        </div>
-      )}
-
-      <TeammateChat />
-      <NotificationSystem />
-
-      <style>{`
-        .page-container {
-          min-height: 100vh;
-          padding: 2rem 0;
-          background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
-        }
-
-        .page-header {
-          text-align: center;
-          margin-bottom: 3rem;
-        }
-
-        .page-header h1 {
-          font-size: 3rem;
-          font-weight: 800;
-          margin-bottom: 1rem;
-          background: linear-gradient(45deg, #ff5200, #ffaa00);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .page-header p {
-          font-size: 1.2rem;
-          color: #a1a1aa;
-          max-width: 600px;
-          margin: 0 auto;
-          line-height: 1.6;
-        }
-
-        .analysis-result {
-          margin-top: 2rem;
-          padding: 1rem;
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 8px;
-          color: #fafafa;
-        }
-
-        .analysis-result pre {
-          white-space: pre-wrap;
-          word-wrap: break-word;
-        }
-
-        .btn {
-          margin-top: 1rem;
-          padding: 0.5rem 1rem;
-          background: #ff5200;
-          color: white;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-
-        .btn:hover {
-          background: #ffaa00;
-        }
-
-        .btn-secondary {
-          margin-top: 1rem;
-          padding: 0.5rem 1rem;
-          background: #007bff;
-          color: white;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-
-        .btn-secondary:hover {
-          background: #0056b3;
-        }
-
-        .payment-link {
-          margin-top: 2rem;
-          padding: 1rem;
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 8px;
-          color: #fafafa;
-        }
-
-        .payment-link a {
-          color: #ffaa00;
-          text-decoration: none;
-        }
-
-        .payment-link a:hover {
-          text-decoration: underline;
-        }
-
-        .feature-item p {
-          color: #a1a1aa;
-          font-size: 0.9rem;
-          line-height: 1.4;
-        }      `}</style>    </div>  );}
+    </div>
+  );
+}
