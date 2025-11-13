@@ -40,7 +40,9 @@ async def analyze_player(request: PlayerAnalysisRequest):
 
         # Fetch player data
         if request.faceit_id:
-            player_data = await faceit_client.get_player_by_id(request.faceit_id)
+            player_data = await faceit_client.get_player_by_id(
+                request.faceit_id
+            )
             player_id = request.faceit_id
         else:
             player_data = await faceit_client.get_player_by_nickname(

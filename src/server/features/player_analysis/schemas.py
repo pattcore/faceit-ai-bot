@@ -37,13 +37,17 @@ class PlayerWeaknesses(BaseModel):
 class TrainingPlan(BaseModel):
     """Training plan"""
     focus_areas: List[str] = Field(..., description="Focus areas")
-    daily_exercises: List[Dict[str, str]] = Field(..., description="Daily exercises")
+    daily_exercises: List[Dict[str, str]] = Field(
+        ..., description="Daily exercises"
+    )
     estimated_time: str = Field(..., description="Estimated improvement time")
 
 
 class PlayerAnalysisRequest(BaseModel):
     """Player analysis request"""
-    nickname: str = Field(..., min_length=3, max_length=50, description="Player nickname")
+    nickname: str = Field(
+        ..., min_length=3, max_length=50, description="Player nickname"
+    )
     detailed: bool = Field(default=True, description="Detailed analysis")
 
 
@@ -56,7 +60,9 @@ class PlayerAnalysisResponse(BaseModel):
     weaknesses: PlayerWeaknesses = Field(..., description="Weaknesses")
     training_plan: TrainingPlan = Field(..., description="Training plan")
     overall_rating: int = Field(..., ge=1, le=10, description="Overall rating")
-    analyzed_at: datetime = Field(default_factory=datetime.utcnow, description="Analysis time")
+    analyzed_at: datetime = Field(
+        default_factory=datetime.utcnow, description="Analysis time"
+    )
 
     class Config:
         json_schema_extra = {
