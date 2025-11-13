@@ -99,10 +99,14 @@ async def analyze_player(request: PlayerAnalysisRequest):
         )
 
         # Parse analysis to extract strengths/weaknesses
-        analysis_text = analysis.get("detailed_analysis", "Analysis not available")
+        analysis_text = analysis.get(
+            "detailed_analysis", "Analysis not available"
+        )
         strengths_list = list(analysis.get("strengths", {}).keys())
         weaknesses_list = analysis.get("weaknesses", {}).get("areas", [])
-        recommendations_list = analysis.get("weaknesses", {}).get("recommendations", [])
+        recommendations_list = analysis.get("weaknesses", {}).get(
+            "recommendations", []
+        )
 
         return PlayerAnalysisResponse(
             player_id=player_id,

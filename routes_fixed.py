@@ -102,7 +102,9 @@ async def analyze_player(request: PlayerAnalysisRequest):
         )
 
         # Extract data from analysis
-        analysis_text = analysis.get("detailed_analysis", "Analysis not available")
+        analysis_text = analysis.get(
+            "detailed_analysis", "Analysis not available"
+        )
         strengths_list = list(analysis.get("strengths", {}).keys())
         weaknesses_list = analysis.get("weaknesses", {}).get("areas", [])
         recommendations_list = analysis.get("weaknesses", {}).get(
