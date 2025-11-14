@@ -98,7 +98,7 @@ async def public_demo_analysis(request: dict):
     """
     try:
         nickname = request.get("nickname", "test_player")
-        
+
         # Mock analysis result
         return {
             "nickname": nickname,
@@ -157,10 +157,10 @@ async def generate_training(user_stats: dict):
         # Initialize AI service
         from src.server.services.ai_service import AIService
         ai_service = AIService()
-        
+
         # Get player nickname if provided
         nickname = user_stats.get("player_nickname", "Player")
-        
+
         # Prepare stats for analysis
         stats = {
             "kd_ratio": user_stats.get("kd_ratio", 1.0),
@@ -170,19 +170,23 @@ async def generate_training(user_stats: dict):
             "elo": user_stats.get("elo", 1000),
             "level": user_stats.get("level", 5)
         }
-        
+
         # Get AI analysis
         analysis = await ai_service.analyze_player_with_ai(nickname, stats, [])
-        
+
         # Return enhanced analysis with training plan
         return {
-            "player_level": analysis.get("player_tier", "intermediate").lower(),
+            "player_level": analysis.get(
+                "player_tier", "intermediate"
+            ).lower(),
             "analysis": analysis.get("analysis", "Player analysis complete"),
             "overall_score": analysis.get("overall_score", 5),
             "strengths": analysis.get("strengths", {}),
             "focus_areas": analysis.get("focus_areas", ["aim", "positioning"]),
             "recommendations": analysis.get("recommendations", []),
-            "estimated_improvement_time": analysis.get("estimated_improvement_time", "2-4 weeks"),
+            "estimated_improvement_time": analysis.get(
+                "estimated_improvement_time", "2-4 weeks"
+            ),
             # Legacy format for compatibility
             "daily_exercises": [
                 {
@@ -207,14 +211,19 @@ async def generate_training(user_stats: dict):
                 "Improve K/D ratio to 1.3"
             ]
         }
-        
+
     except Exception as e:
         # Fallback to basic analysis if AI fails
         return {
             "player_level": "intermediate",
-            "analysis": f"Basic analysis for player with K/D {user_stats.get('kd_ratio', 1.0)}",
+            "analysis": (
+                f"Basic analysis for player with K/D "
+                f"{user_stats.get('kd_ratio', 1.0)}"
+            ),
             "focus_areas": ["aim", "positioning", "game_sense"],
-            "recommendations": ["Practice aim training", "Watch professional demos"],
+            "recommendations": [
+                "Practice aim training", "Watch professional demos"
+            ],
             "estimated_improvement_time": "2-3 weeks"
         }
 
