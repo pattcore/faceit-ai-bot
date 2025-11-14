@@ -27,9 +27,11 @@ app.add_middleware(
     expose_headers=["*"],
 )
 
+
 @app.get("/", tags=["health"])
 async def root():
     return {"message": "AI Service running", "status": "healthy"}
+
 
 @app.get("/health", tags=["health"])
 async def health_check():

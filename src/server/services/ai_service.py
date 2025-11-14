@@ -70,8 +70,12 @@ class AIService:
 
         # Scoring system
         aim_score = min(10, max(1, int((kd * 3) + (hs_pct / 12))))
-        game_sense_score = min(10, max(1, int((win_rate / 8) + (level / 2))))
-        positioning_score = min(10, max(1, int((win_rate / 10) + (kd * 2))))
+        game_sense_score = min(10, max(1, int(
+            (win_rate / 8) + (level / 2)
+        )))
+        positioning_score = min(10, max(1, int(
+            (win_rate / 10) + (kd * 2)
+        )))
 
         # Analysis based on performance
         if kd >= 1.4 and win_rate >= 65:

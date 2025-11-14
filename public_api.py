@@ -11,6 +11,7 @@ app = FastAPI(title="Public Faceit API")
 class PlayerRequest(BaseModel):
     nickname: str
 
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
