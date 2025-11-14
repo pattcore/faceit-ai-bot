@@ -20,12 +20,19 @@ class FaceitAPIClient:
         if not self.api_key:
             logger.warning("Faceit API key not configured")
 
+        auth_header = (
+            f"Bearer {self.api_key}"
+            if self.api_key
+            else ""
+        )
         self.headers = {
-            "Authorization": f"Bearer {self.api_key}" if self.api_key else "",
+            "Authorization": auth_header,
             "Accept": "application/json",
-            "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                          "AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/91.0.4472.124 Safari/537.36"),
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/91.0.4472.124 Safari/537.36"
+            ),
             "Accept-Language": "en-US,en;q=0.9"
         }
 

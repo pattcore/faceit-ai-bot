@@ -350,9 +350,12 @@ class PlayerAnalysisService:
             recommendations=recommendations
         )
 
-    def _generate_training_plan(self, weaknesses: PlayerWeaknesses) -> TrainingPlan:
+    def _generate_training_plan(
+        self,
+        weaknesses: PlayerWeaknesses
+    ) -> TrainingPlan:
         """Generate training plan"""
-        focus_areas = weaknesses.areas[:3]  # Top 3 areas
+        focus_areas = weaknesses.areas[:3]
 
         exercises = []
 

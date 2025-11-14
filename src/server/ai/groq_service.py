@@ -53,9 +53,12 @@ class GroqService:
                 "messages": [
                     {
                         "role": "system",
-                        "content": "You are a professional CS2 coach with over 10 years of experience. "
-                                 "Analyze player statistics and provide specific, "
-                                 "actionable recommendations for improvement."
+                        "content": (
+                            "You are a professional CS2 coach with "
+                            "over 10 years of experience. Analyze "
+                            "player statistics and provide specific, "
+                            "actionable recommendations for improvement."
+                        )
                     },
                     {"role": "user", "content": prompt}
                 ],
@@ -64,18 +67,32 @@ class GroqService:
             }
 
             async with aiohttp.ClientSession() as session:
-                async with session.post(self.groq_base_url, headers=headers, json=payload) as response:
+                async with session.post(
+                    self.groq_base_url,
+                    headers=headers,
+                    json=payload
+                ) as response:
                     if response.status == 200:
                         data = await response.json()
-                        return data["choices"][0]["message"]["content"]
+                        return data["choices"][0]["message"][
+                            "content"
+                        ]
                     else:
                         error_text = await response.text()
-                        logger.error(f"Groq API error: {response.status} - {error_text}")
-                        return f"Error analyzing performance: {response.status}"
+                        logger.error(
+                            f"Groq API error: {response.status} - "
+                            f"{error_text}"
+                        )
+                        return (
+                            f"Error analyzing performance: "
+                            f"{response.status}"
+                        )
 
         except Exception as e:
             logger.error(f"Groq API error: {str(e)}")
-            return f"Error analyzing performance: {str(e)}"
+            return (
+                f"Error analyzing performance: {str(e)}"
+            )
 
     async def generate_training_plan(
         self,
@@ -106,7 +123,8 @@ class GroqService:
 
             Focus on: {', '.join(focus_areas)}
 
-            Return JSON with fields: daily_exercises, weekly_goals, estimated_time
+            Return JSON with fields: daily_exercises, weekly_goals,
+            estimated_time
             """
 
             headers = {
@@ -117,7 +135,13 @@ class GroqService:
             payload = {
                 "model": self.model,
                 "messages": [
-                    {"role": "system", "content": "You are a CS2 coach. Reply only in JSON format."},
+                    {
+                        "role": "system",
+                        "content": (
+                            "You are a CS2 coach. "
+                            "Reply only in JSON format."
+                        )
+                    },
                     {"role": "user", "content": prompt}
                 ],
                 "temperature": 0.5,
@@ -125,10 +149,17 @@ class GroqService:
             }
 
             async with aiohttp.ClientSession() as session:
-                async with session.post(self.groq_base_url, headers=headers, json=payload) as response:
+                async with session.post(
+                    self.groq_base_url,
+                    headers=headers,
+                    json=payload
+                ) as response:
                     if response.status == 200:
                         data = await response.json()
-                        return json.loads(data["choices"][0]["message"]["content"])
+                        content = data["choices"][0]["message"][
+                            "content"
+                        ]
+                        return json.loads(content)
                     else:
                         return self._get_default_training_plan()
 
@@ -136,7 +167,11 @@ class GroqService:
             logger.error(f"Error generating training plan: {str(e)}")
             return self._get_default_training_plan()
 
-    def _build_analysis_prompt(self, stats: Dict, match_history: List[Dict]) -> str:
+    def _build_analysis_prompt(
+        self,
+        stats: Dict,
+        match_history: List[Dict]
+    ) -> str:
         """Build analysis prompt"""
         return f"""
         Analyze CS2 player statistics:

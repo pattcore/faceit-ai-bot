@@ -79,7 +79,10 @@ class SubscriptionService:
                 detail="Failed to get subscription plans"
             )
 
-    async def get_user_subscription(self, user_id: str) -> Optional[UserSubscription]:
+    async def get_user_subscription(
+        self,
+        user_id: str
+    ) -> Optional[UserSubscription]:
         """Get user subscription information"""
         try:
             # Database query not implemented
@@ -87,12 +90,16 @@ class SubscriptionService:
                 user_id=user_id,
                 subscription_tier=SubscriptionTier.FREE,
                 start_date=datetime.now(),
-                end_date=datetime.now() + timedelta(days=30),
+                end_date=(
+                    datetime.now() + timedelta(days=30)
+                ),
                 is_active=True,
                 demos_remaining=2
             )
         except Exception:
-            logger.exception(f"Failed to get subscription for user {user_id}")
+            logger.exception(
+                f"Failed to get subscription for user {user_id}"
+            )
             raise HTTPException(
                 status_code=500,
                 detail="Failed to get user subscription"
@@ -110,14 +117,18 @@ class SubscriptionService:
                 user_id=user_id,
                 subscription_tier=tier,
                 start_date=datetime.now(),
-                end_date=datetime.now() + timedelta(days=30),
+                end_date=(
+                    datetime.now() + timedelta(days=30)
+                ),
                 is_active=True,
                 demos_remaining=plan['demos_per_month']
             )
             # Database save not implemented
             return subscription
         except Exception:
-            logger.exception(f"Failed to create subscription for user {user_id}")
+            logger.exception(
+                f"Failed to create subscription for user {user_id}"
+            )
             raise HTTPException(
                 status_code=500,
                 detail="Failed to create subscription"
@@ -130,19 +141,39 @@ class SubscriptionService:
     ) -> bool:
         """Check feature access"""
         try:
-            subscription = await self.get_user_subscription(user_id)
-            plan = self.subscription_plans[subscription.subscription_tier]
+            subscription = (
+                await self.get_user_subscription(user_id)
+            )
+            plan = self.subscription_plans[
+                subscription.subscription_tier
+            ]
             return plan['features'].get(feature, False)
         except Exception:
-            logger.exception(f"Failed to check feature access for user {user_id}")
+            logger.exception(
+                f"Failed to check feature access for "
+                f"user {user_id}"
+            )
             return False
 
-    def _get_plan_description(self, tier: SubscriptionTier) -> str:
+    def _get_plan_description(
+        self,
+        tier: SubscriptionTier
+    ) -> str:
         """Get subscription plan description"""
         descriptions = {
-            SubscriptionTier.FREE: "Basic demo analysis and limited features",
-            SubscriptionTier.BASIC: "Extended analysis and teammate search",
-            SubscriptionTier.PRO: "Full analysis, priority support and team analysis",
-            SubscriptionTier.ELITE: "Unlimited access to all features and personal coach"
+            SubscriptionTier.FREE: (
+                "Basic demo analysis and limited features"
+            ),
+            SubscriptionTier.BASIC: (
+                "Extended analysis and teammate search"
+            ),
+            SubscriptionTier.PRO: (
+                "Full analysis, priority support and "
+                "team analysis"
+            ),
+            SubscriptionTier.ELITE: (
+                "Unlimited access to all features and "
+                "personal coach"
+            )
         }
         return descriptions.get(tier, "")

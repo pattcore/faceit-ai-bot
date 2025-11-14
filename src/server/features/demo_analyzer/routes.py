@@ -6,7 +6,10 @@ from ..demo_analyzer.service import DemoAnalyzer
 from ..demo_analyzer.models import DemoAnalysis
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/demo", tags=["demo"])
+router = APIRouter(
+    prefix="/demo",
+    tags=["demo"]
+)
 
 demo_analyzer = DemoAnalyzer()
 
@@ -15,7 +18,10 @@ demo_analyzer = DemoAnalyzer()
     "/analyze",
     response_model=DemoAnalysis,
     summary="Demo file analysis",
-    description="Analyzes uploaded CS2 demo file and returns detailed analysis",
+    description=(
+        "Analyzes uploaded CS2 demo file and "
+        "returns detailed analysis"
+    ),
     responses={
         200: {
             "description": "Analysis completed successfully"

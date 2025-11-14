@@ -4,6 +4,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
 
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 from fastapi import UploadFile
 
 from .models import (
@@ -11,8 +13,6 @@ from .models import (
     PlayerPerformance,
     RoundAnalysis
 )
-
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from exceptions import DemoAnalysisException
 
 logger = logging.getLogger(__name__)
