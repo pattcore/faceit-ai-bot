@@ -3,7 +3,7 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from .schemas import UserRegister, Token, UserResponse
+from .schemas import Token, UserResponse
 from .security import (
     verify_password,
     get_password_hash,
@@ -24,31 +24,51 @@ async def register(
 ):
     """Register new user"""
     try:
-        # Try to get form data first
+        email = None
+        username = None
+        password = None
+        faceit_id = None
+
+        # Try to parse as FormData first
         try:
             form = await request.form()
-            if form:
-                email = form.get("email")
-                username = form.get("username")
-                password = form.get("password")
-                faceit_id = form.get("faceit_id")
-            else:
+            email = form.get("email")
+            username = form.get("username")
+            password = form.get("password")
+            faceit_id = form.get("faceit_id")
+        except Exception:
+            # Fallback to JSON
+            try:
                 body = await request.json()
                 email = body.get("email")
                 username = body.get("username")
                 password = body.get("password")
                 faceit_id = body.get("faceit_id")
-        except Exception:
-            body = await request.json()
-            email = body.get("email")
-            username = body.get("username")
-            password = body.get("password")
-            faceit_id = body.get("faceit_id")
+            except Exception as e:
+                logger.error(f"Failed to parse request body: {str(e)}")
+                raise HTTPException(
+                    status_code=400,
+                    detail="Invalid request format"
+                )
 
         if not email or not username or not password:
             raise HTTPException(
                 status_code=400,
                 detail="Missing required fields: email, username, password"
+            )
+
+        # Validate email format
+        if "@" not in email:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid email format"
+            )
+
+        # Validate password length
+        if len(password) < 6:
+            raise HTTPException(
+                status_code=400,
+                detail="Password must be at least 6 characters"
             )
 
         existing = db.execute(
