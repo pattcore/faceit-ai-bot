@@ -38,8 +38,7 @@ jobs:
         continue-on-error: true
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          # Secret настраивается в Settings -> Secrets and variables -> Actions
-          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY || '' }}
+          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
       
       - name: Deploy to VPS
         run: |
