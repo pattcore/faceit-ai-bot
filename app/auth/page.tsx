@@ -28,7 +28,9 @@ export default function AuthPage() {
       }
       router.push('/dashboard');
     } catch (err) {
-      setError(isLogin ? 'Login failed. Check your credentials.' : 'Registration failed. Try again.');
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(errorMessage || (isLogin ? 'Login failed. Check your credentials.' : 'Registration failed. Try again.'));
+      console.error('Auth error:', err);
     } finally {
       setLoading(false);
     }
