@@ -1,3 +1,8 @@
+from pathlib import Path
+from dotenv import load_dotenv
+from functools import lru_cache
+from typing import List, Optional
+
 try:
     from pydantic_settings import BaseSettings
 except ImportError:
@@ -5,8 +10,10 @@ except ImportError:
     from pydantic import BaseSettings
 
 from pydantic import validator
-from functools import lru_cache
-from typing import List, Optional
+
+# Load environment variables from .env
+env_path = Path(__file__).resolve().parent.parent.parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
 
 
 class Settings(BaseSettings):

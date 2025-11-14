@@ -32,8 +32,9 @@ async def register(
         # Parse request body - try FormData first, then JSON
         content_type = request.headers.get("content-type", "")
 
-        if ("multipart/form-data" in content_type or
-                "application/x-www-form-urlencoded" in content_type):
+        is_form = ("multipart/form-data" in content_type or
+                   "application/x-www-form-urlencoded" in content_type)
+        if is_form:
             form = await request.form()
             email = form.get("email")
             username = form.get("username")

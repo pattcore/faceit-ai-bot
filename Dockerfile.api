@@ -9,14 +9,10 @@ WORKDIR /app
 # Устанавливаем curl для healthcheck
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-COPY requirements-api-only.txt requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY ./src /app/src
-COPY ./scripts /app/scripts
-
-# Make start script executable
-RUN chmod +x /app/scripts/start.sh
 
 EXPOSE 8000
 
@@ -24,4 +20,4 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:8000/health || exit 1
 
-CMD ["/app/scripts/start.sh"]
+CMD ["celery", "-A", "src.server.celery_app", "worker", "--loglevel=info"]
