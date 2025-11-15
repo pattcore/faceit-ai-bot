@@ -8,6 +8,7 @@ from prometheus_client import generate_latest, Counter, Histogram
 from .config.settings import settings
 from .core.logging import setup_logging
 from .core.sentry import init_sentry, capture_exception
+from .core.telemetry import init_telemetry
 from .features.auth.routes import router as auth_router
 from .features.ai_analysis.routes import router as ai_router
 from .features.payment.routes import router as payment_router
@@ -21,6 +22,9 @@ setup_logging()
 
 # Configure Sentry
 init_sentry()
+
+# Configure telemetry
+init_telemetry()
 
 app = FastAPI(
     title=settings.APP_TITLE,

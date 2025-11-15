@@ -119,6 +119,14 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: Optional[str] = None
 
+    # Observability settings
+    ENVIRONMENT: str = "production"
+    LOG_LEVEL: str = "INFO"
+    SENTRY_DSN: Optional[str] = None
+    JAEGER_HOST: str = "localhost"
+    JAEGER_PORT: int = 6831
+    VERSION: str = "0.2.2"
+
     # Test settings
     TEST_ENV: bool = False
 
