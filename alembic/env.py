@@ -10,7 +10,8 @@ sys.path.insert(0, os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..')
 ))
 
-from src.server.database.models import Base
+# Import after sys.path modification
+from src.server.database.models import Base  # noqa: E402
 
 config = context.config
 if config.config_file_name is not None:
