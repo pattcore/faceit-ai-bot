@@ -17,7 +17,10 @@ class CacheManager:
     def __init__(self, redis_url: str = "redis://localhost:6379/0"):
         """Initialize Redis connection."""
         try:
-            self.redis_client = redis.from_url(redis_url, decode_responses=True)
+            self.redis_client = redis.from_url(
+                redis_url,
+                decode_responses=True,
+            )
             self.redis_client.ping()
             logger.info("Redis connection established")
         except Exception as e:
@@ -148,7 +151,7 @@ class QueryOptimizer:
         return (
             db.query(Subscription)
             .join(User)
-            .filter(Subscription.is_active == True)
+            .filter(Subscription.is_active is True)
             .all()
         )
 

@@ -13,11 +13,13 @@ def create_performance_indexes(db: Session) -> None:
     indexes = [
         # User indexes
         (
-            "CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at)",
+            "CREATE INDEX IF NOT EXISTS idx_users_created_at "
+            "ON users(created_at)",
             "User creation date index",
         ),
         (
-            "CREATE INDEX IF NOT EXISTS idx_users_is_active ON users(is_active)",
+            "CREATE INDEX IF NOT EXISTS idx_users_is_active "
+            "ON users(is_active)",
             "User active status index",
         ),
         (
@@ -33,7 +35,8 @@ def create_performance_indexes(db: Session) -> None:
             "Subscription user and active status composite index",
         ),
         (
-            "CREATE INDEX IF NOT EXISTS idx_subscriptions_tier ON subscriptions(tier)",
+            "CREATE INDEX IF NOT EXISTS idx_subscriptions_tier "
+            "ON subscriptions(tier)",
             "Subscription tier index",
         ),
         (
@@ -49,11 +52,13 @@ def create_performance_indexes(db: Session) -> None:
             "Payment user and creation date composite index",
         ),
         (
-            "CREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status)",
+            "CREATE INDEX IF NOT EXISTS idx_payments_status "
+            "ON payments(status)",
             "Payment status index",
         ),
         (
-            "CREATE INDEX IF NOT EXISTS idx_payments_provider ON payments(provider)",
+            "CREATE INDEX IF NOT EXISTS idx_payments_provider "
+            "ON payments(provider)",
             "Payment provider index",
         ),
     ]

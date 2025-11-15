@@ -1,7 +1,7 @@
 """Main FastAPI application entry point."""
 
 import logging
-from fastapi import FastAPI, Request, JSONResponse
+from fastapi import FastAPI, Request, JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import generate_latest, Counter, Histogram
 
@@ -90,9 +90,6 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=4000)
 
 
-# Prometheus metrics
-from fastapi import Response
-
 # Business metrics
 ANALYSIS_REQUESTS = Counter(
     'faceit_analysis_requests_total', 'Total analysis requests'
@@ -101,6 +98,7 @@ ANALYSIS_DURATION = Histogram(
     'faceit_analysis_duration_seconds', 'Analysis duration'
 )
 ACTIVE_USERS = Counter('faceit_active_users', 'Active user sessions')
+
 
 @app.get("/metrics")
 async def metrics():

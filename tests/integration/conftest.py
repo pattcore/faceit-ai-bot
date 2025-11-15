@@ -6,12 +6,12 @@ Pytest fixtures для integration тестов
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker
 import redis
 import os
 from faker import Faker
 from unittest.mock import patch
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from src.server.config.settings import Settings
 from src.server.database import Base
@@ -124,7 +124,9 @@ def authenticated_client(test_client, db_session):
     def override_get_current_user():
         return user
 
-    fastapi_app.dependency_overrides[get_current_user] = override_get_current_user
+    fastapi_app.dependency_overrides[get_current_user] = (
+        override_get_current_user
+    )
 
     yield test_client
 
@@ -240,7 +242,11 @@ def auth_headers(test_client, test_user):
     """Заголовки для аутентифицированного пользователя"""
     # Логиним пользователя
     response = test_client.post(
-        "/api/auth/login", json={"email": test_user.email, "password": "password123"}
+        "/api/auth/login",
+        json={
+            "email": test_user.email,
+            "password": "password123",
+        },
     )
     assert response.status_code == 200
     token = response.json()["access_token"]
@@ -250,14 +256,22 @@ def auth_headers(test_client, test_user):
 @pytest.fixture
 def admin_user(db_session):
     """Создать администратора"""
-    return create_test_user(db_session, is_superuser=True, username="admin")
+    return create_test_user(
+        db_session,
+        is_superuser=True,
+        username="admin",
+    )
 
 
 @pytest.fixture
 def admin_auth_headers(test_client, admin_user):
     """Заголовки для администратора"""
     response = test_client.post(
-        "/api/auth/login", json={"email": admin_user.email, "password": "password123"}
+        "/api/auth/login",
+        json={
+            "email": admin_user.email,
+            "password": "password123",
+        },
     )
     assert response.status_code == 200
     token = response.json()["access_token"]
@@ -305,7 +319,10 @@ def mock_faceit_api():
                     "started_at": 1699876543,
                     "finished_at": 1699880000,
                     "results": {"winner": "faction1"},
-                    "teams": {"faction1": {"players": []}, "faction2": {"players": []}},
+                    "teams": {
+                        "faction1": {"players": []},
+                        "faction2": {"players": []},
+                    },
                 }
             ]
         }
