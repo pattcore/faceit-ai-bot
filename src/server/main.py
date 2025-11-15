@@ -11,7 +11,7 @@ from .core.sentry import init_sentry, capture_exception
 from .core.telemetry import init_telemetry
 from .middleware.logging_middleware import StructuredLoggingMiddleware
 from .middleware.security_middleware import SecurityMiddleware
-from .middleware.cache_middleware import CacheMiddleware, clear_all_cache, invalidate_user_cache
+from .middleware.cache_middleware import CacheMiddleware
 from .auth.routes import router as auth_router
 from .features.ai_analysis.routes import router as ai_router
 from .features.payments.routes import router as payment_router
@@ -30,9 +30,15 @@ init_sentry()
 init_telemetry()
 
 # Business metrics
-ANALYSIS_REQUESTS = Counter("faceit_analysis_requests_total", "Total analysis requests")
-ANALYSIS_DURATION = Histogram("faceit_analysis_duration_seconds", "Analysis duration")
-ACTIVE_USERS = Counter("faceit_active_users", "Active user sessions")
+ANALYSIS_REQUESTS = Counter(
+    "faceit_analysis_requests_total", "Total analysis requests"
+)
+ANALYSIS_DURATION = Histogram(
+    "faceit_analysis_duration_seconds", "Analysis duration"
+)
+ACTIVE_USERS = Counter(
+    "faceit_active_users", "Active user sessions"
+)
 
 app = FastAPI(
     title=settings.APP_TITLE,

@@ -3,7 +3,6 @@
 import json
 import hashlib
 import os
-from typing import Optional
 
 import redis
 from fastapi import Request, Response
@@ -12,7 +11,9 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 def _get_redis_config():
     """Parse Redis URL from environment"""
-    redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+    redis_url = os.getenv(
+        "REDIS_URL", "redis://localhost:6379"
+    )
     redis_url = redis_url.replace("redis://", "")
     parts = redis_url.split(":")
     host = parts[0]
@@ -21,9 +22,10 @@ def _get_redis_config():
 
 
 # Redis connection
+host, port = _get_redis_config()
 redis_client = redis.Redis(
-    host=_get_redis_config()[0],
-    port=_get_redis_config()[1],
+    host=host,
+    port=port,
     decode_responses=True,
 )
 
