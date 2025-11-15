@@ -9,6 +9,7 @@ from .config.settings import settings
 from .core.logging import setup_logging
 from .core.sentry import init_sentry, capture_exception
 from .core.telemetry import init_telemetry
+from .middleware.logging_middleware import StructuredLoggingMiddleware
 from .features.auth.routes import router as auth_router
 from .features.ai_analysis.routes import router as ai_router
 from .features.payment.routes import router as payment_router
@@ -33,6 +34,9 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc"
 )
+
+# Add structured logging middleware
+app.add_middleware(StructuredLoggingMiddleware)
 
 # Configure CORS
 app.add_middleware(
