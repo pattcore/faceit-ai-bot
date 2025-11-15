@@ -1,12 +1,13 @@
 """
 Database configuration and SQLAlchemy setup
 """
+import sys
+from pathlib import Path
+
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-import sys
-from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent))
 from config.settings import settings
@@ -42,4 +43,3 @@ def get_db():
         yield db
     finally:
         db.close()
-
