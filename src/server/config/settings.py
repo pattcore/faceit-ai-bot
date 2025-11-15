@@ -19,14 +19,12 @@ load_dotenv(dotenv_path=env_path)
 class Settings(BaseSettings):
     # App settings
     APP_TITLE: str = "Faceit AI Bot Service"
-    APP_VERSION: str = "0.2.2"
+    APP_VERSION: str = "0.4.0"
     NODE_ENV: str = "production"
     REPLIT_DEV_DOMAIN: Optional[str] = None
 
     # Database settings
-    DATABASE_URL: str = (
-        "postgresql://user:password@localhost:5432/faceit_ai_bot"
-    )
+    DATABASE_URL: str = "postgresql://user:password@localhost:5432/faceit_ai_bot"
 
     # Faceit API settings
     FACEIT_API_KEY: Optional[str] = None
@@ -44,24 +42,20 @@ class Settings(BaseSettings):
     WEBSITE_URL: str = "http://localhost:3000"
     API_URL: str = "http://localhost:8000"
 
-    @validator('DATABASE_URL')
+    @validator("DATABASE_URL")
     def validate_database_url(cls, v):
-        allowed_prefixes = (
-            'postgresql://', 'postgresql+asyncpg://', 'sqlite://'
-        )
+        allowed_prefixes = ("postgresql://", "postgresql+asyncpg://", "sqlite://")
         if not v.startswith(allowed_prefixes):
             raise ValueError(
-                'Invalid database URL. Must start with postgresql://, '
-                'postgresql+asyncpg://, or sqlite://'
+                "Invalid database URL. Must start with postgresql://, "
+                "postgresql+asyncpg://, or sqlite://"
             )
         return v
 
-    @validator('SECRET_KEY')
+    @validator("SECRET_KEY")
     def validate_secret_key(cls, v):
         if len(v) < 32:
-            raise ValueError(
-                'SECRET_KEY must be at least 32 characters long for security'
-            )
+            raise ValueError("SECRET_KEY must be at least 32 characters long for security")
         return v
 
     # SBP API settings
@@ -125,7 +119,7 @@ class Settings(BaseSettings):
     SENTRY_DSN: Optional[str] = None
     JAEGER_HOST: str = "localhost"
     JAEGER_PORT: int = 6831
-    VERSION: str = "0.2.2"
+    VERSION: str = "0.4.0"
 
     # Test settings
     TEST_ENV: bool = False
