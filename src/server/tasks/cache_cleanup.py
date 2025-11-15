@@ -13,8 +13,8 @@ def cleanup_expired_cache():
     """Clean up expired cache entries"""
     try:
         logger.info("Starting cache cleanup task")
-        # Clear all cache (Redis handles TTL automatically,
-        # but this ensures cleanup)
+        # Clear all cache (Redis handles TTL
+        # automatically, but this ensures cleanup)
         clear_all_cache()
         logger.info("Cache cleanup completed")
     except Exception as e:
