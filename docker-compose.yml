@@ -150,8 +150,38 @@ services:
     depends_on:
       - prometheus
 
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - '3100:3100'
+    volumes:
+      - loki_data:/loki
+      - ./monitoring/loki/loki-config.yml:/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: always
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - ./monitoring/promtail/promtail-config.yml:/etc/promtail/config.yml
+      - /var/log/faceit:/var/log/faceit
+    command: -config.file=/etc/promtail/config.yml
+    restart: always
+    depends_on:
+      - loki
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - '9093:9093'
+    volumes:
+      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/config.yml
+    command: --config.file=/etc/alertmanager/config.yml
+    restart: always
+
 volumes:
   db_data:
   redis_data:
   prometheus_data:
   grafana_data:
+  loki_data:
