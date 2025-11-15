@@ -10,9 +10,14 @@ from .core.logging import setup_logging
 from .core.sentry import init_sentry, capture_exception
 from .core.telemetry import init_telemetry
 from .middleware.logging_middleware import StructuredLoggingMiddleware
-from .features.auth.routes import router as auth_router
+from .middleware.security_middleware import (
+    SecurityMiddleware,
+    limiter,
+    _rate_limit_exceeded_handler,
+)
+from .auth.routes import router as auth_router
 from .features.ai_analysis.routes import router as ai_router
-from .features.payment.routes import router as payment_router
+from .features.payments.routes import router as payment_router
 from .features.subscriptions.routes import router as subscriptions_router
 from .features.teammates.routes import router as teammates_router
 from .features.player_analysis.routes import router as player_router
@@ -27,16 +32,24 @@ init_sentry()
 # Configure telemetry
 init_telemetry()
 
+# Business metrics
+ANALYSIS_REQUESTS = Counter("faceit_analysis_requests_total", "Total analysis requests")
+ANALYSIS_DURATION = Histogram("faceit_analysis_duration_seconds", "Analysis duration")
+ACTIVE_USERS = Counter("faceit_active_users", "Active user sessions")
+
 app = FastAPI(
     title=settings.APP_TITLE,
     version=settings.APP_VERSION,
     debug=False,
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
 )
 
 # Add structured logging middleware
 app.add_middleware(StructuredLoggingMiddleware)
+
+# Add security middleware
+app.add_middleware(SecurityMiddleware)
 
 # Configure CORS
 app.add_middleware(
@@ -61,9 +74,10 @@ async def general_exception_handler(request: Request, exc: Exception):
         content={
             "error": "Internal server error",
             "error_code": "INTERNAL_ERROR",
-            "path": request.url.path
-        }
+            "path": request.url.path,
+        },
     )
+
 
 # Include routers (nginx adds /api prefix)
 app.include_router(auth_router)
@@ -85,21 +99,6 @@ def health_check():
     return {"status": "healthy", "service": "backend"}
 
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=4000)
-
-
-# Business metrics
-ANALYSIS_REQUESTS = Counter(
-    'faceit_analysis_requests_total', 'Total analysis requests'
-)
-ANALYSIS_DURATION = Histogram(
-    'faceit_analysis_duration_seconds', 'Analysis duration'
-)
-ACTIVE_USERS = Counter('faceit_active_users', 'Active user sessions')
-
-
 @app.get("/metrics")
 async def metrics():
-    return Response(generate_latest())
+    return Response(generate_latest(), media_type="text/plain; charset=utf-8")
