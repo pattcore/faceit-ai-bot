@@ -83,7 +83,12 @@ class TestSettingsDefaults:
 
         settings = Settings()
         assert "http://localhost:3000" in settings.ALLOWED_ORIGINS
-        assert "https://pattmsc.online" in settings.ALLOWED_ORIGINS
+        # Ensure pattmsc.online is explicitly allowed, not just as a substring
+        if isinstance(settings.ALLOWED_ORIGINS, str):
+            allowed_origins = [o.strip() for o in settings.ALLOWED_ORIGINS.split(",")]
+        else:
+            allowed_origins = settings.ALLOWED_ORIGINS
+        assert "https://pattmsc.online" in allowed_origins
 
 
 class TestSettingsCaching:
