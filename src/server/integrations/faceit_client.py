@@ -6,6 +6,12 @@ import aiohttp
 from typing import Optional, Dict, List
 import logging
 from ..config.settings import settings
+from ..exceptions import (
+    FaceitAPIError,
+    PlayerNotFoundError,
+    FaceitAPIKeyMissingError,
+    RateLimitExceededError
+)
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +25,7 @@ class FaceitAPIClient:
         self.api_key = api_key or getattr(settings, 'FACEIT_API_KEY', None)
         if not self.api_key:
             logger.warning("Faceit API key not configured")
+            # Will raise error when methods are called
 
         auth_header = (
             f"Bearer {self.api_key}"
@@ -48,23 +55,39 @@ class FaceitAPIClient:
         """
         if not self.api_key:
             logger.error("Faceit API key not configured")
-            return None
+            raise FaceitAPIKeyMissingError()
 
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(
                     f"{self.BASE_URL}/players",
                     headers=self.headers,
-                    params={"nickname": nickname, "game": "cs2"}
+                    params={"nickname": nickname, "game": "cs2"},
+                    timeout=aiohttp.ClientTimeout(total=10)
                 ) as response:
                     if response.status == 200:
                         return await response.json()
+                    elif response.status == 404:
+                        logger.warning(f"Player not found: {nickname}")
+                        raise PlayerNotFoundError(nickname)
+                    elif response.status == 429:
+                        logger.warning("Rate limit exceeded")
+                        raise RateLimitExceededError()
                     else:
-                        logger.error(f"Faceit API error: {response.status}")
-                        return None
+                        error_text = await response.text()
+                        logger.error(f"Faceit API error {response.status}: {error_text}")
+                        raise FaceitAPIError(
+                            f"Faceit API returned status {response.status}",
+                            status_code=response.status
+                        )
+        except aiohttp.ClientError as e:
+            logger.error(f"Network error fetching player: {str(e)}")
+            raise FaceitAPIError("Network error connecting to Faceit API")
         except Exception as e:
-            logger.error(f"Error fetching player: {str(e)}")
-            return None
+            if isinstance(e, (FaceitAPIError, PlayerNotFoundError, RateLimitExceededError)):
+                raise
+            logger.exception(f"Unexpected error fetching player: {str(e)}")
+            raise FaceitAPIError("Unexpected error occurred")
 
     async def get_player_stats(
         self, player_id: str, game: str = "cs2"
@@ -80,22 +103,37 @@ class FaceitAPIClient:
             Player statistics
         """
         if not self.api_key:
-            return self._get_mock_stats()
+            raise FaceitAPIKeyMissingError()
 
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(
                     f"{self.BASE_URL}/players/{player_id}/stats/{game}",
-                    headers=self.headers
+                    headers=self.headers,
+                    timeout=aiohttp.ClientTimeout(total=10)
                 ) as response:
                     if response.status == 200:
                         return await response.json()
+                    elif response.status == 404:
+                        logger.warning(f"Stats not found for player: {player_id}")
+                        raise FaceitAPIError("Player statistics not found", status_code=404)
+                    elif response.status == 429:
+                        raise RateLimitExceededError()
                     else:
-                        logger.error(f"Failed to get stats: {response.status}")
-                        return self._get_mock_stats()
+                        error_text = await response.text()
+                        logger.error(f"Failed to get stats {response.status}: {error_text}")
+                        raise FaceitAPIError(
+                            f"Failed to get statistics: {response.status}",
+                            status_code=response.status
+                        )
+        except aiohttp.ClientError as e:
+            logger.error(f"Network error fetching stats: {str(e)}")
+            raise FaceitAPIError("Network error connecting to Faceit API")
         except Exception as e:
-            logger.error(f"Error fetching stats: {str(e)}")
-            return self._get_mock_stats()
+            if isinstance(e, (FaceitAPIError, RateLimitExceededError)):
+                raise
+            logger.exception(f"Unexpected error fetching stats: {str(e)}")
+            raise FaceitAPIError("Unexpected error occurred")
 
     async def get_match_history(
         self,
@@ -115,21 +153,31 @@ class FaceitAPIClient:
             List of matches
         """
         if not self.api_key:
-            return []
+            raise FaceitAPIKeyMissingError()
 
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(
                     f"{self.BASE_URL}/players/{player_id}/history",
                     headers=self.headers,
-                    params={"game": game, "limit": limit}
+                    params={"game": game, "limit": limit},
+                    timeout=aiohttp.ClientTimeout(total=15)
                 ) as response:
                     if response.status == 200:
                         data = await response.json()
                         return data.get("items", [])
-                    return []
+                    elif response.status == 429:
+                        raise RateLimitExceededError()
+                    else:
+                        logger.warning(f"Failed to get match history: {response.status}")
+                        return []
+        except aiohttp.ClientError as e:
+            logger.error(f"Network error fetching match history: {str(e)}")
+            return []
+        except RateLimitExceededError:
+            raise
         except Exception as e:
-            logger.error(f"Error fetching match history: {str(e)}")
+            logger.exception(f"Unexpected error fetching match history: {str(e)}")
             return []
 
     async def search_players(
@@ -150,7 +198,7 @@ class FaceitAPIClient:
             List of found players
         """
         if not self.api_key:
-            return []
+            raise FaceitAPIKeyMissingError()
 
         try:
             params = {"nickname": nickname, "limit": limit}
@@ -161,14 +209,24 @@ class FaceitAPIClient:
                 async with session.get(
                     f"{self.BASE_URL}/search/players",
                     headers=self.headers,
-                    params=params
+                    params=params,
+                    timeout=aiohttp.ClientTimeout(total=10)
                 ) as response:
                     if response.status == 200:
                         data = await response.json()
                         return data.get("items", [])
-                    return []
+                    elif response.status == 429:
+                        raise RateLimitExceededError()
+                    else:
+                        logger.warning(f"Failed to search players: {response.status}")
+                        return []
+        except aiohttp.ClientError as e:
+            logger.error(f"Network error searching players: {str(e)}")
+            return []
+        except RateLimitExceededError:
+            raise
         except Exception as e:
-            logger.error(f"Error searching players: {str(e)}")
+            logger.exception(f"Unexpected error searching players: {str(e)}")
             return []
 
     def _get_mock_stats(self) -> Dict:

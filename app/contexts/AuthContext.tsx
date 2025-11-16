@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { API_ENDPOINTS } from '../../src/config/api';
 
 interface User {
   id: string;
@@ -20,23 +21,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Get API URL based on environment
-const getApiUrl = () => {
-  if (typeof window !== 'undefined') {
-    const protocol = window.location.protocol;
-    const host = window.location.host;
-    
-    // For localhost development, use direct API port
-    if (host.includes('localhost') || host.includes('127.0.0.1')) {
-      return 'http://localhost:8000';
-    }
-    
-    // For production domain, use same domain (Nginx will route to API)
-    return `${protocol}//${host}`;
-  }
-  return 'http://localhost:8000';
-};
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -55,8 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUser = async (authToken: string) => {
     try {
-      const apiUrl = getApiUrl();
-      const response = await fetch(`${apiUrl}/auth/me`, {
+      const response = await fetch(API_ENDPOINTS.AUTH_ME, {
         headers: {
           'Authorization': `Bearer ${authToken}`,
         },
@@ -81,15 +64,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     formData.append('username', email);
     formData.append('password', password);
 
-    const apiUrl = getApiUrl();
-    const response = await fetch(`${apiUrl}/auth/login`, {
+    const response = await fetch(API_ENDPOINTS.AUTH_LOGIN, {
       method: 'POST',
       body: formData,
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      throw new Error(error || 'Login failed');
+      const raw = await response.text();
+      try {
+        const data = JSON.parse(raw);
+        const message = (data && (data.detail || data.message)) || raw;
+        throw new Error(message || 'Login failed');
+      } catch {
+        throw new Error(raw || 'Login failed');
+      }
     }
 
     const data = await response.json();
@@ -104,15 +92,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     formData.append('username', username);
     formData.append('password', password);
 
-    const apiUrl = getApiUrl();
-    const response = await fetch(`${apiUrl}/auth/register`, {
+    const response = await fetch(API_ENDPOINTS.AUTH_REGISTER, {
       method: 'POST',
       body: formData,
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      throw new Error(error || 'Registration failed');
+      const raw = await response.text();
+      try {
+        const data = JSON.parse(raw);
+        const message = (data && (data.detail || data.message)) || raw;
+        throw new Error(message || 'Registration failed');
+      } catch {
+        throw new Error(raw || 'Registration failed');
+      }
     }
 
     // Auto-login after registration

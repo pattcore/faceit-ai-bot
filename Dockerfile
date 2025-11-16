@@ -1,5 +1,5 @@
 # Этап 1: Базовый образ для зависимостей
-FROM python:3.9-slim as builder
+FROM python:3.11-slim as builder
 
 # Установка системных зависимостей
 RUN apt-get update && apt-get install -y \
@@ -20,7 +20,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Этап 2: Окончательный образ
-FROM python:3.9-slim
+FROM python:3.11-slim
 
 # Установка переменных окружения
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -31,7 +31,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN useradd -m -u 1000 appuser
 
 # Копирование установленных зависимостей из builder
-COPY --from=builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 
 # Установка рабочей директории
 WORKDIR /app

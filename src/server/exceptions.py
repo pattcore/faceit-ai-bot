@@ -1,55 +1,101 @@
 """
-Custom exceptions for application error handling
+Custom Exceptions for Faceit AI Bot
 """
-from fastapi import HTTPException
-from typing import Optional
+from fastapi import HTTPException, status
 
 
-class BaseAPIException(HTTPException):
-    """Base API exception"""
-    def __init__(self, status_code: int, detail: str, error_code: Optional[str] = None):
+class FaceitAPIError(HTTPException):
+    """Base exception for Faceit API errors"""
+    def __init__(self, detail: str, status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR):
         super().__init__(status_code=status_code, detail=detail)
-        self.error_code = error_code
 
 
-class PaymentException(BaseAPIException):
-    """Exception during payment processing"""
-    def __init__(self, detail: str, error_code: Optional[str] = None):
-        super().__init__(status_code=400, detail=detail, error_code=error_code or "PAYMENT_ERROR")
+class PlayerNotFoundError(HTTPException):
+    """Player not found on Faceit"""
+    def __init__(self, nickname: str):
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Player '{nickname}' not found on Faceit"
+        )
 
 
-class DemoAnalysisException(BaseAPIException):
-    """Exception during demo file analysis"""
-    def __init__(self, detail: str, error_code: Optional[str] = None, status_code: int = 400):
-        super().__init__(status_code=status_code, detail=detail, error_code=error_code or "DEMO_ANALYSIS_ERROR")
+class FaceitAPIKeyMissingError(HTTPException):
+    """Faceit API key is not configured"""
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Faceit API key is not configured. Please contact administrator."
+        )
 
 
-class FaceitAPIException(BaseAPIException):
-    """Exception when working with Faceit API"""
-    def __init__(self, detail: str, error_code: Optional[str] = None):
-        super().__init__(status_code=502, detail=detail, error_code=error_code or "FACEIT_API_ERROR")
+class RateLimitExceededError(HTTPException):
+    """Rate limit exceeded"""
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Rate limit exceeded. Please try again later."
+        )
 
 
-class DatabaseException(BaseAPIException):
-    """Exception when working with database"""
-    def __init__(self, detail: str, error_code: Optional[str] = None):
-        super().__init__(status_code=500, detail=detail, error_code=error_code or "DATABASE_ERROR")
+class AnalysisError(HTTPException):
+    """Error during player analysis"""
+    def __init__(self, detail: str = "Failed to analyze player"):
+        super().__init__(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=detail
+        )
 
 
-class ValidationException(BaseAPIException):
-    """Exception during data validation"""
-    def __init__(self, detail: str, error_code: Optional[str] = None):
-        super().__init__(status_code=422, detail=detail, error_code=error_code or "VALIDATION_ERROR")
+class InvalidPlayerDataError(HTTPException):
+    """Invalid or incomplete player data"""
+    def __init__(self, detail: str = "Invalid player data"):
+        super().__init__(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=detail
+        )
 
 
-class AuthenticationException(BaseAPIException):
-    """Authentication exception"""
-    def __init__(self, detail: str = "Authentication failed", error_code: Optional[str] = None):
-        super().__init__(status_code=401, detail=detail, error_code=error_code or "AUTHENTICATION_ERROR")
+class GroqAPIError(HTTPException):
+    """Error with Groq AI API"""
+    def __init__(self, detail: str = "AI analysis service unavailable"):
+        super().__init__(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=detail
+        )
 
 
-class AuthorizationException(BaseAPIException):
-    """Authorization exception"""
-    def __init__(self, detail: str = "Access denied", error_code: Optional[str] = None):
-        super().__init__(status_code=403, detail=detail, error_code=error_code or "AUTHORIZATION_ERROR")
+class DatabaseError(HTTPException):
+    """Database operation error"""
+    def __init__(self, detail: str = "Database operation failed"):
+        super().__init__(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=detail
+        )
 
+
+class AuthenticationError(HTTPException):
+    """Authentication failed"""
+    def __init__(self, detail: str = "Authentication failed"):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=detail,
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+
+class AuthorizationError(HTTPException):
+    """Authorization failed - insufficient permissions"""
+    def __init__(self, detail: str = "Insufficient permissions"):
+        super().__init__(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=detail
+        )
+
+
+class ValidationError(HTTPException):
+    """Input validation error"""
+    def __init__(self, detail: str = "Invalid input data"):
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=detail
+        )

@@ -50,9 +50,7 @@ services:
       retries: 5
 
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile.api
+    image: ghcr.io/pat1one/faceit-ai-bot/api:latest
     restart: always
     depends_on:
       db:
@@ -67,63 +65,57 @@ services:
       - FACEIT_API_KEY=${FACEIT_API_KEY}
     networks:
       - faceit-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/health || exit 1"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
 
-  celery_worker:
-    build:
-      context: .
-      dockerfile: Dockerfile.api
-    command: celery -A src.server.celery_app worker --loglevel=info --concurrency=4 --queues=demo_analysis,notifications,webhooks
-    restart: always
-    depends_on:
-      - redis
-      - db
-    environment:
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
-      - SECRET_KEY=${SECRET_KEY}
-      - GROQ_API_KEY=${GROQ_API_KEY}
-    networks:
-      - faceit-network
+  # ВРЕМЕННО отключено: фоновые воркеры и Flower
+  # celery_worker:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.api
+  #   command: celery -A src.server.celery_app worker --loglevel=info --concurrency=4 --queues=demo_analysis,notifications,webhooks
+  #   restart: always
+  #   depends_on:
+  #     - redis
+  #     - db
+  #   environment:
+  #     - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+  #     - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+  #     - SECRET_KEY=${SECRET_KEY}
+  #     - GROQ_API_KEY=${GROQ_API_KEY}
+  #   networks:
+  #     - faceit-network
 
-  celery_beat:
-    build:
-      context: .
-      dockerfile: Dockerfile.api
-    command: celery -A src.server.celery_app beat --loglevel=info
-    restart: always
-    depends_on:
-      - redis
-      - db
-    environment:
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
-      - SECRET_KEY=${SECRET_KEY}
-    networks:
-      - faceit-network
+  # celery_beat:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.api
+  #   command: celery -A src.server.celery_app beat --loglevel=info
+  #   restart: always
+  #   depends_on:
+  #     - redis
+  #     - db
+  #   environment:
+  #     - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+  #     - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+  #     - SECRET_KEY=${SECRET_KEY}
+  #   networks:
+  #     - faceit-network
 
-  flower:
-    build:
-      context: .
-      dockerfile: Dockerfile.api
-    command: celery -A src.server.celery_app flower --port=5555 --basic_auth=${FLOWER_USER}:${FLOWER_PASSWORD}
-    restart: always
-    depends_on:
-      - redis
-      - celery_worker
-    environment:
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
-    networks:
-      - faceit-network
-
+  # flower:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.api
+  #   command: celery -A src.server.celery_app flower --port=5555 --basic_auth=${FLOWER_USER}:${FLOWER_PASSWORD}
+  #   restart: always
+  #   depends_on:
+  #     - redis
+  #     - celery_worker
+  #   environment:
+  #     - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+  #   networks:
+  #     - faceit-network
+ 
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile.web
+    image: ghcr.io/pat1one/faceit-ai-bot/web:latest
     restart: always
     depends_on:
       api:
