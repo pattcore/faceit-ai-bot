@@ -60,13 +60,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const login = async (email: string, password: string) => {
-    const formData = new FormData();
-    formData.append('username', email);
-    formData.append('password', password);
-
     const response = await fetch(API_ENDPOINTS.AUTH_LOGIN, {
       method: 'POST',
-      body: formData,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        // backend поддерживает и email, и username; передаём email
+        email,
+        password,
+      }),
     });
 
     if (!response.ok) {
@@ -87,14 +90,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (email: string, username: string, password: string) => {
-    const formData = new FormData();
-    formData.append('email', email);
-    formData.append('username', username);
-    formData.append('password', password);
-
     const response = await fetch(API_ENDPOINTS.AUTH_REGISTER, {
       method: 'POST',
-      body: formData,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        username,
+        password,
+      }),
     });
 
     if (!response.ok) {
