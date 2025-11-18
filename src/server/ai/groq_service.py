@@ -116,8 +116,8 @@ class GroqService:
                     },
                     {"role": "user", "content": prompt}
                 ],
-                "temperature": 0.6,
-                "max_tokens": 500
+                "temperature": 0.5,
+                "max_tokens": 300
             }
 
             async with aiohttp.ClientSession() as session:
@@ -242,7 +242,7 @@ class GroqService:
                     {"role": "user", "content": prompt}
                 ],
                 "temperature": 0.4,
-                "max_tokens": 500
+                "max_tokens": 300
             }
 
             async with aiohttp.ClientSession() as session:
@@ -375,12 +375,12 @@ class GroqService:
 
             {extra_context_block}
 
-            Provide a structured analysis in ENGLISH:
+            Provide a compact, structured analysis in ENGLISH:
             1. Strengths of the player
             2. Weaknesses
             3. Specific recommendations for improvement (as a list)
             4. Action plan for the next week
-            Be concise and avoid unnecessary fluff.
+            Use no more than 6 bullet points in total and keep the answer under 250 words.
             """
         else:
             return f"""
@@ -397,12 +397,12 @@ class GroqService:
 
             {extra_context_block}
 
-            Дай структурированный анализ на РУССКОМ языке:
+            Дай компактный, структурированный анализ на РУССКОМ языке:
             1. Сильные стороны игрока
             2. Слабые стороны
             3. Конкретные рекомендации по улучшению (списком)
             4. План действий на ближайшую неделю
-            Постарайся быть по делу и не писать лишнего.
+            Используй не больше 6 пунктов всего и уложись примерно в 250 слов.
             """
 
     def _get_default_training_plan(self, language: str = "ru") -> Dict:
