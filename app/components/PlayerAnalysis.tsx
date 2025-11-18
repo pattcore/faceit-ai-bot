@@ -96,16 +96,40 @@ export default function PlayerAnalysis() {
       const response = await fetch(
         API_ENDPOINTS.PLAYER_ANALYSIS(targetNickname)
       );
-      
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || t('player_analysis.error_analysis'));
+        let message = t('player_analysis.error_analysis');
+
+        try {
+          const contentType = response.headers.get('content-type') || '';
+          if (contentType.includes('application/json')) {
+            const errorData = await response.json();
+            message =
+              (errorData as any)?.detail ||
+              (errorData as any)?.message ||
+              message;
+          } else {
+            const text = await response.text();
+            if (text) {
+              message = text.slice(0, 200);
+            }
+          }
+        } catch (parseError) {
+          // Fallback to default message if parsing fails
+          console.error('Failed to parse error response for player analysis', parseError);
+        }
+
+        throw new Error(message);
       }
 
       const data: PlayerAnalysisData = await response.json();
       setAnalysis(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('player_analysis.error_occurred'));
+      setError(
+        err instanceof Error
+          ? err.message
+          : t('player_analysis.error_occurred')
+      );
     } finally {
       setLoading(false);
     }
