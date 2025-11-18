@@ -58,6 +58,11 @@ export default function PlayerAnalysis() {
   const [error, setError] = useState('');
   const [analysis, setAnalysis] = useState<PlayerAnalysisData | null>(null);
   const [autoTriggered, setAutoTriggered] = useState(false);
+  
+  // Demo analysis states
+  const [demoFile, setDemoFile] = useState<File | null>(null);
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoAnalysis, setDemoAnalysis] = useState<any>(null);
 
   useEffect(() => {
     if (!nickname && user) {
@@ -135,6 +140,38 @@ export default function PlayerAnalysis() {
     }
   };
 
+  const analyzeDemo = async () => {
+    if (!demoFile) {
+      setError('Выберите демо файл');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('demo', demoFile);
+
+    setDemoLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch(API_ENDPOINTS.DEMO_ANALYZE, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Ошибка анализа демо');
+      }
+
+      const data = await response.json();
+      setDemoAnalysis(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ошибка загрузки демо');
+    } finally {
+      setDemoLoading(false);
+    }
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       analyzePlayer();
@@ -197,6 +234,34 @@ export default function PlayerAnalysis() {
               {t('player_analysis.analyze_my_account')}
             </button>
           )}
+        </div>
+
+        {/* Demo upload section */}
+        <div className="flex gap-4 mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border">
+          <input
+            type="file"
+            accept=".dem"
+            onChange={(e) => setDemoFile(e.target.files?.[0] || null)}
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent flex-1 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 dark:file:bg-gray-700 dark:file:text-white"
+            disabled={demoLoading}
+          />
+          <button
+            onClick={analyzeDemo}
+            disabled={demoLoading || !demoFile}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap flex items-center gap-2"
+          >
+            {demoLoading ? (
+              <>
+                <span className="animate-spin">⏳</span>
+                Анализ...
+              </>
+            ) : (
+              <>
+                📁
+                Анализ демо
+              </>
+            )}
+          </button>
         </div>
 
         {error && (
