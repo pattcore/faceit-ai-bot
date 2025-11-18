@@ -33,6 +33,7 @@ class Settings(BaseSettings):
 
     # AI Services
     GROQ_API_KEY: Optional[str] = None
+    GROQ_MODEL: Optional[str] = None
     ANTHROPIC_API_KEY: Optional[str] = None
     HUGGINGFACE_TOKEN: Optional[str] = None
 

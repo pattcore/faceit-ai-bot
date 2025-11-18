@@ -17,7 +17,7 @@ class GroqService:
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or getattr(settings, 'GROQ_API_KEY', None)
         self.groq_base_url = "https://api.groq.com/openai/v1/chat/completions"
-        self.model = "llama-3.1-70b-versatile"
+        self.model = getattr(settings, "GROQ_MODEL", "llama-3.1-8b-instant")
 
         if not self.api_key:
             logger.warning("Groq API key not configured")
