@@ -469,22 +469,31 @@ class DemoAnalyzer:
                 'map_name': demo_data.get('map', 'unknown')
             }
 
-            # Get recommendations
-            ai_analysis = (
-                await self.ai_service.analyze_player_performance(
-                    stats=stats_summary,
-                    match_history=[]
+            # Use AI recommendations (fallback to rule-based if AI fails)
+            try:
+                ai_analysis = (
+                    await self.ai_service.analyze_player_performance(
+                        stats=stats_summary,
+                        match_history=[]
+                    )
                 )
-            )
 
-            # Parse recommendations from response
-            recommendations = self._parse_recommendations(
-                ai_analysis
-            )
+                # Parse recommendations from response
+                recommendations = self._parse_recommendations(
+                    ai_analysis
+                )
 
-            if recommendations:
-                return recommendations
-            return self._get_default_recommendations()
+                if recommendations:
+                    return recommendations
+                else:
+                    logger.warning("AI returned empty recommendations, using rule-based")
+            except Exception as e:
+                logger.warning(f"AI analysis failed, using rule-based: {e}")
+
+            # Fallback to detailed rule-based recommendations
+            return self._generate_rule_based_recommendations(
+                demo_data, player_performances, round_analysis, key_moments
+            )
 
         except Exception:
             logger.exception(
@@ -523,6 +532,17 @@ class DemoAnalyzer:
             "Practice positioning",
             "Learn map timings"
         ]
+
+def _generate_rule_based_recommendations(self, demo_data: Dict, player_performances: Dict[str, PlayerPerformance], round_analysis: List[RoundAnalysis], key_moments: List[Dict]) -> List[str]:
+    """Generate detailed rule-based recommendations without AI keys"""
+    recs = []
+    main_perf = next(iter(player_performances.values()), None)
+    if not main_perf:
+        return self._get_default_recommendations()
+    
+    map_name = demo_data.get('map', 'de_map')
+    hs = main_perf.headshot_percentage
+    d
 
     async def _identify_improvement_areas(
         self,
