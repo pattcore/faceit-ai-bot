@@ -38,6 +38,9 @@ class User(Base):
 
     subscription = relationship("Subscription", back_populates="user")
     payments = relationship("Payment", back_populates="user")
+    teammate_profile = relationship(
+        "TeammateProfile", back_populates="user", uselist=False
+    )
 
 
 class Subscription(Base):
@@ -65,3 +68,34 @@ class Payment(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="payments")
+
+
+class TeammateProfile(Base):
+    """Teammate search profile linked to a user.
+
+    Stores basic Faceit-related info and preferences for internal matchmaking.
+    """
+
+    __tablename__ = "teammate_profiles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True)
+
+    faceit_nickname = Column(String(100), nullable=True)
+    elo = Column(Integer, nullable=True)
+    level = Column(Integer, nullable=True)
+
+    # Comma-separated lists for simplicity (e.g. "entry,support")
+    roles = Column(String(255), nullable=True)
+    languages = Column(String(50), nullable=True)
+    preferred_maps = Column(String(255), nullable=True)
+
+    play_style = Column(String(50), nullable=True)  # aggressive/balanced/passive
+    voice_required = Column(Boolean, default=True, nullable=False)
+    about = Column(String(500), nullable=True)
+    availability = Column(String(255), nullable=True)
+
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = relationship("User", back_populates="teammate_profile")
