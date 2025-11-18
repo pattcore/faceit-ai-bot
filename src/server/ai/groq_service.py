@@ -93,17 +93,18 @@ class GroqService:
             if lang == "en":
                 system_content = (
                     "You are a professional CS2 coach with over 10 years of experience. "
-                    "Analyze player statistics and provide specific, practical "
-                    "recommendations for improvement. Always answer in English and "
-                    "be detailed but avoid unnecessary fluff."
+                    "Analyze the provided statistics and context (including demo data if present) "
+                    "and give specific, practical recommendations for improvement. "
+                    "Always answer ONLY in ENGLISH. Do NOT use Russian or other languages. "
+                    "Be reasonably detailed but avoid unnecessary fluff."
                 )
             else:
                 system_content = (
-                    "Ты профессиональный тренер по CS2 с более чем "
-                    "10-летним опытом. Анализируй статистику игрока "
-                    "и давай конкретные, практические рекомендации по "
-                    "улучшению. Всегда отвечай на русском языке и будь "
-                    "достаточно подробным, но без лишней воды."
+                    "Ты профессиональный тренер по CS2 с более чем 10-летним опытом. "
+                    "Анализируй переданные показатели и контекст (включая данные демки, если есть) "
+                    "и давай конкретные, практические рекомендации по улучшению. "
+                    "Всегда отвечай ТОЛЬКО на РУССКОМ языке. Не используй английский, кроме "
+                    "названий карт, оружия и стандартных CS-терминов. Будь подробным, но без воды."
                 )
 
             payload = {
@@ -116,7 +117,7 @@ class GroqService:
                     {"role": "user", "content": prompt}
                 ],
                 "temperature": 0.6,
-                "max_tokens": 800
+                "max_tokens": 500
             }
 
             async with aiohttp.ClientSession() as session:
@@ -222,13 +223,13 @@ class GroqService:
             if lang == "en":
                 system_content = (
                     "You are a CS2 coach. Reply strictly in JSON format, without "
-                    "any extra text. All text fields in the JSON must be in English."
+                    "any extra text. All text fields in the JSON must be in ENGLISH."
                 )
             else:
                 system_content = (
                     "Ты тренер по CS2. Отвечай строго в формате JSON, без "
                     "дополнительного текста. Все текстовые поля в JSON "
-                    "должны быть на русском языке."
+                    "должны быть на РУССКОМ языке."
                 )
 
             payload = {
@@ -241,7 +242,7 @@ class GroqService:
                     {"role": "user", "content": prompt}
                 ],
                 "temperature": 0.4,
-                "max_tokens": 700
+                "max_tokens": 500
             }
 
             async with aiohttp.ClientSession() as session:
@@ -297,20 +298,82 @@ class GroqService:
         match_history: List[Dict],
         language: str = "ru",
     ) -> str:
-        """Build analysis prompt"""
+        """Build analysis prompt.
+
+        Used both for overall Faceit stats and for single-demo stats.
+        Optionally includes extra context such as map, score and key moments
+        when these fields are present in the stats dict.
+        """
         lang = self._normalize_language(language)
+
+        map_name = stats.get("map_name")
+        total_rounds = stats.get("total_rounds")
+        score_team1 = stats.get("score_team1")
+        score_team2 = stats.get("score_team2")
+        key_moments = stats.get("key_moments") or []
+
+        # Build short optional context block (used mostly for demo analysis)
+        extra_context_lines: List[str] = []
+        if map_name and map_name != "unknown":
+            if lang == "en":
+                extra_context_lines.append(f"Map: {map_name}")
+            else:
+                extra_context_lines.append(f"Карта: {map_name}")
+
+        if (isinstance(score_team1, (int, float)) and
+                isinstance(score_team2, (int, float)) and
+                total_rounds):
+            if lang == "en":
+                extra_context_lines.append(
+                    f"Final score: {int(score_team1)}:{int(score_team2)} "
+                    f"over {int(total_rounds)} rounds"
+                )
+            else:
+                extra_context_lines.append(
+                    f"Финальный счёт: {int(score_team1)}:{int(score_team2)} "
+                    f"за {int(total_rounds)} раундов"
+                )
+
+        if key_moments and isinstance(key_moments, list):
+            # Use up to 3 key moments to keep prompt compact
+            snippets: List[str] = []
+            for km in key_moments[:3]:
+                try:
+                    rn = km.get("round")
+                    desc = km.get("description")
+                    if rn is not None and desc:
+                        if lang == "en":
+                            snippets.append(f"round {rn}: {desc}")
+                        else:
+                            snippets.append(f"раунд {rn}: {desc}")
+                except Exception:
+                    continue
+            if snippets:
+                if lang == "en":
+                    extra_context_lines.append(
+                        "Key rounds in this match: " + "; ".join(snippets)
+                    )
+                else:
+                    extra_context_lines.append(
+                        "Ключевые раунды в этом матче: " + "; ".join(snippets)
+                    )
+
+        extra_context_block = "\n".join(extra_context_lines)
+
         if lang == "en":
             return f"""
-            Analyze CS2 player statistics.
+            Analyze CS2 player statistics (and demo context if present).
 
             Current metrics:
             - K/D: {stats.get('kd_ratio', 'N/A')}
             - Headshot %: {stats.get('hs_percentage', 'N/A')}
             - Win Rate: {stats.get('win_rate', 'N/A')}
             - Average damage: {stats.get('avg_damage', 'N/A')}
-            - Matches played: {stats.get('matches_played', 'N/A')}
+            - Matches played (or demos considered): {stats.get('matches_played', 'N/A')}
 
-            Recent matches: {len(match_history)}
+            Recent matches (Faceit history): {len(match_history)}
+
+            {extra_context_block}
 
             Provide a structured analysis in ENGLISH:
             1. Strengths of the player
@@ -321,16 +384,18 @@ class GroqService:
             """
         else:
             return f"""
-            Проанализируй статистику игрока CS2.
+            Проанализируй статистику игрока CS2 (и контекст демки, если он есть).
 
             Текущие показатели:
             - K/D: {stats.get('kd_ratio', 'N/A')}
             - Headshot %: {stats.get('hs_percentage', 'N/A')}
             - Win Rate: {stats.get('win_rate', 'N/A')}
             - Средний урон: {stats.get('avg_damage', 'N/A')}
-            - Сыграно матчей: {stats.get('matches_played', 'N/A')}
+            - Сыграно матчей (или учтённых демок): {stats.get('matches_played', 'N/A')}
 
-            Количество недавних матчей: {len(match_history)}
+            Количество недавних матчей (Faceit): {len(match_history)}
+
+            {extra_context_block}
 
             Дай структурированный анализ на РУССКОМ языке:
             1. Сильные стороны игрока

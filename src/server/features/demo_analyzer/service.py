@@ -464,6 +464,7 @@ class DemoAnalyzer:
                 avg_damage = "N/A"
                 matches_played = 1
 
+            score = demo_data.get('score') or {}
             stats_summary = {
                 'kd_ratio': kd_ratio,
                 'hs_percentage': hs_percentage,
@@ -472,7 +473,10 @@ class DemoAnalyzer:
                 'matches_played': matches_played,
                 'total_rounds': total_rounds,
                 'key_moments_count': len(key_moments),
-                'map_name': demo_data.get('map', 'unknown')
+                'map_name': demo_data.get('map', 'unknown'),
+                'score_team1': score.get('team1'),
+                'score_team2': score.get('team2'),
+                'key_moments': key_moments,
             }
 
             # Use AI recommendations (fallback to rule-based if AI fails)
@@ -540,16 +544,62 @@ class DemoAnalyzer:
             "Выучи тайминги на основных картах"
         ]
 
-def _generate_rule_based_recommendations(self, demo_data: Dict, player_performances: Dict[str, PlayerPerformance], round_analysis: List[RoundAnalysis], key_moments: List[Dict]) -> List[str]:
-    """Generate detailed rule-based recommendations without AI keys"""
-    recs = []
-    main_perf = next(iter(player_performances.values()), None)
-    if not main_perf:
-        return self._get_default_recommendations()
-    
-    map_name = demo_data.get('map', 'de_map')
-    hs = main_perf.headshot_percentage
-    d
+    def _generate_rule_based_recommendations(
+        self,
+        demo_data: Dict,
+        player_performances: Dict[str, PlayerPerformance],
+        round_analysis: List[RoundAnalysis],
+        key_moments: List[Dict],
+    ) -> List[str]:
+        """Generate detailed rule-based recommendations without AI keys"""
+        recs: List[str] = []
+        main_perf = next(iter(player_performances.values()), None)
+        if not main_perf:
+            return self._get_default_recommendations()
+
+        map_name = demo_data.get("map", "de_map")
+        hs = main_perf.headshot_percentage
+
+        # High-level conclusions based on stats
+        kd = main_perf.kills / max(1, main_perf.deaths)
+        if kd < 0.9:
+            recs.append(
+                "Старайся избегать лишних дуэлей и играть более дисциплинированно, "
+                "особенно в клатчах и ретейках."
+            )
+        elif kd > 1.2:
+            recs.append(
+                "Ты хорошо справляешься с дуэлями, постарайся перенести этот уровень "
+                "стабильности на ключевые раунды (форсы, эко-сейвы, важные баи)."
+            )
+
+        if hs < 40.0:
+            recs.append(
+                "Повышай процент хедшотов за счёт регулярных тренировок аима на "
+                "картах типа aim_botz, training_aim_cs2 и DM-серверов."
+            )
+
+        # Use key moments to point at important rounds
+        if key_moments:
+            important_rounds = [str(km.get("round")) for km in key_moments if km.get("round")]
+            if important_rounds:
+                recs.append(
+                    "Пересмотри ключевые раунды "
+                    f"({', '.join(important_rounds)}), чтобы понять, где именно "
+                    "терялись важные преимущества или совершались ошибки в позиционировании."
+                )
+
+        # Map-specific generic advice
+        if map_name and map_name != "de_map":
+            recs.append(
+                f"Проработай стандартные раунды и смоки на карте {map_name}, "
+                "особенно выходы на плиты и ретейки."
+            )
+
+        if not recs:
+            return self._get_default_recommendations()
+
+        return recs
 
     async def _identify_improvement_areas(
         self,
