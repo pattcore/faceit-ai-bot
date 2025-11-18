@@ -34,8 +34,14 @@ class Settings(BaseSettings):
     # AI Services
     GROQ_API_KEY: Optional[str] = None
     GROQ_MODEL: Optional[str] = None
+    OPENROUTER_API_KEY: Optional[str] = None
+    OPENROUTER_MODEL: Optional[str] = None
     ANTHROPIC_API_KEY: Optional[str] = None
     HUGGINGFACE_TOKEN: Optional[str] = None
+
+    LOCAL_LLM_BASE_URL: Optional[str] = None
+    LOCAL_LLM_MODEL: Optional[str] = None
+    LOCAL_LLM_API_KEY: Optional[str] = None
 
     # Security settings
     SECRET_KEY: str = "change-me-in-production-min-32-characters-long"

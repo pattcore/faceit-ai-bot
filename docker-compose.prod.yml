@@ -49,6 +49,14 @@ services:
       timeout: 5s
       retries: 5
 
+  ollama:
+    image: ollama/ollama:latest
+    restart: always
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - faceit-network
+
   api:
     image: ghcr.io/pat1one/faceit-ai-bot/api:latest
     restart: always
@@ -64,6 +72,9 @@ services:
       - GROQ_API_KEY=${GROQ_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - OPENROUTER_MODEL=${OPENROUTER_MODEL}
+      - LOCAL_LLM_BASE_URL=${LOCAL_LLM_BASE_URL}
+      - LOCAL_LLM_MODEL=${LOCAL_LLM_MODEL}
+      - LOCAL_LLM_API_KEY=${LOCAL_LLM_API_KEY}
       - FACEIT_API_KEY=${FACEIT_API_KEY}
     volumes:
       - ./src:/app/src
@@ -82,6 +93,11 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
       - SECRET_KEY=${SECRET_KEY}
       - GROQ_API_KEY=${GROQ_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENROUTER_MODEL=${OPENROUTER_MODEL}
+      - LOCAL_LLM_BASE_URL=${LOCAL_LLM_BASE_URL}
+      - LOCAL_LLM_MODEL=${LOCAL_LLM_MODEL}
+      - LOCAL_LLM_API_KEY=${LOCAL_LLM_API_KEY}
       - FACEIT_API_KEY=${FACEIT_API_KEY}
     networks:
       - faceit-network
@@ -137,3 +153,4 @@ networks:
 volumes:
   db_data:
   redis_data:
+  ollama_data:

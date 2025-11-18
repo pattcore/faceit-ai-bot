@@ -15,11 +15,31 @@ class GroqService:
     """Service for Groq API"""
 
     def __init__(self, api_key: Optional[str] = None):
-        self.api_key = api_key or getattr(settings, 'GROQ_API_KEY', None)
-        self.groq_base_url = "https://api.groq.com/openai/v1/chat/completions"
-        self.model = getattr(settings, "GROQ_MODEL", "llama3-70b-8192")
+        local_base_url = getattr(settings, "LOCAL_LLM_BASE_URL", None)
+        local_model = getattr(settings, "LOCAL_LLM_MODEL", None)
+        openrouter_api_key = getattr(settings, "OPENROUTER_API_KEY", None)
+        openrouter_model = getattr(settings, "OPENROUTER_MODEL", None)
 
-        if not self.api_key:
+        if local_base_url:
+            self.provider = "local"
+            self.groq_base_url = local_base_url
+            self.model = local_model or getattr(settings, "GROQ_MODEL", "qwen:0.5b")
+            self.api_key = api_key or getattr(settings, "LOCAL_LLM_API_KEY", None)
+        elif openrouter_api_key:
+            self.provider = "openrouter"
+            self.api_key = api_key or openrouter_api_key
+            self.groq_base_url = "https://openrouter.ai/api/v1/chat/completions"
+            self.model = (
+                openrouter_model
+                or getattr(settings, "GROQ_MODEL", "meta-llama/llama-3.1-8b-instruct")
+            )
+        else:
+            self.provider = "groq"
+            self.api_key = api_key or getattr(settings, "GROQ_API_KEY", None)
+            self.groq_base_url = "https://api.groq.com/openai/v1/chat/completions"
+            self.model = getattr(settings, "GROQ_MODEL", "llama3-70b-8192")
+
+        if not self.api_key and self.provider != "local":
             logger.warning("Groq API key not configured")
 
     async def analyze_player_performance(
@@ -37,16 +57,25 @@ class GroqService:
         Returns:
             Detailed analysis and recommendations
         """
-        if not self.api_key:
+        if not self.api_key and getattr(self, "provider", None) != "local":
             return "Analysis unavailable - API key not configured"
 
         try:
             prompt = self._build_analysis_prompt(stats, match_history or [])
 
             headers = {
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             }
+
+            if self.api_key:
+                headers["Authorization"] = f"Bearer {self.api_key}"
+
+            if self.groq_base_url.startswith("https://openrouter.ai"):
+                referer = getattr(settings, "WEBSITE_URL", "")
+                app_title = getattr(settings, "APP_TITLE", "Faceit AI Bot")
+                if referer:
+                    headers["HTTP-Referer"] = referer
+                headers["X-Title"] = app_title
 
             payload = {
                 "model": self.model,
@@ -109,7 +138,7 @@ class GroqService:
         Returns:
             Structured training plan
         """
-        if not self.api_key:
+        if not self.api_key and getattr(self, "provider", None) != "local":
             return self._get_default_training_plan()
 
         try:
@@ -131,9 +160,11 @@ class GroqService:
             """
 
             headers = {
-                "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json"
             }
+
+            if self.api_key:
+                headers["Authorization"] = f"Bearer {self.api_key}"
 
             payload = {
                 "model": self.model,
