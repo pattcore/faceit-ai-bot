@@ -67,6 +67,13 @@
 ![Groq](https://img.shields.io/badge/Groq-FFA500?style=for-the-badge&logo=groq&logoColor=black)
 ![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white)
 
+**AI-стек приложения:**
+- Единый сервис `GroqService` с поддержкой трёх провайдеров:
+  - локальный LLM через OpenAI-совместимый endpoint (например, Ollama + qwen:0.5b),
+  - OpenRouter (по API-ключу, модель настраивается в конфиге),
+  - нативный Groq API.
+- AI используется для анализа игроков, детального разбора демок и подбора тиммейтов по совместимости.
+
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)

@@ -2,14 +2,14 @@
 
 <div align="center">
 
-![Faceit AI Bot](https://img.shields.io/badge/Faceit_AI_Bot-v0.3.0-2E9EF7?style=for-the-badge)
-![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Faceit AI Bot](https://img.shields.io/badge/Faceit_AI_Bot-v0.4.0-2E9EF7?style=for-the-badge)
+![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-**CS2 Player Analysis and Teammate Finder on Faceit Platform**
+**CS2 Player Analysis and Teammate Finder for Faceit Platform**
 
-[🚀 Demo](https://pattmsc.online) • [📚 Documentation](https://github.com/pat1one/faceit-ai-bot) • [📦 Release v0.3.0](https://github.com/pat1one/faceit-ai-bot/releases/tag/v0.3.0) • [🐛 Bug Reports](https://github.com/pat1one/faceit-ai-bot/issues)
+[🚀 Demo](https://pattmsc.online) • [📚 Documentation](https://docs.pattmsc.online) • [📦 Releases](https://github.com/pat1one/faceit-ai-bot/releases) • [🐛 Bug Reports](https://github.com/pat1one/faceit-ai-bot/issues)
 
 **[Русская версия](README.md)**
 
@@ -23,13 +23,18 @@ A tool for analyzing CS2 player statistics on the Faceit platform. Helps find te
 
 ### ✨ Key Features
 
-- 🤖 **Smart Player Analysis** — detailed statistics and personalized recommendations based on data
-- 📊 **Faceit API Integration** — real-time match and player data
-- 📈 **Demo File Analysis** — detailed breakdown of gameplay moments and key situations
-- 👥 **Teammate Search** — intelligent partner matching by playstyle and compatibility
-- 💡 **Personalized Training Plans** — individual skill improvement programs
-- 🔮 **Match Predictions** — win probability analysis based on statistics
-- 📱 **PWA Support** — install as mobile app on any device
+- 🤖 **AI-powered player analysis** — detailed statistics with human-like recommendations
+- 🧠 **Groq-powered insights** — advanced analysis of gameplay patterns
+- 📊 **Faceit API integration** — real-time match and player data
+- �️ **PostgreSQL analytics storage** — history of player stats and reports
+- �📈 **Demo file analysis** — breakdown of key rounds and situations in CS2 demos
+- 👥 **Teammate search** — smart matching by rank, roles, languages and playstyle
+- 💡 **Personalized training plans** — daily/weekly routines for faster improvement
+- 📊 **Historical analytics** — track your progress and performance dynamics
+- 🔮 **Match predictions** — win probability estimation based on stats
+- 📱 **PWA support** — install as a mobile app on any device
+- 🔒 **HTTPS security** — SSL protected connection
+- ⚡ **High performance** — optimized VPS hosting with caching
 
 ---
 
@@ -37,11 +42,21 @@ A tool for analyzing CS2 player statistics on the Faceit platform. Helps find te
 
 ### Backend
 
+✅ **AI and data technologies:**
+![Groq](https://img.shields.io/badge/Groq-F55036?style=for-the-badge&logo=ai&logoColor=white)
+![LangChain](https://img.shields.io/badge/LangChain-121212?style=for-the-badge&logo=chainlink&logoColor=white)
+
+**AI stack:**
+- Unified `GroqService` with three providers:
+  - local LLM via OpenAI-compatible endpoint (e.g. Ollama + qwen:0.5b),
+  - OpenRouter (API key, model configured via settings),
+  - native Groq API.
+- AI is used for player analysis, detailed demo review and teammate compatibility ranking.
+
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![Groq](https://img.shields.io/badge/Groq-F55036?style=for-the-badge&logo=ai&logoColor=white)
-![LangChain](https://img.shields.io/badge/LangChain-121212?style=for-the-badge&logo=chainlink&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
 ### Frontend
@@ -64,15 +79,19 @@ A tool for analyzing CS2 player statistics on the Faceit platform. Helps find te
 
 ### 🌐 Web Version (Recommended)
 
-**Server deployment is planned soon**
+✅ **The site is live and running in production!**
 
-The site will be available at: [pattmsc.online](https://pattmsc.online)
+🌍 **Main site:** [pattmsc.online](https://pattmsc.online)
+📚 **Documentation:** [docs.pattmsc.online](https://docs.pattmsc.online)
 
-**Features:**
+**Available features:**
 - 🎯 CS2 player analysis by nickname
-- 📊 Detailed statistics (K/D, Win Rate, Headshots)
-- 🤖 Personalized recommendations
-- ⚡ Fast performance with caching
+- 📊 Detailed statistics (K/D, win rate, headshot %)
+- 📤 Demo upload and AI-powered demo analysis
+- 👥 Teammate search with AI‑enhanced compatibility
+- 🤖 Personalized recommendations and training plans
+- ⚡ Fast performance with Redis caching
+- 🔒 HTTPS and production deployment on VPS
 
 ---
 
@@ -164,9 +183,9 @@ Detailed documentation for developers and contributors is available in the `/doc
 ## 🗺️ Roadmap
 
 <details>
-<summary><b>📍 Current Version: v0.3.0</b></summary>
+<summary><b>📍 Current Version: v0.4.0</b></summary>
 
-### ✅ Implemented in v0.3.0
+### ✅ Implemented in v0.4.0
 
 - [x] Faceit API integration
 - [x] Smart analysis with Groq AI
@@ -176,54 +195,66 @@ Detailed documentation for developers and contributors is available in the `/doc
 - [x] Docker Compose
 - [x] CI/CD via GitHub Actions
 - [x] Unit tests
+- [x] 🚀 Production deployment on VPS
+- [x] 🌐 HTTPS with Let's Encrypt
+- [x] 📱 Responsive UI with Tailwind CSS
+- [x] 📤 Demo upload and analysis
+- [x] 👥 Teammate search
+- [x] 🎨 Modern UI with animations
+- [x] 🔧 Nginx reverse proxy
+- [x] 📊 Improved analytics
+- [x] 🔄 Automatic deploy pipeline
 
 </details>
 
-### 🚧 v0.3.0 - In Development (Q1 2025)
+### 🚧 v0.5.0 - In Development (Q1 2026)
 
-**Main Features:**
-- [ ] 📊 **Advanced Analytics**
-  - Match history with charts
-  - Comparison with other players
-  - Detailed map statistics
-- [ ] 🎮 **Steam Integration**
-  - Import demos from Steam
-  - Profile synchronization
-- [ ] 🏆 **Achievement System**
-  - Progress and goals
-  - Rewards for improvements
-- [ ] 🧩 **Browser Extension**
+**Focus:** deeper analytics, Steam integration and progression systems.
+
+- [ ] 📊 **Advanced analytics**
+  - Match history with rich charts and filters
+  - Comparison with other players and peer groups
+  - Detailed per-map and per-role statistics
+- [ ] 🎮 **Steam integration**
+  - Import demos directly from Steam
+  - Profile synchronization between platforms
+- [ ] 🏆 **Achievement system**
+  - Clear progress tracking and goals
+  - Rewards for skill improvements
+- [ ] 🧩 **Browser extension**
   - Chrome/Firefox extension
-  - Analysis directly on Faceit
+  - One-click analysis directly on Faceit
 
-### 🔮 v0.4.0 - Planned (Q2 2025)
+### 🔮 v0.5.0 - Planned (Q2 2026)
 
-**Social Features:**
-- [ ] 💬 **Discord Bot**
+**Focus:** social features, team tools and mobile experience.
+
+- [ ] 💬 **Discord bot**
   - Analysis commands
   - Match notifications
-  - Teammate search in Discord
-- [ ] 👥 **Team Analytics**
-  - Team synergy analysis
+  - Teammate search inside Discord
+- [ ] 👥 **Team analytics**
+  - Team synergy and role analysis
   - Roster recommendations
   - Tournament statistics
-- [ ] 📱 **Native Mobile App**
+- [ ] 📱 **Native mobile app**
   - iOS/Android app
   - Push notifications
   - Offline mode
 
-### 🌟 v0.5.0+ - Future (Q3-Q4 2025)
+### 🌟 v0.5.0+ - Future (Q3–Q4 2026)
 
-**Platform Expansion:**
-- [ ] 🎯 **Support for Other Games**
+**Focus:** platform expansion, coaching ecosystem and advanced AI.
+
+- [ ] 🎯 **Support for other games**
   - Dota 2
   - Valorant
   - League of Legends
-- [ ] 🎓 **Coach Marketplace**
+- [ ] 🎓 **Coach marketplace**
   - Find coaches
   - Session booking
   - Review system
-- [ ] 📺 **Stream Integration**
+- [ ] 📺 **Stream integration**
   - Twitch/YouTube integration
   - Real-time stream analysis
   - Best moment clips
