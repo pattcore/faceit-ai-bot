@@ -111,7 +111,12 @@ export default function TeammatesPage() {
     <div className="min-h-screen px-8 py-12 bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-white animate-fade-in">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold mb-4 gradient-text">👥 {t('teammate.title')}</h1>
-        <p className="text-zinc-400 mb-8">{t('teammate.placeholder')}</p>
+        <p className="text-zinc-400 mb-8">
+          {t('teammate.placeholder', {
+            defaultValue:
+              'ИИ поможет подобрать тиммейтов по твоему уровню Faceit и стилю игры. Сейчас поиск в бете и подбирает партнёров по рангу, роли и базовой статистике.',
+          })}
+        </p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <select
@@ -119,7 +124,9 @@ export default function TeammatesPage() {
             value={filters.rank}
             onChange={(e) => setFilters({ ...filters, rank: e.target.value })}
           >
-            <option value="">Rank</option>
+            <option value="">
+              {t('teammate.filter_rank', { defaultValue: 'Faceit ранг' })}
+            </option>
             <option>1-5</option>
             <option>6-10</option>
             <option>10+</option>
@@ -129,7 +136,9 @@ export default function TeammatesPage() {
             value={filters.region}
             onChange={(e) => setFilters({ ...filters, region: e.target.value })}
           >
-            <option value="">Region</option>
+            <option value="">
+              {t('teammate.filter_region', { defaultValue: 'Регион' })}
+            </option>
             <option>EU</option>
             <option>NA</option>
             <option>Asia</option>
@@ -139,7 +148,9 @@ export default function TeammatesPage() {
             value={filters.role}
             onChange={(e) => setFilters({ ...filters, role: e.target.value })}
           >
-            <option value="">Role</option>
+            <option value="">
+              {t('teammate.filter_role', { defaultValue: 'Роль в команде' })}
+            </option>
             <option>Entry Fragger</option>
             <option>Support</option>
             <option>AWPer</option>
@@ -184,7 +195,25 @@ export default function TeammatesPage() {
 
         <div className="space-y-4">
           {results.length === 0 && !loading && !error && (
-            <p className="text-zinc-400">{t('teammate.no_results')}</p>
+            <div className="glass-effect rounded-xl p-6 text-zinc-300 text-sm">
+              <p className="font-semibold mb-1">
+                {t('teammate.no_results_title', {
+                  defaultValue: 'Пока нет подходящих тиммейтов',
+                })}
+              </p>
+              <p className="mb-2">
+                {t('teammate.no_results', {
+                  defaultValue:
+                    'Попробуй изменить диапазон ранга или роль, либо просто поиграй ещё несколько матчей — мы будем расширять базу игроков и улучшать подбор.',
+                })}
+              </p>
+              <p className="text-xs text-zinc-500">
+                {t('teammate.no_results_hint', {
+                  defaultValue:
+                    'Сейчас поиск работает в тестовом режиме и использует только базовые показатели Faceit.',
+                })}
+              </p>
+            </div>
           )}
           {results.map((p) => (
             <div key={p.user_id} className="glass-effect rounded-xl p-6 flex items-center justify-between transition-all duration-300 hover:-translate-y-1">
