@@ -157,6 +157,23 @@ export default function PlayerAnalysis() {
     return 'bg-red-500';
   };
 
+  const uiLang =
+    i18n.language && i18n.language.toLowerCase().startsWith('en')
+      ? 'en'
+      : 'ru';
+
+  const focusAreas = analysis?.training_plan?.focus_areas || [];
+  const mainExercise =
+    analysis?.training_plan?.daily_exercises &&
+    analysis.training_plan.daily_exercises.length > 0
+      ? analysis.training_plan.daily_exercises[0]
+      : null;
+  const otherExercises =
+    analysis?.training_plan?.daily_exercises &&
+    analysis.training_plan.daily_exercises.length > 1
+      ? analysis.training_plan.daily_exercises.slice(1)
+      : [];
+
   return (
     <div className="max-w-6xl mx-auto p-6">
       {/* Search Section */}
@@ -357,20 +374,47 @@ export default function PlayerAnalysis() {
           {/* Training Plan */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
             <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">📅 {t('player_analysis.training_plan')}</h3>
+            {focusAreas.length > 0 && (
+              <div className="mb-3 flex flex-wrap gap-2">
+                {focusAreas.map((area) => (
+                  <span
+                    key={area}
+                    className="inline-flex items-center px-3 py-1 rounded-full bg-orange-50 dark:bg-orange-900/40 text-orange-700 dark:text-orange-200 text-xs font-medium"
+                  >
+                    {area}
+                  </span>
+                ))}
+              </div>
+            )}
             <div className="mb-4">
               <p className="text-gray-600 dark:text-gray-300">
                 ⏱️ {t('player_analysis.estimated_time')}: <span className="font-semibold text-gray-800 dark:text-white">{analysis.training_plan.estimated_time}</span>
               </p>
             </div>
-            <div className="space-y-4">
-              {analysis.training_plan.daily_exercises.map((exercise, idx) => (
-                <div key={idx} className="border-l-4 border-orange-500 pl-4 py-2">
-                  <h4 className="font-bold text-gray-800 dark:text-white">{exercise.name}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">⏰ {exercise.duration}</p>
-                  <p className="text-gray-700 dark:text-gray-300 mt-1">{exercise.description}</p>
-                </div>
-              ))}
-            </div>
+            {mainExercise && (
+              <div className="mb-4 border border-orange-500/60 rounded-lg p-4 bg-orange-50/40 dark:bg-orange-900/20">
+                <p className="text-xs uppercase tracking-wide text-orange-600 dark:text-orange-300 mb-1">
+                  {uiLang === 'en' ? "Today's main focus" : 'Фокус на сегодня'}
+                </p>
+                <h4 className="font-bold text-gray-800 dark:text-white">{mainExercise.name}</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">⏰ {mainExercise.duration}</p>
+                <p className="text-gray-700 dark:text-gray-300 mt-1">{mainExercise.description}</p>
+              </div>
+            )}
+            {otherExercises.length > 0 && (
+              <div className="space-y-4">
+                {otherExercises.map((exercise, idx) => (
+                  <div
+                    key={`${exercise.name}-${idx}`}
+                    className="border-l-4 border-orange-500 pl-4 py-2"
+                  >
+                    <h4 className="font-bold text-gray-800 dark:text-white">{exercise.name}</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">⏰ {exercise.duration}</p>
+                    <p className="text-gray-700 dark:text-gray-300 mt-1">{exercise.description}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
