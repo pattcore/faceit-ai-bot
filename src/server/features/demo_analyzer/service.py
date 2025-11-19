@@ -118,6 +118,7 @@ class DemoAnalyzer:
                 recommendations=recommendations,
                 improvement_areas=improvement_areas,
                 coach_report=coach_report,
+                demo_input=demo_input,
             )
 
         except DemoAnalysisException:
