@@ -28,3 +28,19 @@ requirements.txt @pat1one
 # Docker
 Dockerfile* @pat1one
 docker-compose.yml @pat1one
+
+/alembic/ @pat1one
+/app/ @pat1one
+/deployment/ @pat1one
+/docs/ @pat1one
+/examples/ @pat1one
+/k8s/ @pat1one
+/locales/ @pat1one
+/monitoring/ @pat1one
+/nginx/ @pat1one
+/public/ @pat1one
+/redis-config/ @pat1one
+/scripts/ @pat1one
+/security/ @pat1one
+/src/ @pat1one
+/tests/ @pat1one

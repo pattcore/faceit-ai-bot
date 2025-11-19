@@ -9,7 +9,7 @@
 
 **CS2 Player Analysis and Teammate Finder for Faceit Platform**
 
-[🚀 Demo](https://pattmsc.online) • [📚 Documentation](https://docs.pattmsc.online) • [📦 Releases](https://github.com/pat1one/faceit-ai-bot/releases) • [🐛 Bug Reports](https://github.com/pat1one/faceit-ai-bot/issues)
+[🚀 Demo](https://pattmsc.online) • [📚 Documentation](https://docs.pattmsc.online) • [📦 Release v0.4.0](https://github.com/pat1one/faceit-ai-bot/releases/tag/v0.4.0) • [🐛 Bug Reports](https://github.com/pat1one/faceit-ai-bot/issues)
 
 **[Русская версия](README.md)**
 
