@@ -286,7 +286,7 @@ export default function DemoExamplePage() {
                 defaultValue: lang === 'en' ? 'Get started' : 'Начать',
               })}
             </Link>
-            <Link href="/demo" className="btn-secondary">
+            <Link href="/demo" className="btn-primary">
               {t('demo.title', { defaultValue: lang === 'en' ? 'Demo analysis' : 'Анализ демки' })}
             </Link>
           </div>
