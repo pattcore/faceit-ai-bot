@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import List, Dict, Optional
 from datetime import datetime
 
 
@@ -42,3 +42,4 @@ class DemoAnalysis(BaseModel):
     key_moments: List[Dict]
     recommendations: List[str]
     improvement_areas: List[Dict]
+    coach_report: Optional[Dict] = None

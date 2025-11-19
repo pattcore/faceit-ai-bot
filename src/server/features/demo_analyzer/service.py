@@ -86,6 +86,22 @@ class DemoAnalyzer:
                 )
             )
 
+            demo_input = self._build_demo_analysis_input(
+                demo_data=demo_data,
+                player_performances=player_performances,
+                round_analysis=round_analysis,
+                key_moments=key_moments,
+                language=language,
+            )
+
+            coach_report = self._build_coach_report_stub(
+                demo_input=demo_input,
+                player_performances=player_performances,
+                improvement_areas=improvement_areas,
+                recommendations=recommendations,
+                language=language,
+            )
+
             return DemoAnalysis(
                 demo_id=demo_data['match_id'],
                 metadata={
@@ -100,7 +116,8 @@ class DemoAnalyzer:
                 round_analysis=round_analysis,
                 key_moments=key_moments,
                 recommendations=recommendations,
-                improvement_areas=improvement_areas
+                improvement_areas=improvement_areas,
+                coach_report=coach_report,
             )
 
         except DemoAnalysisException:
@@ -679,3 +696,209 @@ class DemoAnalyzer:
             )
 
         return areas
+
+    def _build_demo_analysis_input(
+        self,
+        demo_data: Dict,
+        player_performances: Dict[str, PlayerPerformance],
+        round_analysis: List[RoundAnalysis],
+        key_moments: List[Dict],
+        language: str,
+    ) -> Dict:
+        main_player_id = next(iter(player_performances.keys()), demo_data.get("main_player", "Player"))
+        main_perf = player_performances.get(main_player_id)
+
+        score = demo_data.get("score") or {}
+        map_name = demo_data.get("map", "unknown")
+        total_rounds = int(demo_data.get("total_rounds") or len(round_analysis) or 0)
+
+        kills = main_perf.kills if main_perf else 0
+        deaths = main_perf.deaths if main_perf else 1
+        assists = main_perf.assists if main_perf else 0
+        kd_ratio = kills / max(1, deaths)
+        hs_percentage = main_perf.headshot_percentage if main_perf else 40.0
+        damage_per_round = main_perf.damage_per_round if main_perf else 0.0
+        clutches_won = main_perf.clutches_won if main_perf else 0
+
+        flags: List[str] = []
+        if kd_ratio < 0.9:
+            flags.append("low_kd_ratio")
+        if hs_percentage < 40.0:
+            flags.append("low_headshot_percentage")
+        if damage_per_round < 70.0:
+            flags.append("low_damage_per_round")
+        if clutches_won == 0 and kills > 10:
+            flags.append("weak_clutch_conversion")
+
+        demo_key_rounds: List[Dict] = []
+        for km in key_moments:
+            rn = km.get("round")
+            desc = km.get("description") or ""
+            if rn is None:
+                continue
+            demo_key_rounds.append(
+                {
+                    "round": int(rn),
+                    "side": "unknown",
+                    "result": "unknown",
+                    "situation": km.get("type") or "key_round",
+                    "bomb_site": "unknown",
+                    "economy_team": "unknown",
+                    "economy_enemy": "unknown",
+                    "player_pov": [str(desc)],
+                }
+            )
+
+        return {
+            "language": language,
+            "player": {
+                "nickname": demo_data.get("main_player", "Player"),
+                "role": "unknown",
+                "elo": 0,
+                "faceit_level": 0,
+            },
+            "match": {
+                "map": map_name,
+                "score": f"{score.get('team1', 0)}-{score.get('team2', 0)}",
+                "side_start": "unknown",
+                "ranked": True,
+            },
+            "aggregate_stats": {
+                "kills": kills,
+                "deaths": deaths,
+                "assists": assists,
+                "kd": kd_ratio,
+                "adr": damage_per_round,
+                "hs_percent": hs_percentage,
+                "first_kills": 0,
+                "first_deaths": 0,
+                "first_deaths_no_trade": 0,
+                "multi_kill_rounds": 0,
+                "clutches_total": 0,
+                "clutches_won": clutches_won,
+                "opening_duels_taken": 0,
+                "opening_duels_won": 0,
+            },
+            "flags": flags,
+            "key_rounds": demo_key_rounds,
+        }
+
+    def _build_coach_report_stub(
+        self,
+        demo_input: Dict,
+        player_performances: Dict[str, PlayerPerformance],
+        improvement_areas: List[Dict],
+        recommendations: List[str],
+        language: str,
+    ) -> Dict:
+        main_player_id = next(iter(player_performances.keys()), demo_input.get("player", {}).get("nickname", "Player"))
+        main_perf = player_performances.get(main_player_id)
+
+        kills = main_perf.kills if main_perf else 0
+        deaths = main_perf.deaths if main_perf else 1
+        kd_ratio = kills / max(1, deaths)
+        hs_percentage = main_perf.headshot_percentage if main_perf else 40.0
+        damage_per_round = main_perf.damage_per_round if main_perf else 0.0
+
+        score = demo_input.get("match", {}).get("score", "0-0")
+        map_name = demo_input.get("match", {}).get("map", "unknown")
+
+        overall_score = max(4.0, min(9.5, 5.0 + (kd_ratio - 1.0) * 2.0))
+
+        strengths: List[Dict] = []
+        weaknesses: List[Dict] = []
+
+        if kd_ratio >= 1.1:
+            strengths.append(
+                {
+                    "title": "Уверенные дуэли и размены",
+                    "description": "Часто выигрываешь дуэли и сохраняешь положительный K/D, что помогает команде брать раунды.",
+                    "impact": "high",
+                    "example_rounds": [],
+                }
+            )
+        else:
+            weaknesses.append(
+                {
+                    "title": "Сложности в дуэлях",
+                    "description": "K/D ниже 1.0 указывает на то, что ты часто отдаёшь лишние смерти и не добираешь урона в ключевых моментах.",
+                    "impact": "high",
+                    "example_rounds": [],
+                }
+            )
+
+        if hs_percentage < 40.0:
+            weaknesses.append(
+                {
+                    "title": "Низкий процент хедшотов",
+                    "description": "Стоит уделить внимание работе по головам, чтобы выигрывать больше дуэлей и быстрее забирать оппонентов.",
+                    "impact": "medium",
+                    "example_rounds": [],
+                }
+            )
+        else:
+            strengths.append(
+                {
+                    "title": "Хорошая работа по головам",
+                    "description": "Процент хедшотов выше среднего, это помогает быстро забирать оппонентов в дуэлях.",
+                    "impact": "medium",
+                    "example_rounds": [],
+                }
+            )
+
+        key_moments: List[Dict] = []
+        for kr in demo_input.get("key_rounds", [])[:5]:
+            rn = kr.get("round")
+            situation = kr.get("situation", "key_round")
+            pov_list = kr.get("player_pov") or []
+            what_happened = "; ".join(str(x) for x in pov_list) if pov_list else situation
+            key_moments.append(
+                {
+                    "round": rn,
+                    "title": f"Ключевой раунд {rn}",
+                    "what_happened": what_happened,
+                    "mistake": "Требуется пересмотреть решения и позиционирование в этом раунде.",
+                    "better_play": "Попробуй сыграть более дисциплинированно: не форсировать дуэли без поддержки и использовать гранаты перед выходом.",
+                }
+            )
+
+        recs: List[Dict] = []
+        for rec in recommendations[:5]:
+            recs.append(
+                {
+                    "area": "general",
+                    "advice": rec,
+                    "priority": "medium",
+                }
+            )
+
+        training_plan: List[Dict] = []
+        if weaknesses:
+            training_plan.append(
+                {
+                    "goal": "Улучшить ключевые слабые стороны",
+                    "exercises": [
+                        "20-30 минут тренировки аима на aim_botz или DM с фокусом на стабильности.",
+                        "Разбор 1-2 собственных демок в неделю с поиском повторяющихся ошибок.",
+                    ],
+                    "duration_days": 14,
+                }
+            )
+
+        overview = (
+            f"Матч на карте {map_name} со счётом {score}. По статистике видно, что твой вклад "
+            f"в раунды держится на уровне K/D {kd_ratio:.2f}, средний урон за раунд около {damage_per_round:.1f}. "
+            "Дальше приведены сильные и слабые стороны, а также рекомендации по улучшению."
+        )
+
+        return {
+            "language": language,
+            "overall_score": float(f"{overall_score:.1f}"),
+            "overview": overview,
+            "strengths": strengths,
+            "weaknesses": weaknesses,
+            "key_moments": key_moments,
+            "recommendations": recs,
+            "training_plan": training_plan,
+            "summary": "Сфокусируйся на устранении повторяющихся ошибок и поддержании сильных сторон, чтобы стабильно поднимать ELO.",
+        }
