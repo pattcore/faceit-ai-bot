@@ -33,13 +33,13 @@ export default function HomePage() {
               </Link>
               <Link
                 href="/subscriptions"
-                className="btn-secondary"
+                className="btn-primary"
               >
                 {t('subscription.title')}
               </Link>
               <Link
                 href="/demo/example"
-                className="btn-secondary"
+                className="btn-primary"
               >
                 {t('landing.cta_demo_example', {
                   defaultValue:
@@ -59,13 +59,13 @@ export default function HomePage() {
               </Link>
               <Link
                 href="/auth"
-                className="btn-secondary"
+                className="btn-primary"
               >
                 {t('landing.cta_sign_in')}
               </Link>
               <Link
                 href="/demo/example"
-                className="btn-secondary"
+                className="btn-primary"
               >
                 {t('landing.cta_demo_example', {
                   defaultValue:
