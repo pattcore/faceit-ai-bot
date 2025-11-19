@@ -137,7 +137,18 @@
     "feature_stats_title": "Player Stats",
     "feature_stats_desc": "Track your performance",
     "feature_team_title": "Find Teammates",
-    "feature_team_desc": "Connect with players"
+    "feature_team_desc": "Connect with players",
+    "social_title": "Train with an AI CS2 coach",
+    "social_subtitle": "Upload demos and stats — get a human-like breakdown and a simple training plan you can follow today.",
+    "social_metric_1_title": "Structured demo reviews",
+    "social_metric_1_desc": "Key rounds, mistakes and highlights in a single report.",
+    "social_metric_2_title": "Actionable training plan",
+    "social_metric_2_desc": "From raw stats to clear drills for aim, gamesense and teamwork.",
+    "social_metric_3_title": "Teammates that fit you",
+    "social_metric_3_desc": "Find players close to your rank and playstyle.",
+    "social_benefit_1": "Stop guessing what to train — focus on the 2–3 things that give the biggest improvement.",
+    "social_benefit_2": "Let AI handle routine analysis so you can spend more time playing and practicing.",
+    "social_benefit_3": "See a live example of demo analysis before uploading your own."
   },
   "common": {
     "kd_ratio": "K/D",

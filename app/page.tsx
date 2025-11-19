@@ -107,6 +107,70 @@ export default function HomePage() {
           <p className="text-gray-600 dark:text-gray-400">{t('landing.feature_team_desc')}</p>
         </Link>
       </div>
+
+      <div className="mt-16 w-full border-t border-gray-200/40 dark:border-gray-800/60">
+        <div className="max-w-5xl mx-auto px-6 py-10 grid md:grid-cols-2 gap-10 items-start">
+          <div className="text-left">
+            <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">
+              {t('landing.social_title')}
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+              {t('landing.social_subtitle')}
+            </p>
+            <ul className="space-y-3 text-gray-700 dark:text-gray-300 list-disc list-inside">
+              <li>{t('landing.social_benefit_1')}</li>
+              <li>{t('landing.social_benefit_2')}</li>
+              <li>{t('landing.social_benefit_3')}</li>
+            </ul>
+            <div className="mt-6 flex flex-wrap gap-4">
+              <Link
+                href={user ? '/analysis' : '/auth'}
+                className="btn-primary"
+              >
+                {t('landing.cta_get_started')}
+              </Link>
+              <Link
+                href="/demo/example"
+                className="btn-primary"
+              >
+                {t('landing.cta_demo_example', {
+                  defaultValue:
+                    lang === 'en'
+                      ? 'View demo analysis example'
+                      : 'Посмотреть пример анализа',
+                })}
+              </Link>
+            </div>
+          </div>
+
+          <div className="grid gap-4">
+            <div className="card text-left animate-fade-in-up bg-white/80 dark:bg-gray-900/80">
+              <h3 className="text-lg font-semibold mb-1 text-gray-900 dark:text-white">
+                {t('landing.social_metric_1_title')}
+              </h3>
+              <p className="text-gray-700 dark:text-gray-300 text-sm">
+                {t('landing.social_metric_1_desc')}
+              </p>
+            </div>
+            <div className="card text-left animate-fade-in-up bg-white/80 dark:bg-gray-900/80">
+              <h3 className="text-lg font-semibold mb-1 text-gray-900 dark:text-white">
+                {t('landing.social_metric_2_title')}
+              </h3>
+              <p className="text-gray-700 dark:text-gray-300 text-sm">
+                {t('landing.social_metric_2_desc')}
+              </p>
+            </div>
+            <div className="card text-left animate-fade-in-up bg-white/80 dark:bg-gray-900/80">
+              <h3 className="text-lg font-semibold mb-1 text-gray-900 dark:text-white">
+                {t('landing.social_metric_3_title')}
+              </h3>
+              <p className="text-gray-700 dark:text-gray-300 text-sm">
+                {t('landing.social_metric_3_desc')}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
