@@ -7,11 +7,8 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![License](https://img.shields.io/badge/License-Source--available-blue?style=for-the-badge)
 
-[![CI](https://github.com/pat1one/faceit-ai-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/pat1one/faceit-ai-bot/actions/workflows/ci.yml)
-[![Docs](https://github.com/pat1one/faceit-ai-bot/actions/workflows/deploy-docs.yml/badge.svg)](https://docs.pattmsc.online)
 [![Site Status](https://img.shields.io/badge/Site-Online-brightgreen?style=for-the-badge)](https://pattmsc.online)
 [![Documentation](https://img.shields.io/badge/Documentation-Available-blue?style=for-the-badge)](https://docs.pattmsc.online)
-[![CodeQL](https://github.com/pat1one/faceit-ai-bot/actions/workflows/codeql.yml/badge.svg)](https://github.com/pat1one/faceit-ai-bot/actions/workflows/codeql.yml)
 [![codecov](https://codecov.io/gh/pat1one/faceit-ai-bot/branch/main/graph/badge.svg)](https://codecov.io/gh/pat1one/faceit-ai-bot)
 [![Code Quality](https://img.shields.io/badge/code%20quality-A-brightgreen)](https://github.com/pat1one/faceit-ai-bot)
 [![GitHub issues](https://img.shields.io/github/issues/pat1one/faceit-ai-bot)](https://github.com/pat1one/faceit-ai-bot/issues)
