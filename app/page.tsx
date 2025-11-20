@@ -26,16 +26,13 @@ export default function HomePage() {
           {user ? (
             <>
               <Link
-                href="/demo"
+                href="/analysis"
                 className="btn-primary"
               >
-                {t('demo.title')}
-              </Link>
-              <Link
-                href="/subscriptions"
-                className="btn-primary"
-              >
-                {t('subscription.title')}
+                {t('nav.player_analysis', {
+                  defaultValue:
+                    lang === 'en' ? 'Player Analysis' : 'Анализ игрока',
+                })}
               </Link>
               <Link
                 href="/demo/example"
