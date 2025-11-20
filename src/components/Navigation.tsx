@@ -34,9 +34,14 @@ const Navigation = () => {
             {t('nav.subscriptions')}
           </Link>
           {user && (
-            <Link href="/dashboard" className="text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
-              {t('nav.dashboard')}
-            </Link>
+            <>
+              <Link href="/analysis" className="text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
+                {t('nav.player_analysis', { defaultValue: 'Player Analysis' })}
+              </Link>
+              <Link href="/dashboard" className="text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
+                {t('nav.dashboard')}
+              </Link>
+            </>
           )}
         </div>
 
@@ -44,7 +49,7 @@ const Navigation = () => {
           <ThemeSwitcher />
           <LanguageSwitcher />
           {user ? (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <Link
                 href="/dashboard"
                 className="flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 text-sm font-medium"
@@ -54,27 +59,15 @@ const Navigation = () => {
                 </span>
                 <span>{user.username || user.email}</span>
               </Link>
-              <Link
-                href="/analysis"
-                className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg text-white font-semibold text-sm transition-colors"
-              >
-                {t('nav.player_analysis', { defaultValue: 'Player Analysis' })}
-              </Link>
               <button
                 onClick={logout}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white font-medium transition-colors"
+                className="px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white font-medium text-sm transition-colors"
               >
                 {t('nav.logout', { defaultValue: 'Logout' })}
               </button>
             </div>
           ) : (
             <>
-              <Link
-                href="/analysis"
-                className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg text-white font-semibold text-sm transition-colors"
-              >
-                {t('nav.player_analysis', { defaultValue: 'Player Analysis' })}
-              </Link>
               <Link
                 href="/auth"
                 className="px-6 py-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg text-white font-semibold transition-colors"

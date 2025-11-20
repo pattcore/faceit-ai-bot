@@ -116,19 +116,6 @@ export default function HomePage() {
               <li>{t('landing.social_benefit_2')}</li>
               <li>{t('landing.social_benefit_3')}</li>
             </ul>
-            <div className="mt-6 flex flex-wrap gap-4">
-              <Link
-                href="/demo/example"
-                className="btn-primary"
-              >
-                {t('landing.cta_demo_example', {
-                  defaultValue:
-                    lang === 'en'
-                      ? 'View demo analysis example'
-                      : 'Посмотреть пример анализа',
-                })}
-              </Link>
-            </div>
           </div>
 
           <div className="grid gap-4">
