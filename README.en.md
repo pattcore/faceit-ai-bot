@@ -97,12 +97,21 @@ A tool for analyzing CS2 player statistics on the Faceit platform. Helps find te
 
 ### 🧩 Browser Extension
 
-**Status:** In Development
+**Status:** Basic version available (manual install via Chrome/Edge)
 
-The extension will allow:
-- 🎯 Analyze players directly on Faceit
-- ⚡ Get statistics with one click
-- 📊 View teammate recommendations
+Current extension capabilities:
+- 🎯 Quickly open Faceit AI Bot from any page in the browser
+- 👤 Trigger player analysis directly from Faceit player profile pages
+- 🎮 Jump from Steam Community profiles to the Faceit AI Bot site
+
+#### Manual Browser Extension Installation (Chrome/Edge)
+
+1. Download the repository or ZIP archive from GitHub and unpack it.
+2. Open `chrome://extensions` (for Chrome) or `edge://extensions` (for Microsoft Edge).
+3. Enable **Developer mode**.
+4. Click **"Load unpacked"** and select the `extension` folder inside the `faceit-ai-bot` project.
+5. Make sure the **Faceit AI Bot Assistant** extension is enabled and pin its icon if you want quick access.
+6. Log in on [pattmsc.online](https://pattmsc.online), then open the extension popup — it uses the same httpOnly session as the site.
 
 Follow updates on [GitHub](https://github.com/pat1one/faceit-ai-bot)
 
