@@ -12,24 +12,20 @@ from sqlalchemy.pool import StaticPool
 sys.path.append(str(Path(__file__).parent))
 from config.settings import settings
 
-# Creation engine
-if settings.DATABASE_URL.startswith('sqlite'):
-    engine = create_engine(
-        settings.DATABASE_URL,
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
+# Creation engine factory
+if settings.DATABASE_URL.startswith("sqlite"):
+    def _create_engine():
+        return create_engine(
+            settings.DATABASE_URL,
+            connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
+        )
 else:
-    # Use a simple engine configuration for PostgreSQL that matches
-    # the manual test (create_engine(settings.DATABASE_URL)) which
-    # successfully connects with the current credentials.
-    engine = create_engine(
-        settings.DATABASE_URL,
-        pool_pre_ping=True,
-    )
+    def _create_engine():
+        return create_engine(settings.DATABASE_URL)
 
-# Creation session factory
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Global engine for backward compatibility (not used in get_db)
+engine = _create_engine()
 
 # Base class for models
 Base = declarative_base()
@@ -39,6 +35,8 @@ def get_db():
     """
     Dependency for getting database session
     """
+    engine = _create_engine()
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db = SessionLocal()
     try:
         yield db
