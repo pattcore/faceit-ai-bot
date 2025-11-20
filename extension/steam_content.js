@@ -1,13 +1,17 @@
 (function () {
   try {
     const host = window.location.hostname.toLowerCase();
-    if (!host.includes("steamcommunity.com")) return;
+    // Allow only steamcommunity.com and its subdomains, not arbitrary hosts
+    // that merely contain "steamcommunity.com" inside the hostname.
+    const isSteamHost =
+      host === "steamcommunity.com" || host.endsWith(".steamcommunity.com");
+    if (!isSteamHost) return;
 
     if (document.querySelector("#faceit-ai-bot-open-site")) return;
 
     const button = document.createElement("button");
     button.id = "faceit-ai-bot-open-site";
-    button.textContent = "Открыть Faceit AI Bot";
+    button.textContent = "Open Faceit AI Bot";
     button.style.position = "fixed";
     button.style.bottom = "20px";
     button.style.right = "20px";

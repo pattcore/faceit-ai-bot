@@ -2,8 +2,8 @@
   function tryInjectButton() {
     try {
       const host = window.location.hostname.toLowerCase();
-      // Разрешаем только faceit.com и его поддомены, а не произвольные хосты,
-      // содержащие "faceit.com" внутри.
+      // Allow only faceit.com and its subdomains, not arbitrary hosts that
+      // merely contain "faceit.com" inside the hostname.
       const isFaceitHost =
         host === "faceit.com" || host.endsWith(".faceit.com");
       if (!isFaceitHost) return;
@@ -20,7 +20,7 @@
 
       const button = document.createElement("button");
       button.id = "faceit-ai-bot-analyze-player";
-      button.textContent = "Анализ игрока в Faceit AI Bot";
+      button.textContent = "Analyze player with Faceit AI Bot";
       button.style.position = "fixed";
       button.style.bottom = "20px";
       button.style.right = "20px";
@@ -42,14 +42,14 @@
 
       document.body.appendChild(button);
     } catch (e) {
-      // Fail silently, не ломаем страницу Faceit
+      // Fail silently, do not break the Faceit page
     }
   }
 
-  // Первичный запуск при загрузке страницы
+  // Initial run on page load
   tryInjectButton();
 
-  // Поддержка SPA-навигации Faceit: реагируем на смену pathname
+  // Support SPA-style navigation on Faceit: react to pathname changes
   let lastPath = window.location.pathname;
   setInterval(() => {
     const currentPath = window.location.pathname;

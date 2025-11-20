@@ -2,14 +2,14 @@
 
 <div align="center">
 
-![Faceit AI Bot](https://img.shields.io/badge/Faceit_AI_Bot-v0.4.0-2E9EF7?style=for-the-badge)
+![Faceit AI Bot](https://img.shields.io/badge/Faceit_AI_Bot-v0.4.1-2E9EF7?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![License](https://img.shields.io/badge/License-Source--available-blue?style=for-the-badge)
 
 **CS2 Player Analysis and Teammate Finder for Faceit Platform**
 
-[🚀 Demo](https://pattmsc.online) • [📚 Documentation](https://docs.pattmsc.online) • [📦 Release v0.4.0](https://github.com/pat1one/faceit-ai-bot/releases/tag/v0.4.0) • [🐛 Bug Reports](https://github.com/pat1one/faceit-ai-bot/issues)
+[🚀 Demo](https://pattmsc.online) • [📚 Documentation](https://docs.pattmsc.online) • [📦 Release v0.4.1](https://github.com/pat1one/faceit-ai-bot/releases/tag/v0.4.1) • [🐛 Bug Reports](https://github.com/pat1one/faceit-ai-bot/issues)
 
 **[Русская версия](README.md)**
 
@@ -192,9 +192,9 @@ Detailed documentation for developers and contributors is available in the `/doc
 ## 🗺️ Roadmap
 
 <details>
-<summary><b>📍 Current Version: v0.4.0</b></summary>
+<summary><b>📍 Current Version: v0.4.1</b></summary>
 
-### ✅ Implemented in v0.4.0
+### ✅ Implemented in v0.4.1
 
 - [x] Faceit API integration
 - [x] Smart analysis with Groq AI

@@ -48,58 +48,58 @@ const Popup: React.FC = () => {
     return () => controller.abort();
   }, []);
 
-  const name = user?.username || user?.email || 'Игрок';
+  const name = user?.username || user?.email || 'Player';
 
   return (
     <div className="popup-root">
       <header className="popup-header">
         <div className="popup-title">Faceit AI Bot</div>
         <div className="popup-subtitle">
-          Быстрый доступ к анализу игрока, демок и тиммейтов
+          Quick access to player analysis, demos and teammates
         </div>
       </header>
 
       <main className="popup-main">
         {loading ? (
-          <div style={{ fontSize: 12, color: '#9ca3af' }}>Проверяем сессию...</div>
+          <div style={{ fontSize: 12, color: '#9ca3af' }}>Checking session...</div>
         ) : user ? (
           <>
-            <div style={{ fontSize: 12, color: '#9ca3af' }}>Вошёл как {name}</div>
+            <div style={{ fontSize: 12, color: '#9ca3af' }}>Signed in as {name}</div>
             <button
               className="btn-primary"
               onClick={() => openInNewTab('/analysis?auto=1')}
             >
-              Анализ моего аккаунта
+              Analyze my account
             </button>
             <button
               className="btn-secondary"
               onClick={() => openInNewTab('/demo')}
             >
-              Анализ демки
+              Demo analysis
             </button>
             <button
               className="btn-secondary"
               onClick={() => openInNewTab('/teammates')}
             >
-              Тиммейты
+              Teammates
             </button>
           </>
         ) : (
           <>
             <div style={{ fontSize: 12, color: '#9ca3af' }}>
-              Не выполнен вход. Залогинься, чтобы получать персональный разбор.
+              Not signed in. Log in to get personalized analysis.
             </div>
             <button
               className="btn-primary"
               onClick={() => openInNewTab('/auth')}
             >
-              Войти / Зарегистрироваться
+              Log in / Sign up
             </button>
             <button
               className="btn-secondary"
               onClick={() => openInNewTab('/demo/example')}
             >
-              Пример анализа демки
+              Demo analysis example
             </button>
           </>
         )}
@@ -107,7 +107,7 @@ const Popup: React.FC = () => {
 
       <footer className="popup-footer">
         <span className="popup-hint">
-          Расширение использует ту же httpOnly-сессию, что и сайт.
+          The extension uses the same httpOnly session as the site.
         </span>
       </footer>
     </div>

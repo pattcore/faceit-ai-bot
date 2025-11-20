@@ -2,13 +2,12 @@
 
 <div align="center">
 
-![Faceit AI Bot](https://img.shields.io/badge/Faceit_AI_Bot-v0.4.0-2E9EF7?style=for-the-badge)
+![Faceit AI Bot](https://img.shields.io/badge/Faceit_AI_Bot-v0.4.1-2E9EF7?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![License](https://img.shields.io/badge/License-Source--available-blue?style=for-the-badge)
 
 [![CI](https://github.com/pat1one/faceit-ai-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/pat1one/faceit-ai-bot/actions/workflows/ci.yml)
-[![Deploy](https://github.com/pat1one/faceit-ai-bot/actions/workflows/deploy-to-vps.yml/badge.svg)](https://github.com/pat1one/faceit-ai-bot/actions/workflows/deploy-to-vps.yml)
 [![Docs](https://github.com/pat1one/faceit-ai-bot/actions/workflows/deploy-docs.yml/badge.svg)](https://docs.pattmsc.online)
 [![Site Status](https://img.shields.io/badge/Site-Online-brightgreen?style=for-the-badge)](https://pattmsc.online)
 [![Documentation](https://img.shields.io/badge/Documentation-Available-blue?style=for-the-badge)](https://docs.pattmsc.online)
@@ -24,7 +23,7 @@
 ✅ **Сайт активно работает: [pattmsc.online](https://pattmsc.online)**  
 📚 **Документация доступна: [docs.pattmsc.online](https://docs.pattmsc.online)**
 
-[🚀 Демо](https://pattmsc.online) • [📚 Документация](https://docs.pattmsc.online) • [📦 Релиз v0.4.0](https://github.com/pat1one/faceit-ai-bot/releases/tag/v0.4.0) • [🐛 Баг-репорты](https://github.com/pat1one/faceit-ai-bot/issues) • [💡 Идеи](https://github.com/pat1one/faceit-ai-bot/issues/new?template=feature_request.md)
+[🚀 Демо](https://pattmsc.online) • [📚 Документация](https://docs.pattmsc.online) • [📦 Релиз v0.4.1](https://github.com/pat1one/faceit-ai-bot/releases/tag/v0.4.1) • [🐛 Баг-репорты](https://github.com/pat1one/faceit-ai-bot/issues) • [💡 Идеи](https://github.com/pat1one/faceit-ai-bot/issues/new?template=feature_request.md)
 
 **[English version](README.en.md)** | **[Contributing](CONTRIBUTING.md)** | **[Changelog](CHANGELOG.md)** | **[FAQ](FAQ.md)**
 
@@ -225,9 +224,9 @@ npm run dev
 ## 🗺️ Roadmap
 
 <details>
-<summary><b>📍 Текущая версия: v0.4.0</b></summary>
+<summary><b>📍 Текущая версия: v0.4.1</b></summary>
 
-### ✅ Реализовано в v0.4.0
+### ✅ Реализовано в v0.4.1
 
 - [x] Интеграция с Faceit API
 - [x] Умный анализ с Groq AI
