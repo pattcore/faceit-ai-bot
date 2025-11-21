@@ -457,3 +457,21 @@ mongo-data/
 *.rpm
 *.rpm
 !src/lib/
+
+# ============================================
+# ML DATA & MODELS
+# ============================================
+# Raw demo files and local datasets
+data/demos/
+data/parsed/
+data/training/
+datasets/
+
+# Trained model artifacts and checkpoints
+models/trained/
+checkpoints/
+runs/
+*.pt
+*.pth
+*.onnx
+docs/ml-training.md

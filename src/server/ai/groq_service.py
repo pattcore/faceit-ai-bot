@@ -193,6 +193,140 @@ class GroqService:
                 f"Error analyzing performance: {str(e)}"
             )
 
+    async def generate_demo_coach_report(
+        self,
+        demo_input: Dict,
+        language: str = "ru",
+    ) -> Dict:
+        lang = self._normalize_language(language)
+        if not self.api_key and getattr(self, "provider", None) != "local":
+            return {}
+
+        if lang == "en":
+            system_content = (
+                "You are a professional CS2 coach. Based on the structured match "
+                "data, generate a detailed coaching report for the player. "
+                "Return ONLY one valid JSON object with the following top-level "
+                "fields: overview, strengths, weaknesses, key_moments, "
+                "training_plan, summary. All text fields must be in ENGLISH."
+            )
+            header = (
+                "You are an AI CS2 coach. You receive structured match data "
+                "(JSON below). Based on it, generate a detailed coaching report "
+                "for the player in JSON with the following schema: overview, "
+                "strengths, weaknesses, key_moments, training_plan, summary.\n\n"
+                "Input data:\n"
+            )
+        else:
+            system_content = (
+                "Ты профессиональный тренер по CS2. На основе структурированных "
+                "данных матча составь подробный коуч-отчёт для игрока. Верни "
+                "ТОЛЬКО один корректный JSON-объект со следующими полями верхнего "
+                "уровня: overview, strengths, weaknesses, key_moments, "
+                "training_plan, summary. Все текстовые поля должны быть на "
+                "РУССКОМ языке."
+            )
+            header = (
+                "Ты — AI‑тренер по CS2. На входе у тебя структурированные данные "
+                "матча (JSON ниже). На их основе составь развёрнутый коуч‑отчёт "
+                "для игрока в формате JSON со следующей схемой: overview, "
+                "strengths, weaknesses, key_moments, training_plan, summary.\n\n"
+                "Входные данные:\n"
+            )
+
+        user_prompt = header + json.dumps(demo_input, ensure_ascii=False, indent=2)
+
+        headers = {
+            "Content-Type": "application/json",
+        }
+
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+
+        if self._is_openrouter_base_url():
+            referer = getattr(settings, "WEBSITE_URL", "")
+            app_title = getattr(settings, "APP_TITLE", "Faceit AI Bot")
+            if referer:
+                headers["HTTP-Referer"] = referer
+            headers["X-Title"] = app_title
+
+        payload = {
+            "model": self.model,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": system_content,
+                },
+                {
+                    "role": "user",
+                    "content": user_prompt,
+                },
+            ],
+            "temperature": 0.4,
+            "max_tokens": 800,
+        }
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    self.groq_base_url,
+                    headers=headers,
+                    json=payload,
+                ) as response:
+                    if response.status != 200:
+                        text = await response.text()
+                        logger.error(
+                            "Groq demo coach error: %s - %s",
+                            response.status,
+                            text,
+                        )
+                        return {}
+                    data = await response.json()
+                    content = data["choices"][0]["message"][
+                        "content"
+                    ]
+
+            text = content.strip()
+            if text.startswith("```"):
+                lines = text.splitlines()
+                cleaned_lines = [
+                    line
+                    for line in lines
+                    if not line.strip().startswith("```")
+                ]
+                text = "\n".join(cleaned_lines).strip()
+
+            try:
+                report = json.loads(text)
+            except json.JSONDecodeError:
+                start = text.find("{")
+                end = text.rfind("}")
+                if start != -1 and end != -1 and end > start:
+                    try:
+                        report = json.loads(text[start : end + 1])
+                    except json.JSONDecodeError:
+                        logger.error(
+                            "Failed to parse demo coach report JSON",
+                            exc_info=True,
+                        )
+                        return {}
+                else:
+                    return {}
+
+            if isinstance(report, dict):
+                self._log_sample(
+                    task="demo_coach_report",
+                    language=lang,
+                    input_payload={"demo_input": demo_input},
+                    output_payload=report,
+                )
+                return report
+
+            return {}
+        except Exception:
+            logger.exception("Error in generate_demo_coach_report")
+            return {}
+
     async def generate_training_plan(
         self,
         player_stats: Dict,
