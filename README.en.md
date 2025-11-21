@@ -224,61 +224,44 @@ Detailed documentation for developers and contributors is available in the `/doc
 
 </details>
 
-### 🚧 v0.5.0 - In Development (Q1 2026)
+### 🚧 v0.5 — ML model on pro demos
 
-**Focus:** deeper analytics, Steam integration and progression systems.
+**Focus:** high‑quality ML analysis of gameplay relative to pro level.
 
-- [ ] 📊 **Advanced analytics**
-  - Match history with rich charts and filters
-  - Comparison with other players and peer groups
-  - Detailed per-map and per-role statistics
-- [ ] 🎮 **Steam integration**
-  - Import demos directly from Steam
-  - Profile synchronization between platforms
-- [ ] 🏆 **Achievement system**
-  - Clear progress tracking and goals
-  - Rewards for skill improvements
-- [ ] 🧩 **Browser extension**
-  - Chrome/Firefox extension
-  - One-click analysis directly on Faceit
+- [ ] 📂 Dataset of top Faceit players (1000+ pro demos)
+- [ ] 🧠 ML model producing:
+  - positioning / decision making / utility / economy scores
+  - overall pro‑likeness score (0–100)
+- [ ] 📑 Report with the top 5 differences from pro players and concrete round examples
 
-### 🔮 v0.5.0 - Planned (Q2 2026)
+### 🚧 v0.6 — Browser extension
 
-**Focus:** social features, team tools and mobile experience.
+**Focus:** frictionless entry point from Faceit.
 
-- [ ] 💬 **Discord bot**
-  - Analysis commands
-  - Match notifications
-  - Teammate search inside Discord
-- [ ] 👥 **Team analytics**
-  - Team synergy and role analysis
-  - Roster recommendations
-  - Tournament statistics
-- [ ] 📱 **Native mobile app**
-  - iOS/Android app
-  - Push notifications
-  - Offline mode
+- [ ] 🧩 Updated Chrome/Edge extension
+- [ ] 🔘 One button on Faceit profile → full AI analysis
+- [ ] 🔗 Deep link to the web UI with detailed report and visualizations (heatmaps, comparisons)
 
-### 🌟 v0.5.0+ - Future (Q3–Q4 2026)
+### 🚧 v0.7 — Monetization
 
-**Focus:** platform expansion, coaching ecosystem and advanced AI.
+**Focus:** first paid tiers around ML analytics.**
 
-- [ ] 🎯 **Support for other games**
-  - Dota 2
-  - Valorant
-  - League of Legends
-- [ ] 🎓 **Coach marketplace**
-  - Find coaches
-  - Session booking
-  - Review system
-- [ ] 📺 **Stream integration**
-  - Twitch/YouTube integration
-  - Real-time stream analysis
-  - Best moment clips
-- [ ] 🤖 **Advanced AI**
-  - Voice assistant
-  - Match outcome prediction
-  - Personal AI coach
+- [ ] 💳 Payment integration
+- [ ] 🎯 Plans:
+  - Free — 1 demo per month, basic report
+  - Pro — unlimited demos, full ML analysis and pro comparison
+  - Team — team analysis, teammate comparison, opponent analysis
+
+### 🎯 v1.0 — Stable product
+
+**Focus:** stable ML platform with real paying customers.**
+
+- [ ] Reliable ML pipeline (retraining, quality metrics)
+- [ ] Performance optimization and demo analysis queues
+- [ ] Polished UX (heatmaps, comparisons, clear reports)
+- [ ] Iterations based on feedback from active users
+
+> Ideas like mobile apps, other games, coach marketplace and heavy social features are **post‑1.0** and will be considered only after product‑market fit and stable revenue.
 
 **Want to suggest a feature?** [Create an issue](https://github.com/pat1one/faceit-ai-bot/issues/new) with the `feature-request` tag
 
