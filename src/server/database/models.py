@@ -24,6 +24,14 @@ class PaymentStatus(enum.Enum):
     REFUNDED = "refunded"
 
 
+class ProDemoStatus(enum.Enum):
+    QUEUED = "queued"
+    DOWNLOADING = "downloading"
+    DOWNLOADED = "downloaded"
+    PARSED = "parsed"
+    FAILED = "failed"
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -100,3 +108,20 @@ class TeammateProfile(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     user = relationship("User", back_populates="teammate_profile")
+
+
+class ProDemo(Base):
+    __tablename__ = "pro_demos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    faceit_match_id = Column(String(100), unique=True, index=True, nullable=False)
+    faceit_player_id = Column(String(100), index=True, nullable=True)
+    faceit_nickname = Column(String(100), nullable=True)
+    map_name = Column(String(50), nullable=True)
+    elo_avg = Column(Integer, nullable=True)
+    started_at = Column(DateTime, nullable=True)
+    demo_url = Column(String(500), nullable=True)
+    storage_path = Column(String(500), nullable=True)
+    status = Column(Enum(ProDemoStatus), default=ProDemoStatus.QUEUED, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)

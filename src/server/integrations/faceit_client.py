@@ -229,6 +229,49 @@ class FaceitAPIClient:
             logger.exception(f"Unexpected error searching players: {str(e)}")
             return []
 
+    async def get_match_details(self, match_id: str) -> Optional[Dict]:
+        """Retrieve match details including demo URLs.
+
+        This wraps the Data API endpoint `/matches/{match_id}`.
+        """
+        if not self.api_key:
+            raise FaceitAPIKeyMissingError()
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    f"{self.BASE_URL}/matches/{match_id}",
+                    headers=self.headers,
+                    timeout=aiohttp.ClientTimeout(total=15),
+                ) as response:
+                    if response.status == 200:
+                        return await response.json()
+                    elif response.status == 404:
+                        logger.warning(f"Match not found: {match_id}")
+                        raise FaceitAPIError(
+                            "Match not found",
+                            status_code=404,
+                        )
+                    elif response.status == 429:
+                        raise RateLimitExceededError()
+                    else:
+                        error_text = await response.text()
+                        logger.error(
+                            f"Failed to get match details {response.status}: {error_text}"
+                        )
+                        raise FaceitAPIError(
+                            f"Failed to get match details: {response.status}",
+                            status_code=response.status,
+                        )
+        except aiohttp.ClientError as e:
+            logger.error(f"Network error fetching match details: {str(e)}")
+            raise FaceitAPIError("Network error connecting to Faceit API")
+        except Exception as e:
+            if isinstance(e, (FaceitAPIError, RateLimitExceededError)):
+                raise
+            logger.exception(f"Unexpected error fetching match details: {str(e)}")
+            raise FaceitAPIError("Unexpected error occurred")
+
     def _get_mock_stats(self) -> Dict:
         """Mock data for testing"""
         return {
