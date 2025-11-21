@@ -1,64 +1,36 @@
-# Руководство по внесению вклада
+# Contributing to Faceit AI Bot
 
-Спасибо за интерес к проекту — я рад любому адекватному вкладу.
+Thanks for your interest!
 
-## Как поучаствовать
+## What You Can Contribute
 
-### 1. Fork и подготовка
+✅ Bug fixes  
+✅ Feature improvements  
+✅ Documentation  
+✅ Tests  
+✅ UI/UX enhancements
 
-```bash
-git clone https://github.com/YOUR_USERNAME/faceit-ai-bot.git
-cd faceit-ai-bot
-git checkout -b feature/my-change
-```
+## What to Know
 
-### 2. Что от вас нужно
+- By contributing, you agree to the project LICENSE
+- Your code will be under the same source-available license
+- Major contributors may receive free PRO subscription
+- We will add you to CONTRIBUTORS.md for notable contributions
 
-- Поднять проект локально (по README).
-- Сделать небольшие, понятные изменения (одна фича или один фикс за раз).
-- Если меняете логику, по возможности добавьте/обновите тесты.
+## How to Contribute
 
-### 3. Стиль кода
+1. Fork the repo
+2. Create a feature branch: `git checkout -b feature/cool-thing`  
+3. Make your changes
+4. Add tests if applicable
+5. Submit a Pull Request
 
-- **Python**: придерживаться PEP 8, использовать типы.
-- **TypeScript/Next.js**: не ломать ESLint/Prettier (как настроено в проекте).
-- Не вносить лишний шум (массовые «реформаты» файлов без необходимости).
+## Code Style
 
-### 4. Коммиты
+- Python: Follow PEP 8 and use type hints
+- TypeScript/Next.js: Follow the existing ESLint/Prettier config
+- Write clear, focused commit messages
 
-- Коротко и по делу: что именно поменялось.
+## Questions?
 
-Примеры:
-
-```bash
-git commit -m "исправить прод-авторизацию и Dockerfile"
-git commit -m "обновить страницу расширения и документацию"
-git commit -m "добавить сбор обучающих примеров для демок"
-```
-
-Conventional Commits можно использовать, но это **не обязательно**.
-
-### 5. Pull Request
-
-```bash
-git push origin feature/my-change
-```
-
-Затем на GitHub откройте Pull Request в репозиторий `pat1one/faceit-ai-bot` и кратко опишите:
-
-- что именно вы поменяли;
-- зачем это нужно пользователю или проекту;
-- если есть — скриншот/пример.
-
-## Ошибки и предложения
-
-- Баги: создайте issue с шагами воспроизведения и описанием проблемы.
-- Улучшения: создайте issue c пометкой `enhancement` и напишите, какую боль решает предложение.
-
-## Лицензия
-
-Внося вклад, вы соглашаетесь, что ваш код распространяется на условиях кастомной **source-available** лицензии из файла [LICENSE](LICENSE).
-
----
-
-**[English version](CONTRIBUTING.en.md)**
+Open an issue or email: support@pattmsc.online

@@ -1,65 +1,194 @@
-Source-available License (with commercial restrictions)
-
+Source-Available License with Commercial Restrictions
 Copyright (c) 2025 pattmsc (Platon)
 
-You can freely use this code, but there are a couple important points:
+VERSION: 1.1
+EFFECTIVE: January 1, 2025
+REPOSITORY: https://github.com/pat1one/faceit-ai-bot
 
-This is a source-available, non-proprietary license: you can read and modify the
-code, but commercial and competitive use are restricted as described below.
+═══════════════════════════════════════════════════════════════
 
-MAIN RULES:
+PREAMBLE
+This is a source-available license. You can read, study, and modify
+the code, but commercial and competitive use are restricted.
 
-1. GIVE CREDIT
-   If you use the code - just mention where you got it:
-   "Original by pattmsc - https://pattmsc.online"
+The goal: protect the commercial service while allowing learning,
+personal use, and legitimate integrations.
 
-2. ABOUT COMMERCIAL USE
-   This is a paid service with subscriptions (FREE, BASIC, PRO, ELITE).
-   You can't:
-   - Make your own paid service using this code
-   - Sell subscriptions based on this project
-   - Make money from it without permission
-   - Remove the payment system
+═══════════════════════════════════════════════════════════════
 
-3. WHAT YOU CAN DO
-   Commercial use only if:
-   - You're integrating it into your own project (not a competitor)
-   - Making internal company tools
-   - Using for educational purposes
+1. ATTRIBUTION
+   If you use this code:
+   - Mention: "Based on Faceit AI Bot by pattmsc"
+   - Link: https://pattmsc.online
+   - Keep this LICENSE file in your project
 
-4. FORKS AND MODIFICATIONS
-   - Fork and modify for yourself or learning - no problem
-   - Just mention what you changed
-   - Don't forget about the original author
-   - Don't make it a paid service
-   - If you publish a fork - link back to the original
+2. COMMERCIAL RESTRICTIONS
 
-5. FOR LEARNING AND PERSONAL USE
-   For personal projects, learning, experiments - use as much as you want.
+   ❌ PROHIBITED without written permission:
+   - Creating a competing CS2 analysis service
+   - Selling subscriptions or access based on this code
+   - Hosting a public service with identical/similar functionality
+   - Removing or bypassing the subscription system
+   - White-labeling this project for resale
 
-6. OFFICIAL SERVICE
-   The only official paid service is here: https://pattmsc.online
-   Want to launch your own commercial project - write to me.
+   ✅ ALLOWED commercial use:
+   - Internal company tools (not public facing)
+   - Integration into your non-competing product
+   - Academic/educational institutions
+   - Consulting services that use but don't sell access
 
-7. CODE OWNERS & ANTI-PIRACY
-   - Official code owners are defined in the .github/CODEOWNERS file of this
-     repository.
-   - Any commercial use, resale, hosting or integration of this project or
-     substantial parts of its code into your own public or commercial project
-     without explicit written permission from a code owner is prohibited.
-   - You may not create or distribute builds, forks or services with identical
-     or confusingly similar functionality that compete with the official
-     service (https://pattmsc.online), whether paid or free.
-   - Pirated, cracked or resold builds, keys or subscriptions are strictly
-     forbidden.
+3. PERSONAL & EDUCATIONAL USE
 
-DISCLAIMER:
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+   ✅ Freely allowed:
+   - Learning and studying the code
+   - Personal projects and experiments
+   - University assignments and research
+   - Local deployment for testing
+   - Teaching and tutorials (with attribution)
 
-For questions about licensing, contact: support@pattmsc.online
+4. FORKS & MODIFICATIONS
+
+   You MAY:
+   - Fork for personal use or learning
+   - Modify for your own needs
+   - Submit improvements via Pull Requests
+
+   You MUST:
+   - Keep this license in your fork
+   - Document your changes in commit messages
+   - Link back to original: https://github.com/pat1one/faceit-ai-bot
+
+   You MAY NOT:
+   - Create a competing paid service from your fork
+   - Remove attribution or licensing information
+   - Present your fork as the original project
+
+5. SUBSTANTIAL USE DEFINITION
+
+   "Substantial parts" of this codebase means:
+   - The demo parsing engine (src/parser/)
+   - ML model architecture (src/ml/models/)
+   - Faceit API integration (src/server/integrations/)
+   - >30% of total codebase by lines of code
+
+   EXCEPTION: Individual utility functions, UI components, or
+   code snippets <100 lines may be used with attribution only.
+
+6. PROPRIETARY COMPONENTS
+
+   NOT included in this repository and fully proprietary:
+
+   🔒 Trained ML models and neural network weights
+   🔒 Professional player demo datasets (1000+ parsed demos)
+   🔒 Advanced feature engineering algorithms
+   🔒 Production API keys and secrets
+   🔒 Stripe billing integration and subscription logic
+   🔒 Proprietary AI prompts and analysis templates
+
+   These are available ONLY at: https://pattmsc.online
+
+   Attempting to extract, reverse-engineer, or independently
+   recreate these proprietary components is prohibited.
+
+7. CONTRIBUTIONS
+
+   By submitting code (Pull Requests, patches, issues with code):
+
+   - You grant pattmsc (Platon) a perpetual, worldwide,
+     non-exclusive, royalty-free license to use your contribution
+   - Your contribution adopts this same license
+   - You retain copyright to your work
+   - You confirm you have rights to submit the contribution
+
+   🎁 Major contributors (50+ merged commits) receive:
+   - Free lifetime PRO subscription
+   - Recognition in CONTRIBUTORS.md
+   - Early access to beta features
+
+8. OFFICIAL SERVICE
+
+   The only official commercial service is: https://pattmsc.online
+
+   All subscriptions, billing, and commercial access go through
+   the official service only.
+
+   For commercial licensing inquiries: support@pattmsc.online
+
+9. LICENSE EVOLUTION (Sunset Clause)
+
+   ⏰ On January 1, 2028, this license automatically converts to
+   GNU Affero General Public License v3.0 (AGPL-3.0).
+
+   After conversion:
+   - All commercial restrictions are lifted
+   - Code becomes fully open source
+   - Copyleft provisions of AGPL apply
+
+   This ensures long-term openness while protecting early
+   commercial viability.
+
+10. ANTI-PIRACY & ENFORCEMENT
+
+    STRICTLY PROHIBITED:
+    - Cracked or pirated subscription keys
+    - Reselling official subscriptions
+    - Bypassing payment systems
+    - Impersonating the official service
+    - Using stolen API keys or credentials
+
+    VIOLATIONS MAY RESULT IN:
+    - Immediate license termination
+    - Legal action for damages
+    - DMCA/legal takedown notices
+    - Ban from official service
+    - Report to relevant platforms (GitHub, host providers)
+
+    💬 Unsure if your use case is allowed? Just ask:
+    support@pattmsc.online - good faith inquiries always welcome.
+
+11. CODE OWNERS
+
+    Official code owners are listed in .github/CODEOWNERS
+
+    Current owners:
+    - pattmsc (Platon) - @pat1one
+
+    Only code owners can grant commercial licensing exceptions.
+
+12. JURISDICTION & DISPUTES
+
+    - This license is governed by the laws of the Russian Federation
+    - Disputes resolved in Moscow courts
+    - If any provision is invalid, others remain in effect
+    - English version is authoritative for interpretation
+
+13. NO WARRANTY
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT.
+
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+    FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
+    THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+═══════════════════════════════════════════════════════════════
+
+SUMMARY FOR HUMANS:
+✅ Read, learn, experiment - go ahead!
+✅ Use for personal projects - no problem
+✅ Integrate into non-competing products - allowed
+✅ Fork and modify for yourself - sure
+✅ Contribute improvements - appreciated!
+
+❌ Don't make a competing paid service
+❌ Don't resell or white-label
+❌ Don't steal the trained ML models
+❌ Don't bypass subscriptions
+
+Questions? support@pattmsc.online
+License updates: Check GitHub for latest version
+
+Last updated: January 2025

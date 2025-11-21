@@ -10,6 +10,8 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from pathlib import Path
 
+from src.ml.models import train_demo_coach
+
 
 def parse_args() -> ArgumentParser:
     parser = ArgumentParser(
@@ -54,17 +56,17 @@ def main() -> None:
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # NOTE: put actual training logic into src.ml.* and call it from here.
-    # This keeps the main repo lightweight and allows running training in
-    # a dedicated ML environment.
     print("[train.py] Dataset:", dataset_path)
     print("[train.py] Output dir:", output_dir)
     if args.config:
         print("[train.py] Config:", args.config)
 
-    print(
-        "[train.py] Training entry point is ready. "
-        "Implement actual training in src.ml and import it here when needed."
+    # Delegate to lightweight training helper. Real ML training can build on
+    # top of this in a dedicated environment.
+    train_demo_coach(
+        dataset_path=dataset_path,
+        output_dir=output_dir,
+        config_path=args.config,
     )
 
 

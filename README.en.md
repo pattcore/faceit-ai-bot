@@ -5,7 +5,8 @@
 ![Faceit AI Bot](https://img.shields.io/badge/Faceit_AI_Bot-v0.4.1-2E9EF7?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![License](https://img.shields.io/badge/License-Source--available-blue?style=for-the-badge)
+[![License](https://img.shields.io/badge/License-Source--available-blue?style=for-the-badge)](LICENSE)
+[![2028 License](https://img.shields.io/badge/2028_License-AGPL--3.0-orange?style=for-the-badge)](LICENSE)
 
 **CS2 Player Analysis and Teammate Finder for Faceit Platform**
 
