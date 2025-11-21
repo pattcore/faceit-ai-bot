@@ -125,3 +125,68 @@ class ProDemo(Base):
     status = Column(Enum(ProDemoStatus), default=ProDemoStatus.QUEUED, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    features = relationship("DemoFeature", back_populates="pro_demo")
+
+
+class DemoFeature(Base):
+    __tablename__ = "demo_features"
+
+    id = Column(Integer, primary_key=True, index=True)
+    pro_demo_id = Column(Integer, ForeignKey("pro_demos.id"), index=True, nullable=True)
+    source = Column(String(20), default="pro", nullable=False)
+
+    round_number = Column(Integer, nullable=True)
+    steam_id = Column(String(100), index=True, nullable=True)
+    faceit_player_id = Column(String(100), index=True, nullable=True)
+    team = Column(String(10), nullable=True)
+
+    # Core stats
+    kills = Column(Integer, nullable=True)
+    deaths = Column(Integer, nullable=True)
+    assists = Column(Integer, nullable=True)
+    damage = Column(Float, nullable=True)
+    adr = Column(Float, nullable=True)
+    kast = Column(Float, nullable=True)
+    rating_2_0 = Column(Float, nullable=True)
+    opening_duels_won = Column(Integer, nullable=True)
+    multikills = Column(Integer, nullable=True)
+    clutches_won = Column(Integer, nullable=True)
+    trade_kills = Column(Integer, nullable=True)
+
+    # Positioning
+    avg_distance_to_teammates = Column(Float, nullable=True)
+    avg_distance_to_bombsite = Column(Float, nullable=True)
+    time_in_aggressive_positions = Column(Float, nullable=True)
+    time_in_passive_positions = Column(Float, nullable=True)
+
+    # Decision making
+    early_round_pushes = Column(Integer, nullable=True)
+    late_round_rotations = Column(Integer, nullable=True)
+    save_rounds = Column(Integer, nullable=True)
+    suicidal_peeks = Column(Integer, nullable=True)
+
+    # Utility usage
+    nades_thrown = Column(Integer, nullable=True)
+    flashes_thrown = Column(Integer, nullable=True)
+    flash_assists = Column(Integer, nullable=True)
+    smokes_thrown = Column(Integer, nullable=True)
+    smokes_blocking_time = Column(Float, nullable=True)
+    molotovs_thrown = Column(Integer, nullable=True)
+    molotovs_area_denial_time = Column(Float, nullable=True)
+
+    # Economy
+    avg_money_spent = Column(Float, nullable=True)
+    eco_rounds_played = Column(Integer, nullable=True)
+    force_buy_rounds = Column(Integer, nullable=True)
+    full_buy_rounds = Column(Integer, nullable=True)
+    weapon_tier_score = Column(Float, nullable=True)
+
+    # Aggregate impact scores
+    round_impact_score = Column(Float, nullable=True)
+    clutch_impact = Column(Float, nullable=True)
+    entry_impact = Column(Float, nullable=True)
+
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    pro_demo = relationship("ProDemo", back_populates="features")
