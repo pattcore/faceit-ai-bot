@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Faceit AI Bot](https://img.shields.io/badge/Faceit_AI_Bot-v0.4.1-2E9EF7?style=for-the-badge)
+![Faceit AI Bot](https://img.shields.io/badge/Faceit_AI_Bot-v0.4.6-2E9EF7?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 [![License](https://img.shields.io/badge/License-Source--available-blue?style=for-the-badge)](LICENSE)
@@ -10,7 +10,15 @@
 
 **CS2 Player Analysis and Teammate Finder for Faceit Platform**
 
-[🚀 Demo](https://pattmsc.online) • [📚 Documentation](https://pat1one.github.io/faceit-ai-bot/) • [📦 Release v0.4.1](https://github.com/pat1one/faceit-ai-bot/releases/tag/v0.4.1) • [🐛 Bug Reports](https://github.com/pat1one/faceit-ai-bot/issues)
+[🚀 Demo](https://pattmsc.online) • [📚 Documentation](https://pat1one.github.io/faceit-ai-bot/) • [📦 Release v0.4.6](https://github.com/pat1one/faceit-ai-bot/releases/tag/v0.4.6) • [🐛 Bug Reports](https://github.com/pat1one/faceit-ai-bot/issues)
+
+**⬇️ Downloads (v0.4.6):**
+
+- 🧩 `faceit-ai-bot-extension-v0.4.6.zip` — browser extension for Chrome/Edge,
+- 🌐 `faceit-ai-bot-web-assets-v0.4.6.tar.gz` — prebuilt Next.js web assets,
+- 🐳 `faceit-ai-bot-docker-v0.4.6.tar.gz` — Docker package with `docker-compose.yml` and sample `.env`.
+
+All files are available in the **Assets** section of the v0.4.6 GitHub Release page.
 
 **[Русская версия](README.md)**
 
@@ -109,7 +117,7 @@ Current extension capabilities:
 
 #### Manual Browser Extension Installation (Chrome/Edge)
 
-1. Open the v0.4.1 release on GitHub (https://github.com/pat1one/faceit-ai-bot/releases/tag/v0.4.1) and download the extension archive from the **Assets** section, then unpack it (or download the whole repository as a ZIP).
+1. Open the v0.4.6 release on GitHub (https://github.com/pat1one/faceit-ai-bot/releases/tag/v0.4.6) and download the extension archive from the **Assets** section, then unpack it (or download the whole repository as a ZIP).
 2. Open `chrome://extensions` (for Chrome) or `edge://extensions` (for Microsoft Edge).
 3. Enable **Developer mode**.
 4. Click **"Load unpacked"** and select the `extension` folder inside the `faceit-ai-bot` project.
@@ -185,9 +193,10 @@ npm run dev
 
 Detailed documentation for developers and contributors is available in the `/docs` folder:
 
-- 📖 [User Guide](./docs/USER_GUIDE.md)
-- 🔧 [Developer Guide](./docs/DEVELOPER_GUIDE.md)
-- 🔌 [API Documentation](./docs/API.md)
+- 📚 [Overview & quick start](./docs/index.md)
+- 🧱 [Architecture](./docs/architecture.md)
+- 🧠 [ML training pipeline](./docs/ml-training.md)
+- 🔌 [API Documentation](./docs/api/README.md)
 - 🤝 [Contribution Guide](./CONTRIBUTING.md)
 
 ---
@@ -195,7 +204,7 @@ Detailed documentation for developers and contributors is available in the `/doc
 ## 🗺️ Roadmap
 
 <details>
-<summary><b>📍 Current Version: v0.4.1</b></summary>
+<summary><b>📍 Current Version: v0.4.6</b></summary>
 
 ### ✅ Implemented in v0.4.1
 

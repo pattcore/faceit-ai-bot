@@ -2,6 +2,30 @@
 
 **[Русская версия](CHANGELOG.md)**
 
+## Version 0.4.6 — November 22, 2025
+
+Small but important release focused on the ML pipeline and release infrastructure.
+
+### 🎉 Highlights
+
+- 📦 **New web assets archive**  
+  Automatic Next.js frontend build and publication of `faceit-ai-bot-web-assets-<version>.tar.gz` in GitHub Releases.
+- 🧩 **Browser extension package**  
+  The extension continues to be built automatically as a ZIP archive for Chrome/Edge installation.
+- 🐳 **Docker package for server deployment**  
+  Ready-to-use `faceit-ai-bot-docker-<version>.tar.gz` archive with `docker-compose.yml`, sample `.env` and README for quick startup.
+
+### 🧠 ML / Infrastructure
+
+- Infrastructure prepared for the ML pipeline for CS2 demo analysis:
+  - `scripts/fetch_pro_demos.py` — collecting metadata of pro demos,
+  - `scripts/download_pro_demos.py` — downloading demo files,
+  - `scripts/extract_pro_demo_features.py` — extracting features from demos,
+  - `scripts/export_demo_coach_dataset.py` — exporting a training dataset for the ML model.
+- Pinned `demoparser2==0.40.2` in `requirements.txt` so that CI and GitHub Actions work reliably with ML scripts.
+
+---
+
 ## Version 0.2.2 — November 9, 2025
 
 Big update! Everything now works automatically and looks beautiful.
