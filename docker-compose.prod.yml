@@ -154,7 +154,7 @@ services:
   discord_bot:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.bot
     restart: always
     depends_on:
       api:
@@ -185,7 +185,7 @@ services:
   telegram_bot:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.bot
     restart: always
     depends_on:
       api:
