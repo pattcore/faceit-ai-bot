@@ -12,10 +12,15 @@ sys.path.insert(0, os.path.abspath(
 
 # Import after sys.path modification
 from src.server.database.models import Base  # noqa: E402
+from src.server.database.connection import DATABASE_URL  # noqa: E402
 
 config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
+
+# Используем тот же DATABASE_URL, что и приложение
+if DATABASE_URL:
+    config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 target_metadata = Base.metadata
 
