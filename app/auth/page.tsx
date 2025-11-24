@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { API_ENDPOINTS } from '../../src/config/api';
+import TurnstileWidget from '../../src/components/TurnstileWidget';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,10 +14,15 @@ export default function AuthPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   
   const { login, register, loginWithToken } = useAuth();
   const router = useRouter();
   const { t } = useTranslation();
+
+  const handleCaptchaTokenChange = useCallback((token: string | null) => {
+    setCaptchaToken(token);
+  }, []);
 
   // Handle OpenID/OAuth callbacks: token & auto=1 from query params
   useEffect(() => {
@@ -65,10 +71,22 @@ export default function AuthPage() {
     setLoading(true);
 
     try {
+      const turnstileEnabled = !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
+      if (turnstileEnabled && !captchaToken) {
+        setError(
+          t('auth.captcha_required', {
+            defaultValue: 'Подтвердите, что вы не бот, выполнив проверку CAPTCHA.',
+          }),
+        );
+        setLoading(false);
+        return;
+      }
+
       if (isLogin) {
-        await login(email, password);
+        await login(email, password, captchaToken);
       } else {
-        await register(email, username, password);
+        await register(email, username, password, captchaToken);
       }
       router.push('/');
     } catch (err) {
@@ -143,6 +161,10 @@ export default function AuthPage() {
               required
               minLength={6}
             />
+          </div>
+
+          <div>
+            <TurnstileWidget onTokenChange={handleCaptchaTokenChange} action={isLogin ? 'auth_login' : 'auth_register'} />
           </div>
 
           {error && (

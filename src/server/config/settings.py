@@ -52,6 +52,11 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "change-me-in-production-min-32-characters-long"
     ALGORITHM: str = "HS256"
 
+    # CAPTCHA settings (e.g. Cloudflare Turnstile)
+    CAPTCHA_PROVIDER: Optional[str] = None
+    TURNSTILE_SITE_KEY: Optional[str] = None
+    TURNSTILE_SECRET_KEY: Optional[str] = None
+
     # Payment settings
     WEBSITE_URL: str = "http://localhost:3000"
     API_URL: str = "http://localhost:8000"

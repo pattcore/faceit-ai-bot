@@ -2,9 +2,10 @@ import logging
 from typing import Optional, Dict
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException, Header, Request
 
 from ...config.settings import settings
+from ...services.captcha_service import captcha_service
 from .service import PaymentService
 from .models import (
     PaymentRequest,
@@ -39,19 +40,34 @@ async def get_payment_methods(region: str) -> RegionPaymentMethods:
 
 
 @router.post("/create", response_model=PaymentResponse)
-async def create_payment(request: PaymentRequest) -> PaymentResponse:
+async def create_payment(
+    payment_request: PaymentRequest,
+    request: Request,
+) -> PaymentResponse:
     """Create new payment (mock for pattmsc.online).
 
     На тестовом стенде не ходим во внешние платёжки, а сразу
     возвращаем платёж с редиректом на страницу успеха.
     """
+    remote_ip = request.client.host if request.client else None
+    captcha_ok = await captcha_service.verify_token(
+        token=payment_request.captcha_token,
+        remote_ip=remote_ip,
+        action="payment_create",
+    )
+    if not captcha_ok:
+        raise HTTPException(
+            status_code=400,
+            detail="CAPTCHA verification failed",
+        )
+
     now = datetime.utcnow()
     return PaymentResponse(
-        payment_id=f"mock_{request.user_id}_{int(now.timestamp())}",
+        payment_id=f"mock_{payment_request.user_id}_{int(now.timestamp())}",
         status="pending",
-        payment_url=f"https://pattmsc.online/payment/success?subscription={request.subscription_tier}",
-        amount=request.amount,
-        currency=Currency(request.currency),
+        payment_url=f"https://pattmsc.online/payment/success?subscription={payment_request.subscription_tier}",
+        amount=payment_request.amount,
+        currency=Currency(payment_request.currency),
         created_at=now,
         expires_at=now + timedelta(minutes=15),
         confirmation_type="redirect",

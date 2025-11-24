@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import API_ENDPOINTS from '../../src/config/api';
 import { useTranslation } from 'react-i18next';
+import TurnstileWidget from '../../src/components/TurnstileWidget';
 
 export default function SubscriptionsPage() {
   const { user } = useAuth();
@@ -12,6 +13,7 @@ export default function SubscriptionsPage() {
   const [loadingTier, setLoadingTier] = useState<string | null>(null);
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const { t, i18n } = useTranslation();
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const plans = [
     { tier: 'FREE', price: 0, popular: false },
@@ -51,6 +53,10 @@ export default function SubscriptionsPage() {
     };
   }, [i18n.language]);
 
+  const handleCaptchaTokenChange = useCallback((token: string | null) => {
+    setCaptchaToken(token);
+  }, []);
+
   const handleSelect = async (tier: string, price: number) => {
     if (!user) {
       router.push('/auth');
@@ -66,6 +72,19 @@ export default function SubscriptionsPage() {
     try {
       setLoadingTier(tier);
 
+      const turnstileEnabled = !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
+      if (turnstileEnabled && !captchaToken) {
+        setStatus({
+          type: 'error',
+          message: t('auth.captcha_required', {
+            defaultValue: 'Подтвердите, что вы не бот, выполнив проверку CAPTCHA.',
+          }),
+        });
+        setLoadingTier(null);
+        return;
+      }
+
       const response = await fetch(API_ENDPOINTS.PAYMENTS_CREATE, {
         method: 'POST',
         headers: {
@@ -79,6 +98,7 @@ export default function SubscriptionsPage() {
           payment_method: 'sbp',
           provider: 'sbp',
           description: `Подписка ${tier} для пользователя ${user.id}`,
+          captcha_token: captchaToken,
         }),
       });
 
@@ -111,6 +131,9 @@ export default function SubscriptionsPage() {
   return (
     <div className="min-h-screen py-20 px-6 bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-white animate-fade-in">
       <div className="max-w-6xl mx-auto">
+        <div className="mb-8 flex justify-center">
+          <TurnstileWidget onTokenChange={handleCaptchaTokenChange} action="payment_create" />
+        </div>
         {status && (
           <div
             className={`mb-8 px-4 py-3 rounded-lg text-sm border ${

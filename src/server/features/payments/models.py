@@ -56,6 +56,7 @@ class PaymentRequest(BaseModel):
     provider: PaymentProvider
     description: str = "Faceit AI Bot subscription"
     meta: Optional[Dict] = None
+    captcha_token: Optional[str] = None
 
 
 class PaymentResponse(BaseModel):

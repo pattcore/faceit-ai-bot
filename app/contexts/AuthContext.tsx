@@ -14,8 +14,8 @@ interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, username: string, password: string) => Promise<void>;
+  login: (email: string, password: string, captchaToken?: string | null) => Promise<void>;
+  register: (email: string, username: string, password: string, captchaToken?: string | null) => Promise<void>;
    loginWithToken: (token: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, captchaToken?: string | null) => {
     const response = await fetch(API_ENDPOINTS.AUTH_LOGIN, {
       method: 'POST',
       headers: {
@@ -63,6 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // backend поддерживает и email, и username; передаём email
         email,
         password,
+        captcha_token: captchaToken,
       }),
     });
 
@@ -87,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await fetchUser();
   };
 
-  const register = async (email: string, username: string, password: string) => {
+  const register = async (email: string, username: string, password: string, captchaToken?: string | null) => {
     const response = await fetch(API_ENDPOINTS.AUTH_REGISTER, {
       method: 'POST',
       headers: {
@@ -97,6 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         username,
         password,
+        captcha_token: captchaToken,
       }),
     });
 

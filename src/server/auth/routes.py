@@ -23,6 +23,7 @@ from ..config.settings import settings
 from ..middleware.rate_limiter import rate_limiter
 from ..database.models import User, Subscription, SubscriptionTier, TeammateProfile as TeammateProfileDB
 from ..database import get_db
+from ..services.captcha_service import captcha_service
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -568,17 +569,31 @@ async def register(
             username = form.get("username")
             password = form.get("password")
             faceit_id = form.get("faceit_id")
+            captcha_token = form.get("captcha_token")
         else:
             body = await request.json()
             email = body.get("email")
             username = body.get("username")
             password = body.get("password")
             faceit_id = body.get("faceit_id")
+            captcha_token = body.get("captcha_token")
 
         if not email or not username or not password:
             raise HTTPException(
                 status_code=400,
                 detail="Missing required fields: email, username, password",
+            )
+
+        remote_ip = request.client.host if request.client else None
+        captcha_ok = await captcha_service.verify_token(
+            token=captcha_token,
+            remote_ip=remote_ip,
+            action="auth_register",
+        )
+        if not captcha_ok:
+            raise HTTPException(
+                status_code=400,
+                detail="CAPTCHA verification failed",
             )
 
         # Validate email format
@@ -639,22 +654,38 @@ async def login(
 ):
     """Login user"""
     # Try to get form data first
+    captcha_token = None
     try:
         form = await request.form()
         if form:
             # Support both email and username
             email = form.get("email") or form.get("username")
             password = form.get("password")
+            captcha_token = form.get("captcha_token")
         else:
             body = await request.json()
             # Support both email and username
             email = body.get("email") or body.get("username")
             password = body.get("password")
+            captcha_token = body.get("captcha_token")
     except Exception:
         body = await request.json()
         # Support both email and username
         email = body.get("email") or body.get("username")
         password = body.get("password")
+        captcha_token = body.get("captcha_token")
+
+    remote_ip = request.client.host if request.client else None
+    captcha_ok = await captcha_service.verify_token(
+        token=captcha_token,
+        remote_ip=remote_ip,
+        action="auth_login",
+    )
+    if not captcha_ok:
+        raise HTTPException(
+            status_code=400,
+            detail="CAPTCHA verification failed",
+        )
 
     user = db.execute(
         select(User).where(User.email == email)
