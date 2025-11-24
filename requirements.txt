@@ -25,3 +25,7 @@ demoparser2==0.40.2
 
 # Monitoring
 prometheus-client>=0.20.0
+
+# Bots
+discord.py>=2.6.0
+python-telegram-bot>=21.0

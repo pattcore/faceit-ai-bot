@@ -113,6 +113,40 @@ services:
       timeout: 3s
       retries: 5
 
+  discord_bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    depends_on:
+      api:
+        condition: service_started
+    env_file:
+      - ./.env
+    environment:
+      - DATABASE_URL=postgresql://faceit_user:faceit_local_2024@db:5432/faceit_user
+      - REDIS_URL=redis://redis:6379
+    command: python -m scripts.discord_bot
+    volumes:
+      - ./:/app:cached
+    restart: always
+
+  telegram_bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    depends_on:
+      api:
+        condition: service_started
+    env_file:
+      - ./.env
+    environment:
+      - DATABASE_URL=postgresql://faceit_user:faceit_local_2024@db:5432/faceit_user
+      - REDIS_URL=redis://redis:6379
+    command: python -m scripts.telegram_bot
+    volumes:
+      - ./:/app:cached
+    restart: always
+
   prometheus:
     image: prom/prometheus:latest
     ports:

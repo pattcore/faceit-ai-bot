@@ -151,6 +151,63 @@ services:
     networks:
       - faceit-network
 
+  discord_bot:
+    image: ghcr.io/pat1one/faceit-ai-bot/api:latest
+    restart: always
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - SECRET_KEY=${SECRET_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENROUTER_MODEL=${OPENROUTER_MODEL}
+      - LOCAL_LLM_BASE_URL=${LOCAL_LLM_BASE_URL}
+      - LOCAL_LLM_MODEL=${LOCAL_LLM_MODEL}
+      - LOCAL_LLM_API_KEY=${LOCAL_LLM_API_KEY}
+      - FACEIT_API_KEY=${FACEIT_API_KEY}
+      - FACEIT_CLIENT_ID=${FACEIT_CLIENT_ID}
+      - FACEIT_CLIENT_SECRET=${FACEIT_CLIENT_SECRET}
+      - STEAM_WEB_API_KEY=${STEAM_WEB_API_KEY}
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+      - DISCORD_GUILD_ID=${DISCORD_GUILD_ID}
+    volumes:
+      - ./src:/app/src
+      - ./scripts:/app/scripts
+    command: python scripts/discord_bot.py
+    networks:
+      - faceit-network
+
+  telegram_bot:
+    image: ghcr.io/pat1one/faceit-ai-bot/api:latest
+    restart: always
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - SECRET_KEY=${SECRET_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENROUTER_MODEL=${OPENROUTER_MODEL}
+      - LOCAL_LLM_BASE_URL=${LOCAL_LLM_BASE_URL}
+      - LOCAL_LLM_MODEL=${LOCAL_LLM_MODEL}
+      - LOCAL_LLM_API_KEY=${LOCAL_LLM_API_KEY}
+      - FACEIT_API_KEY=${FACEIT_API_KEY}
+      - FACEIT_CLIENT_ID=${FACEIT_CLIENT_ID}
+      - FACEIT_CLIENT_SECRET=${FACEIT_CLIENT_SECRET}
+      - STEAM_WEB_API_KEY=${STEAM_WEB_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    volumes:
+      - ./src:/app/src
+      - ./scripts:/app/scripts
+    command: python scripts/telegram_bot.py
+    networks:
+      - faceit-network
+
 networks:
   faceit-network:
     driver: bridge
