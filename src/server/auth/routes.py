@@ -20,6 +20,7 @@ from .security import (
 )
 from .dependencies import get_current_active_user
 from ..config.settings import settings
+from ..middleware.rate_limiter import rate_limiter
 from ..database.models import User, Subscription, SubscriptionTier, TeammateProfile as TeammateProfileDB
 from ..database import get_db
 
@@ -542,7 +543,11 @@ async def steam_callback(
 
 
 @router.post("/register")
-async def register(request: Request, db: Session = Depends(get_db)):
+async def register(
+    request: Request,
+    db: Session = Depends(get_db),
+    _: None = Depends(rate_limiter),
+):
     """Register new user"""
     try:
         email = None
@@ -630,6 +635,7 @@ async def login(
     request: Request,
     response: Response,
     db: Session = Depends(get_db),
+    _: None = Depends(rate_limiter),
 ):
     """Login user"""
     # Try to get form data first

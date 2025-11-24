@@ -7,6 +7,7 @@ import logging
 from typing import Dict, Tuple
 from fastapi import Request, HTTPException
 from collections import defaultdict
+from ..services.cache_service import cache_service
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,10 @@ class RateLimiter:
     ):
         self.requests_per_minute = requests_per_minute
         self.requests_per_hour = requests_per_hour
+
+        self.redis_client = (
+            cache_service.redis_client if getattr(cache_service, "enabled", False) else None
+        )
 
         # Request storage: {ip: [(timestamp, count)]}
         self.minute_requests: Dict[str, list] = defaultdict(list)
@@ -65,6 +70,38 @@ class RateLimiter:
         """
         client_ip = self._get_client_ip(request)
         current_time = time.time()
+
+        if self.redis_client is not None:
+            try:
+                minute_key = f"rate:ip:{client_ip}:minute"
+                hour_key = f"rate:ip:{client_ip}:hour"
+
+                minute_count = await self.redis_client.incr(minute_key)
+                if minute_count == 1:
+                    await self.redis_client.expire(minute_key, 60)
+
+                hour_count = await self.redis_client.incr(hour_key)
+                if hour_count == 1:
+                    await self.redis_client.expire(hour_key, 3600)
+
+                if minute_count > self.requests_per_minute:
+                    return (
+                        False,
+                        f"Rate limit exceeded: "
+                        f"{self.requests_per_minute} requests per minute"
+                    )
+
+                if hour_count > self.requests_per_hour:
+                    return (
+                        False,
+                        f"Rate limit exceeded: "
+                        f"{self.requests_per_hour} requests per hour"
+                    )
+
+                return True, "OK"
+            except Exception as e:
+                logger.error(f"Redis rate limit error: {e}")
+                self.redis_client = None
 
         # Clean old requests
         self.minute_requests[client_ip] = (

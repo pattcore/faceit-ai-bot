@@ -1,9 +1,10 @@
 import logging
 
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, UploadFile, Depends
 
 from ..demo_analyzer.service import DemoAnalyzer
 from ..demo_analyzer.models import DemoAnalysis
+from ...middleware.rate_limiter import rate_limiter
 
 logger = logging.getLogger(__name__)
 router = APIRouter(
@@ -42,7 +43,11 @@ demo_analyzer = DemoAnalyzer()
         }
     }
 )
-async def analyze_demo(demo: UploadFile = File(...), language: str = "ru"):
+async def analyze_demo(
+    demo: UploadFile = File(...),
+    language: str = "ru",
+    _: None = Depends(rate_limiter),
+):
     """
     CS2 demo file analysis
 

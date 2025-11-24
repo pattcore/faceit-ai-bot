@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException, Depends
 
 from .service import PlayerAnalysisService
 from .schemas import PlayerAnalysisResponse
+from ...middleware.rate_limiter import rate_limiter
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,7 @@ async def analyze_player(
     nickname: str,
     language: str = "ru",
     service: PlayerAnalysisService = Depends(),
+    _: None = Depends(rate_limiter),
 ):
     """
     Analyze player by nickname
@@ -50,7 +52,8 @@ async def analyze_player(
 @router.get("/{nickname}/stats")
 async def get_player_stats(
     nickname: str,
-    service: PlayerAnalysisService = Depends()
+    service: PlayerAnalysisService = Depends(),
+    _: None = Depends(rate_limiter),
 ):
     """
     Get player statistics
@@ -83,7 +86,8 @@ async def get_player_stats(
 async def get_player_matches(
     nickname: str,
     limit: int = 20,
-    service: PlayerAnalysisService = Depends()
+    service: PlayerAnalysisService = Depends(),
+    _: None = Depends(rate_limiter),
 ):
     """
     Get player match history
@@ -110,7 +114,8 @@ async def get_player_matches(
 async def search_players(
     query: str,
     limit: int = 20,
-    service: PlayerAnalysisService = Depends()
+    service: PlayerAnalysisService = Depends(),
+    _: None = Depends(rate_limiter),
 ):
     """
     Search players by nickname

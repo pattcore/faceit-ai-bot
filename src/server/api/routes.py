@@ -1,7 +1,8 @@
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, UploadFile, Depends
 from ..services.ml import MLService
 from ..services.payment import PaymentService
 from ..models.payment import PaymentRequest, PaymentResponse
+from ..middleware.rate_limiter import rate_limiter
 import logging
 
 logger = logging.getLogger(__name__)
@@ -17,7 +18,10 @@ payment_service = PaymentService()
 
 
 @demo_router.post("/analyze")
-async def analyze_demo(demo: UploadFile = File(...)):
+async def analyze_demo(
+    demo: UploadFile = File(...),
+    _: None = Depends(rate_limiter),
+):
     """Analyze CS2 demo using ML model"""
     return await ml_service.analyze_demo(demo)
 

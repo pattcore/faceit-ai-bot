@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from ...auth.dependencies import get_current_active_user
 from ...database.models import User
 from ...database.connection import get_db
+from ...middleware.rate_limiter import rate_limiter
 from ..teammates.service import TeammateService
 from ..teammates.models import TeammateProfile, TeammatePreferences
 import logging
@@ -22,6 +23,7 @@ async def search_teammates(
     preferences: TeammatePreferences,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
+    _: None = Depends(rate_limiter),
 ):
     """Search teammates based on preferences for the current user."""
     return await teammate_service.find_teammates(
