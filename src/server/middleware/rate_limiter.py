@@ -9,6 +9,7 @@ from fastapi import Request, HTTPException
 from collections import defaultdict
 from ..services.cache_service import cache_service
 from ..auth.security import decode_access_token
+from ..config.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +19,8 @@ class RateLimiter:
 
     def __init__(
         self,
-        requests_per_minute: int = 60,
-        requests_per_hour: int = 1000
+        requests_per_minute: int = settings.RATE_LIMIT_REQUESTS_PER_MINUTE,
+        requests_per_hour: int = settings.RATE_LIMIT_REQUESTS_PER_HOUR,
     ):
         self.requests_per_minute = requests_per_minute
         self.requests_per_hour = requests_per_hour
@@ -85,6 +86,94 @@ class RateLimiter:
 
         return client_ip, user_id
 
+    async def _log_limit_exceeded(
+        self,
+        request: Request,
+        client_ip: str,
+        user_id: str | None,
+        minute_count: int,
+        hour_count: int,
+        limit_type: str,
+    ) -> None:
+        """Log detailed information about a rate limit violation"""
+        logger.warning(
+            "Rate limit exceeded: ip=%s user_id=%s method=%s path=%s minute_count=%s hour_count=%s limit_type=%s",
+            client_ip,
+            user_id,
+            request.method,
+            request.url.path,
+            minute_count,
+            hour_count,
+            limit_type,
+        )
+
+    async def _check_ban(self, client_ip: str, user_id: str | None) -> Tuple[bool, str | None]:
+        """Check if IP or user is temporarily banned due to rate limit violations"""
+        if self.redis_client is None or not settings.RATE_LIMIT_BAN_ENABLED:
+            return False, None
+
+        try:
+            ban_keys: list[Tuple[str, str]] = [(f"rate:ban:ip:{client_ip}", "ip")]
+            if user_id is not None:
+                ban_keys.append((f"rate:ban:user:{user_id}", "user"))
+
+            for key, label in ban_keys:
+                exists = await self.redis_client.exists(key)
+                if exists:
+                    ttl = await self.redis_client.ttl(key)
+                    logger.warning(
+                        "Rate limit ban active for %s=%s ttl=%s",
+                        label,
+                        client_ip if label == "ip" else user_id,
+                        ttl,
+                    )
+                    return True, "Too many requests, access temporarily blocked"
+        except Exception as e:
+            logger.error("Rate limit ban check error: %s", e)
+
+        return False, None
+
+    async def _register_violation_and_maybe_ban(
+        self,
+        client_ip: str,
+        user_id: str | None,
+    ) -> None:
+        """Increase violation counters and apply temporary ban if threshold exceeded"""
+        if self.redis_client is None or not settings.RATE_LIMIT_BAN_ENABLED:
+            return
+
+        try:
+            max_count = 0
+
+            ip_key = f"rate:viol:ip:{client_ip}"
+            ip_count = await self.redis_client.incr(ip_key)
+            if ip_count == 1:
+                await self.redis_client.expire(ip_key, settings.RATE_LIMIT_BAN_WINDOW_SECONDS)
+            max_count = max(max_count, ip_count)
+
+            user_key = None
+            user_count = None
+            if user_id is not None:
+                user_key = f"rate:viol:user:{user_id}"
+                user_count = await self.redis_client.incr(user_key)
+                if user_count == 1:
+                    await self.redis_client.expire(user_key, settings.RATE_LIMIT_BAN_WINDOW_SECONDS)
+                max_count = max(max_count, user_count)
+
+            if max_count >= settings.RATE_LIMIT_BAN_THRESHOLD:
+                ban_ttl = settings.RATE_LIMIT_BAN_TTL_SECONDS
+                await self.redis_client.setex(f"rate:ban:ip:{client_ip}", ban_ttl, "1")
+                if user_id is not None:
+                    await self.redis_client.setex(f"rate:ban:user:{user_id}", ban_ttl, "1")
+                logger.warning(
+                    "Rate limit autoban applied: ip=%s user_id=%s violations=%s",
+                    client_ip,
+                    user_id,
+                    max_count,
+                )
+        except Exception as e:
+            logger.error("Rate limit violation registration error: %s", e)
+
     async def check_rate_limit(self, request: Request) -> Tuple[bool, str]:
         """
         Check rate limit
@@ -96,6 +185,11 @@ class RateLimiter:
         current_time = time.time()
 
         if self.redis_client is not None:
+            # Check active ban first
+            banned, ban_message = await self._check_ban(client_ip, user_id)
+            if banned:
+                return False, ban_message or "Too many requests"
+
             try:
                 minute_key_ip = f"rate:ip:{client_ip}:minute"
                 hour_key_ip = f"rate:ip:{client_ip}:hour"
@@ -126,18 +220,31 @@ class RateLimiter:
                     minute_count = max(minute_count_ip, minute_count_user)
                     hour_count = max(hour_count_ip, hour_count_user)
 
-                if minute_count > self.requests_per_minute:
-                    return (
-                        False,
-                        f"Rate limit exceeded: "
-                        f"{self.requests_per_minute} requests per minute"
+                if minute_count > self.requests_per_minute or hour_count > self.requests_per_hour:
+                    limit_type = (
+                        "minute" if minute_count > self.requests_per_minute else "hour"
                     )
+                    await self._log_limit_exceeded(
+                        request,
+                        client_ip,
+                        user_id,
+                        minute_count,
+                        hour_count,
+                        limit_type,
+                    )
+                    await self._register_violation_and_maybe_ban(client_ip, user_id)
 
-                if hour_count > self.requests_per_hour:
+                    if minute_count > self.requests_per_minute:
+                        return (
+                            False,
+                            f"Rate limit exceeded: "
+                            f"{self.requests_per_minute} requests per minute",
+                        )
+
                     return (
                         False,
                         f"Rate limit exceeded: "
-                        f"{self.requests_per_hour} requests per hour"
+                        f"{self.requests_per_hour} requests per hour",
                     )
 
                 return True, "OK"
@@ -170,18 +277,30 @@ class RateLimiter:
         )
 
         # Check limits
-        if minute_count >= self.requests_per_minute:
-            return (
-                False,
-                f"Rate limit exceeded: "
-                f"{self.requests_per_minute} requests per minute"
+        if minute_count >= self.requests_per_minute or hour_count >= self.requests_per_hour:
+            limit_type = (
+                "minute" if minute_count >= self.requests_per_minute else "hour"
+            )
+            await self._log_limit_exceeded(
+                request,
+                client_ip,
+                user_id,
+                minute_count,
+                hour_count,
+                limit_type,
             )
 
-        if hour_count >= self.requests_per_hour:
+            if minute_count >= self.requests_per_minute:
+                return (
+                    False,
+                    f"Rate limit exceeded: "
+                    f"{self.requests_per_minute} requests per minute",
+                )
+
             return (
                 False,
                 f"Rate limit exceeded: "
-                f"{self.requests_per_hour} requests per hour"
+                f"{self.requests_per_hour} requests per hour",
             )
 
         # Add current request
@@ -206,7 +325,4 @@ class RateLimiter:
 
 
 # Singleton instance
-rate_limiter = RateLimiter(
-    requests_per_minute=60,
-    requests_per_hour=1000
-)
+rate_limiter = RateLimiter()

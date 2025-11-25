@@ -50,14 +50,51 @@ class MLService:
 
     async def analyze_demo(self, file: UploadFile):
         """Analyze demo file using ML model"""
-        if not file.filename.endswith('.dem'):
+        filename = file.filename or ""
+
+        if not filename.lower().endswith('.dem'):
             raise HTTPException(
                 status_code=400,
                 detail="Invalid file format. Only .dem files are supported"
             )
 
         try:
-            contents = await file.read()
+            max_bytes = settings.MAX_DEMO_FILE_MB * 1024 * 1024
+
+            contents = await file.read(max_bytes + 1)
+
+            if len(contents) > max_bytes:
+                logger.warning(
+                    "Demo file too large: filename=%s size_bytes=%s limit_bytes=%s",
+                    filename,
+                    len(contents),
+                    max_bytes,
+                )
+                raise HTTPException(
+                    status_code=413,
+                    detail="Demo file is too large",
+                )
+
+            header = contents[:4]
+            suspicious_reason = None
+            if header.startswith(b"MZ"):
+                suspicious_reason = "PE executable signature (MZ) detected"
+            elif header.startswith(b"PK"):
+                suspicious_reason = "ZIP archive signature (PK) detected"
+            elif header[:2] == b"\x1f\x8b":
+                suspicious_reason = "GZIP archive signature detected"
+
+            if suspicious_reason:
+                logger.warning(
+                    "Rejected demo upload due to suspicious header: filename=%s reason=%s",
+                    filename,
+                    suspicious_reason,
+                )
+                raise HTTPException(
+                    status_code=400,
+                    detail="Suspicious file content. Only raw .dem files are allowed",
+                )
+
             image = Image.open(io.BytesIO(contents))
 
             model = await self.get_model()

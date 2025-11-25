@@ -61,6 +61,14 @@ class Settings(BaseSettings):
     SMARTCAPTCHA_SITE_KEY: Optional[str] = None
     SMARTCAPTCHA_SECRET_KEY: Optional[str] = None
 
+    # Rate limiting
+    RATE_LIMIT_REQUESTS_PER_MINUTE: int = 60
+    RATE_LIMIT_REQUESTS_PER_HOUR: int = 1000
+    RATE_LIMIT_BAN_ENABLED: bool = False
+    RATE_LIMIT_BAN_THRESHOLD: int = 20
+    RATE_LIMIT_BAN_WINDOW_SECONDS: int = 600
+    RATE_LIMIT_BAN_TTL_SECONDS: int = 3600
+
     # Payment settings
     WEBSITE_URL: str = "http://localhost:3000"
     API_URL: str = "http://localhost:8000"
@@ -152,6 +160,9 @@ class Settings(BaseSettings):
 
     # Directory for storing AI training samples (JSONL)
     AI_SAMPLES_DIR: str = "data"
+
+    # Demo upload limits
+    MAX_DEMO_FILE_MB: int = 100
 
     # Test settings
     TEST_ENV: bool = False
