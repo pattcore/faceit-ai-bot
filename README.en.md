@@ -103,6 +103,7 @@ A tool for analyzing CS2 player statistics on the Faceit platform. Helps find te
 - 🤖 Personalized recommendations and training plans
 - ⚡ Fast performance with Redis caching
 - 🔒 HTTPS and production deployment on VPS
+ - 🔐 CAPTCHA protection for login, registration and payment creation (Cloudflare Turnstile + Yandex SmartCaptcha for Russian users)
 
 ---
 
@@ -138,6 +139,15 @@ PWA application will be available after site deployment.
 - 📱 Works as native application
 - 🚀 Quick launch from home screen
 - 📴 Partial offline functionality
+
+---
+
+### 🤖 Bots & Integrations
+
+- 📢 Telegram bot for notifications and quick analysis requests (experimental, see docs for details).
+- 🎧 Discord bot used as a demo of server integration and notifications.
+
+> Disclaimer: Discord is blocked in some regions (including Russia), so you use it at your own risk. This integration is shown for educational/demo purposes only.
 
 ---
 
