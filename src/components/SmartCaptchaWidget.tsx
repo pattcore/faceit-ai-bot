@@ -10,9 +10,7 @@ const siteKey = process.env.NEXT_PUBLIC_SMARTCAPTCHA_SITE_KEY;
 
 export default function SmartCaptchaWidget({ onTokenChange }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const callbackNameRef = useRef<string>(
-    `smartCaptchaCallback_${Math.random().toString(36).slice(2)}`,
-  );
+  const renderedRef = useRef(false);
 
   useEffect(() => {
     if (!siteKey) {
@@ -33,7 +31,16 @@ export default function SmartCaptchaWidget({ onTokenChange }: Props) {
         ) as HTMLScriptElement | null;
 
         if (existing) {
-          resolve();
+          if (existing.getAttribute('data-smartcaptcha-loaded') === 'true') {
+            resolve();
+          } else {
+            existing.addEventListener('load', () => resolve(), { once: true });
+            existing.addEventListener(
+              'error',
+              () => reject(new Error('Failed to load SmartCaptcha script')),
+              { once: true },
+            );
+          }
           return;
         }
 
@@ -42,37 +49,45 @@ export default function SmartCaptchaWidget({ onTokenChange }: Props) {
         script.async = true;
         script.defer = true;
         script.setAttribute('data-smartcaptcha-script', 'true');
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error('Failed to load SmartCaptcha script'));
+        script.onload = () => {
+          script.setAttribute('data-smartcaptcha-loaded', 'true');
+          resolve();
+        };
+        script.onerror = () =>
+          reject(new Error('Failed to load SmartCaptcha script'));
         document.head.appendChild(script);
       });
     };
 
-    if (typeof window !== 'undefined') {
-      (window as any)[callbackNameRef.current] = (token: string) => {
-        onTokenChange(token || null);
-      };
-    }
-
     loadScript()
       .then(() => {
         if (cancelled) return;
+        if (renderedRef.current) return;
         if (!containerRef.current) return;
+        if (typeof window === 'undefined') return;
+
+        const smartCaptcha = (window as any).smartCaptcha;
+        if (!smartCaptcha || typeof smartCaptcha.render !== 'function') {
+          onTokenChange(null);
+          return;
+        }
+
+        smartCaptcha.render(containerRef.current, {
+          sitekey: siteKey,
+          callback: (token: string) => {
+            onTokenChange(token || null);
+          },
+        });
+        renderedRef.current = true;
       })
       .catch(() => {
+        // ignore
         onTokenChange(null);
       });
 
     return () => {
       cancelled = true;
       onTokenChange(null);
-      if (typeof window !== 'undefined') {
-        try {
-          delete (window as any)[callbackNameRef.current];
-        } catch {
-          // ignore
-        }
-      }
     };
   }, [onTokenChange]);
 
@@ -84,9 +99,7 @@ export default function SmartCaptchaWidget({ onTokenChange }: Props) {
     <div className="flex justify-center mt-4">
       <div
         ref={containerRef}
-        className="smart-captcha"
-        data-sitekey={siteKey}
-        data-callback={callbackNameRef.current}
+        style={{ minHeight: 80 }}
       />
     </div>
   );
