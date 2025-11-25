@@ -48,7 +48,8 @@ export default function SmartCaptchaWidget({ onTokenChange }: Props) {
         }
 
         const script = document.createElement('script');
-        script.src = 'https://smartcaptcha.yandexcloud.net/smartcaptcha.js';
+        script.src =
+          'https://smartcaptcha.yandexcloud.net/captcha.js?render=onload';
         script.async = true;
         script.defer = true;
         script.setAttribute('data-smartcaptcha-script', 'true');
