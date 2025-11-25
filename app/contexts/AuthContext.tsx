@@ -9,6 +9,7 @@ interface User {
   email?: string;
   faceit_id?: string;
   steam_id?: string;
+  is_admin?: boolean;
 }
 
 interface AuthContextType {
