@@ -15,6 +15,14 @@ const smartSiteKey = process.env.NEXT_PUBLIC_SMARTCAPTCHA_SITE_KEY;
 
 export default function CaptchaWidget({ onTokenChange, action }: Props) {
   useEffect(() => {
+    // Диагностика: проверяем, какие значения видит фронт
+    // eslint-disable-next-line no-console
+    console.log('[CaptchaWidget]', {
+      provider,
+      hasTurnstileSiteKey: !!turnstileSiteKey,
+      hasSmartSiteKey: !!smartSiteKey,
+    });
+
     if (!provider) {
       onTokenChange(null);
     }

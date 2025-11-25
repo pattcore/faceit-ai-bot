@@ -19,6 +19,9 @@ export default function SmartCaptchaWidget({ onTokenChange }: Props) {
 
     let cancelled = false;
 
+    // eslint-disable-next-line no-console
+    console.log('[SmartCaptchaWidget] init', { hasSiteKey: !!siteKey });
+
     const loadScript = () => {
       return new Promise<void>((resolve, reject) => {
         if (typeof window === 'undefined') {
@@ -68,10 +71,16 @@ export default function SmartCaptchaWidget({ onTokenChange }: Props) {
 
         const smartCaptcha = (window as any).smartCaptcha;
         if (!smartCaptcha || typeof smartCaptcha.render !== 'function') {
+          // eslint-disable-next-line no-console
+          console.warn('[SmartCaptchaWidget] smartCaptcha.render is not available', {
+            smartCaptchaType: typeof smartCaptcha,
+          });
           onTokenChange(null);
           return;
         }
 
+        // eslint-disable-next-line no-console
+        console.log('[SmartCaptchaWidget] rendering widget');
         smartCaptcha.render(containerRef.current, {
           sitekey: siteKey,
           callback: (token: string) => {
@@ -80,8 +89,10 @@ export default function SmartCaptchaWidget({ onTokenChange }: Props) {
         });
         renderedRef.current = true;
       })
-      .catch(() => {
+      .catch((err) => {
         // ignore
+        // eslint-disable-next-line no-console
+        console.error('[SmartCaptchaWidget] loadScript error', err);
         onTokenChange(null);
       });
 
