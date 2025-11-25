@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from ...auth.dependencies import get_current_admin_user
 from ...services.cache_service import cache_service
+from ...config.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -92,3 +93,89 @@ async def delete_rate_limit_ban(
     except Exception as e:  # pragma: no cover - defensive logging
         logger.error("Failed to clear rate limit ban for %s=%s: %s", kind, value, e)
         raise HTTPException(status_code=500, detail="Failed to clear rate limit ban")
+
+
+@router.get("/violations")
+async def list_rate_limit_violations(
+    _: Any = Depends(get_current_admin_user),
+) -> Dict[str, Any]:
+    if not getattr(cache_service, "enabled", False) or cache_service.redis_client is None:
+        return {"enabled": False, "violations": []}
+
+    client = cache_service.redis_client
+    violations: List[Dict[str, Any]] = []
+
+    try:
+        cursor: int = 0
+        pattern = "rate:viol:*"
+
+        while True:
+            cursor, keys = await client.scan(cursor=cursor, match=pattern, count=100)
+            for key in keys:
+                ttl = await client.ttl(key)
+                count = await client.get(key)
+
+                if key.startswith("rate:viol:ip:"):
+                    viol_type = "ip"
+                    value = key[len("rate:viol:ip:") :]
+                elif key.startswith("rate:viol:user:"):
+                    viol_type = "user"
+                    value = key[len("rate:viol:user:") :]
+                else:
+                    continue
+
+                violations.append(
+                    {
+                        "type": viol_type,
+                        "value": value,
+                        "count": int(count) if count is not None else 0,
+                        "ttl": ttl,
+                    }
+                )
+
+            if cursor == 0:
+                break
+    except Exception as e:  # pragma: no cover - defensive logging
+        logger.error("Failed to list rate limit violations: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to list rate limit violations")
+
+    return {"enabled": True, "violations": violations}
+
+
+@router.post("/bans/{kind}/{value}")
+async def create_rate_limit_ban(
+    kind: Literal["ip", "user"],
+    value: str,
+    _: Any = Depends(get_current_admin_user),
+) -> Dict[str, Any]:
+    if not getattr(cache_service, "enabled", False) or cache_service.redis_client is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Rate limiting with Redis is not enabled",
+        )
+
+    client = cache_service.redis_client
+
+    try:
+        ban_key = f"rate:ban:{kind}:{value}"
+        ttl = settings.RATE_LIMIT_BAN_TTL_SECONDS
+
+        await client.setex(ban_key, ttl, "1")
+
+        logger.info(
+            "Rate limit ban created: kind=%s value=%s ttl=%s",
+            kind,
+            value,
+            ttl,
+        )
+
+        return {
+            "kind": kind,
+            "value": value,
+            "ttl": ttl,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:  # pragma: no cover - defensive logging
+        logger.error("Failed to create rate limit ban for %s=%s: %s", kind, value, e)
+        raise HTTPException(status_code=500, detail="Failed to create rate limit ban")
