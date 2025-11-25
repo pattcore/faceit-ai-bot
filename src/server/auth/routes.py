@@ -125,11 +125,24 @@ async def fetch_steam_persona_name(steam_id: str) -> str | None:
 
 
 @router.get("/steam/login")
-async def steam_login():
+async def steam_login(request: Request):
     """Redirect user to Steam OpenID for authentication.
 
     External entry point used by frontend "Sign in with Steam" button.
     """
+
+    remote_ip = request.client.host if request.client else None
+    captcha_token = request.query_params.get("captcha_token")
+    captcha_ok = await captcha_service.verify_token(
+        token=captcha_token,
+        remote_ip=remote_ip,
+        action="auth_steam_login",
+    )
+    if not captcha_ok:
+        raise HTTPException(
+            status_code=400,
+            detail="CAPTCHA verification failed",
+        )
 
     realm = settings.WEBSITE_URL.rstrip("/")
     # Nginx adds /api prefix for backend, so callback is exposed as /api/auth/steam/callback
@@ -149,13 +162,26 @@ async def steam_login():
 
 
 @router.get("/faceit/login")
-async def faceit_login():
+async def faceit_login(request: Request):
     """Redirect user to FACEIT OAuth2 for authentication.
 
     Uses Authorization Code flow. After successful login FACEIT will redirect
     back to /api/auth/faceit/callback with a temporary code and our signed
     state token.
     """
+
+    remote_ip = request.client.host if request.client else None
+    captcha_token = request.query_params.get("captcha_token")
+    captcha_ok = await captcha_service.verify_token(
+        token=captcha_token,
+        remote_ip=remote_ip,
+        action="auth_faceit_login",
+    )
+    if not captcha_ok:
+        raise HTTPException(
+            status_code=400,
+            detail="CAPTCHA verification failed",
+        )
 
     client_id = getattr(settings, "FACEIT_CLIENT_ID", None)
     client_secret = getattr(settings, "FACEIT_CLIENT_SECRET", None)

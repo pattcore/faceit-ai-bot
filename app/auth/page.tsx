@@ -104,6 +104,72 @@ export default function AuthPage() {
     }
   };
 
+  const handleSteamLoginClick = () => {
+    const captchaProvider = process.env.NEXT_PUBLIC_CAPTCHA_PROVIDER?.toLowerCase();
+    const captchaEnabled = !!captchaProvider;
+
+    if (captchaEnabled && !captchaToken) {
+      setError(
+        t('auth.captcha_required', {
+          defaultValue: 'Подтвердите, что вы не бот, выполнив проверку CAPTCHA.',
+        }),
+      );
+      return;
+    }
+
+    const baseUrl = API_ENDPOINTS.AUTH_STEAM_LOGIN;
+
+    try {
+      const url = new URL(baseUrl, window.location.origin);
+      if (captchaToken) {
+        url.searchParams.set('captcha_token', captchaToken);
+      }
+      window.location.href = url.toString();
+    } catch {
+      if (captchaToken) {
+        const separator = baseUrl.includes('?') ? '&' : '?';
+        window.location.href = `${baseUrl}${separator}captcha_token=${encodeURIComponent(
+          captchaToken,
+        )}`;
+      } else {
+        window.location.href = baseUrl;
+      }
+    }
+  };
+
+  const handleFaceitLoginClick = () => {
+    const captchaProvider = process.env.NEXT_PUBLIC_CAPTCHA_PROVIDER?.toLowerCase();
+    const captchaEnabled = !!captchaProvider;
+
+    if (captchaEnabled && !captchaToken) {
+      setError(
+        t('auth.captcha_required', {
+          defaultValue: 'Подтвердите, что вы не бот, выполнив проверку CAPTCHA.',
+        }),
+      );
+      return;
+    }
+
+    const baseUrl = API_ENDPOINTS.AUTH_FACEIT_LOGIN;
+
+    try {
+      const url = new URL(baseUrl, window.location.origin);
+      if (captchaToken) {
+        url.searchParams.set('captcha_token', captchaToken);
+      }
+      window.location.href = url.toString();
+    } catch {
+      if (captchaToken) {
+        const separator = baseUrl.includes('?') ? '&' : '?';
+        window.location.href = `${baseUrl}${separator}captcha_token=${encodeURIComponent(
+          captchaToken,
+        )}`;
+      } else {
+        window.location.href = baseUrl;
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-20">
       <div className="card w-full max-w-md">
@@ -201,9 +267,7 @@ export default function AuthPage() {
 
           <button
             type="button"
-            onClick={() => {
-              window.location.href = API_ENDPOINTS.AUTH_STEAM_LOGIN;
-            }}
+            onClick={handleSteamLoginClick}
             className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
             disabled={loading}
           >
@@ -215,9 +279,7 @@ export default function AuthPage() {
 
           <button
             type="button"
-            onClick={() => {
-              window.location.href = API_ENDPOINTS.AUTH_FACEIT_LOGIN;
-            }}
+            onClick={handleFaceitLoginClick}
             className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
             disabled={loading}
           >
