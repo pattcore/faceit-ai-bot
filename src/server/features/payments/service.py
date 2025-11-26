@@ -4,12 +4,14 @@ import httpx
 import logging
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
+from prometheus_client import Counter, Histogram
 from ...database.models import (
     Payment as DBPayment,
     PaymentStatus as DBPaymentStatus,
     Subscription as DBSubscription,
     SubscriptionTier as DBSubscriptionTier,
 )
+from ...core.structured_logging import business_logger
 from .models import (
     PaymentRequest,
     PaymentResponse,
@@ -20,6 +22,42 @@ from .models import (
 )
 
 logger = logging.getLogger(__name__)
+
+PAYMENT_CREATE_TOTAL = Counter(
+    "payment_create_total",
+    "Total payment create attempts",
+    ["provider"],
+)
+
+PAYMENT_CREATE_FAILED_TOTAL = Counter(
+    "payment_create_failed_total",
+    "Total failed payment create attempts",
+    ["provider"],
+)
+
+PAYMENT_CREATE_DURATION_SECONDS = Histogram(
+    "payment_create_duration_seconds",
+    "Payment creation duration in seconds",
+    ["provider"],
+)
+
+PAYMENT_WEBHOOK_COMPLETED_TOTAL = Counter(
+    "payment_webhook_completed_total",
+    "Total successfully completed payments via webhooks",
+    ["provider"],
+)
+
+PAYMENT_WEBHOOK_FAILED_TOTAL = Counter(
+    "payment_webhook_failed_total",
+    "Total payment webhook processing errors",
+    ["provider"],
+)
+
+PAYMENT_WEBHOOK_DURATION_SECONDS = Histogram(
+    "payment_webhook_duration_seconds",
+    "Payment webhook processing duration in seconds",
+    ["provider"],
+)
 
 
 class PaymentService:
@@ -33,20 +71,32 @@ class PaymentService:
 
     async def create_payment(self, request: PaymentRequest) -> PaymentResponse:
         """Create payment through selected payment system"""
+        provider_label = getattr(getattr(request, "provider", None), "value", str(getattr(request, "provider", "unknown")))
         try:
-            if request.provider not in self.providers:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Unsupported payment provider: {request.provider}"
-                )
+            with PAYMENT_CREATE_DURATION_SECONDS.labels(provider=provider_label).time():
+                if request.provider not in self.providers:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Unsupported payment provider: {request.provider}"
+                    )
 
-            # Check payment method availability for region
-            self._validate_payment_method(request)
+                # Check payment method availability for region
+                self._validate_payment_method(request)
 
-            # Process payment through corresponding provider
-            return await self.providers[request.provider](request)
+                try:
+                    PAYMENT_CREATE_TOTAL.labels(provider=provider_label).inc()
+                except Exception:
+                    logger.exception("Failed to increment payment create metric")
+
+                # Process payment through corresponding provider
+                return await self.providers[request.provider](request)
 
         except Exception as e:
+            try:
+                PAYMENT_CREATE_FAILED_TOTAL.labels(provider=provider_label).inc()
+            except Exception:
+                logger.exception("Failed to increment failed payment create metric")
+
             logger.exception(f"Payment creation failed: {str(e)}")
             raise HTTPException(
                 status_code=500,
@@ -292,13 +342,20 @@ class PaymentService:
         db: Session,
     ) -> None:
         """Process webhooks from payment systems"""
+        provider_label = getattr(provider, "value", str(provider))
         try:
-            if provider == PaymentProvider.SBP:
-                await self._handle_sbp_webhook(data, db)
-            elif provider == PaymentProvider.YOOKASSA:
-                await self._handle_yookassa_webhook(data, db)
-            # ... other providers
+            with PAYMENT_WEBHOOK_DURATION_SECONDS.labels(provider=provider_label).time():
+                if provider == PaymentProvider.SBP:
+                    await self._handle_sbp_webhook(data, db)
+                elif provider == PaymentProvider.YOOKASSA:
+                    await self._handle_yookassa_webhook(data, db)
+                # ... other providers
         except Exception as e:
+            try:
+                PAYMENT_WEBHOOK_FAILED_TOTAL.labels(provider=provider_label).inc()
+            except Exception:
+                logger.exception("Failed to increment failed webhook metric")
+
             logger.exception(f"Webhook processing failed: {str(e)}")
             raise HTTPException(
                 status_code=500,
@@ -403,6 +460,24 @@ class PaymentService:
                 db.add(subscription)
 
         db.commit()
+
+        # Business audit log for completed payment via SBP
+        try:
+            business_logger.log_payment_event(
+                user_id=str(db_payment.user_id),
+                amount=db_payment.amount,
+                currency=str(db_payment.currency) if db_payment.currency is not None else "",
+                status="completed",
+                payment_id=str(db_payment.provider_payment_id),
+                provider=str(db_payment.provider) if db_payment.provider is not None else None,
+            )
+        except Exception:
+            logger.exception("Failed to log SBP payment completion event")
+
+        try:
+            PAYMENT_WEBHOOK_COMPLETED_TOTAL.labels(provider=PaymentProvider.SBP.value).inc()
+        except Exception:
+            logger.exception("Failed to increment SBP webhook completed metric")
 
     async def _handle_yookassa_webhook(self, data: Dict, db: Session) -> None:
         """Handle YooKassa webhook: update payment and subscription state in DB."""
@@ -515,3 +590,21 @@ class PaymentService:
                 db.add(subscription)
 
         db.commit()
+
+        # Business audit log for completed payment via YooKassa
+        try:
+            business_logger.log_payment_event(
+                user_id=str(db_payment.user_id),
+                amount=db_payment.amount,
+                currency=str(db_payment.currency) if db_payment.currency is not None else "",
+                status="completed",
+                payment_id=str(db_payment.provider_payment_id),
+                provider=str(db_payment.provider) if db_payment.provider is not None else None,
+            )
+        except Exception:
+            logger.exception("Failed to log YooKassa payment completion event")
+
+        try:
+            PAYMENT_WEBHOOK_COMPLETED_TOTAL.labels(provider=PaymentProvider.YOOKASSA.value).inc()
+        except Exception:
+            logger.exception("Failed to increment YooKassa webhook completed metric")

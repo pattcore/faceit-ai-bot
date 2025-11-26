@@ -1,11 +1,12 @@
 import logging
 from typing import Any, Dict, List, Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from ...auth.dependencies import get_current_admin_user
 from ...services.cache_service import cache_service
 from ...config.settings import settings
+from ...core.structured_logging import business_logger
 
 logger = logging.getLogger(__name__)
 
@@ -74,6 +75,7 @@ async def list_rate_limit_bans() -> Dict[str, Any]:
 async def delete_rate_limit_ban(
     kind: Literal["ip", "user"],
     value: str,
+    request: Request,
 ) -> Dict[str, Any]:
     """Remove rate limit ban and violation counters for IP or user."""
     if not getattr(cache_service, "enabled", False) or cache_service.redis_client is None:
@@ -98,6 +100,19 @@ async def delete_rate_limit_ban(
             removed_ban,
             removed_viol,
         )
+
+        admin_id = getattr(request.state, "user_id", None)
+        try:
+            business_logger.logger.info(
+                "admin_rate_limit_ban_cleared",
+                admin_id=admin_id,
+                kind=kind,
+                value=value,
+                removed_ban=int(removed_ban),
+                removed_violations=int(removed_viol),
+            )
+        except Exception:
+            logger.exception("Failed to log admin rate limit ban clear event")
 
         return {
             "kind": kind,
@@ -158,7 +173,7 @@ async def list_rate_limit_violations() -> Dict[str, Any]:
 
 
 @router.post("/violations/cleanup")
-async def cleanup_rate_limit_violations() -> Dict[str, Any]:
+async def cleanup_rate_limit_violations(request: Request) -> Dict[str, Any]:
     if not getattr(cache_service, "enabled", False) or cache_service.redis_client is None:
         raise HTTPException(
             status_code=400,
@@ -182,6 +197,16 @@ async def cleanup_rate_limit_violations() -> Dict[str, Any]:
 
         logger.info("Rate limit violations cleanup: removed=%s", removed_total)
 
+        admin_id = getattr(request.state, "user_id", None)
+        try:
+            business_logger.logger.info(
+                "admin_rate_limit_violations_cleanup",
+                admin_id=admin_id,
+                removed=removed_total,
+            )
+        except Exception:
+            logger.exception("Failed to log admin rate limit violations cleanup event")
+
         return {"removed": removed_total}
     except HTTPException:
         raise
@@ -194,6 +219,7 @@ async def cleanup_rate_limit_violations() -> Dict[str, Any]:
 async def create_rate_limit_ban(
     kind: Literal["ip", "user"],
     value: str,
+    request: Request,
 ) -> Dict[str, Any]:
     if not getattr(cache_service, "enabled", False) or cache_service.redis_client is None:
         raise HTTPException(
@@ -215,6 +241,18 @@ async def create_rate_limit_ban(
             value,
             ttl,
         )
+
+        admin_id = getattr(request.state, "user_id", None)
+        try:
+            business_logger.logger.info(
+                "admin_rate_limit_ban_created",
+                admin_id=admin_id,
+                kind=kind,
+                value=value,
+                ttl=ttl,
+            )
+        except Exception:
+            logger.exception("Failed to log admin rate limit ban create event")
 
         return {
             "kind": kind,

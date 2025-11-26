@@ -40,6 +40,7 @@ async def get_current_user(
     if user is None:
         raise credentials_exception
 
+    request.state.user_id = str(user.id)
     return user
 
 
@@ -80,6 +81,7 @@ async def get_current_active_user(
 
 
 async def get_current_admin_user(
+    request: Request,
     current_user: User = Depends(get_current_active_user)
 ) -> User:
     """Get current admin user"""
@@ -88,4 +90,5 @@ async def get_current_admin_user(
             status_code=403,
             detail="Not enough permissions"
         )
+    request.state.user_id = str(current_user.id)
     return current_user

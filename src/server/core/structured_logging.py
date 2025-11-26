@@ -361,6 +361,7 @@ class BusinessLogger:
         currency: str,
         status: str,
         payment_id: str = None,
+        provider: str = None,
     ) -> None:
         """Log payment event."""
         self.logger.info(
@@ -370,6 +371,7 @@ class BusinessLogger:
             currency=currency,
             status=status,
             payment_id=payment_id,
+            provider=provider,
         )
 
 

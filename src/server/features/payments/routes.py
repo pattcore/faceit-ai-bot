@@ -10,6 +10,7 @@ from ...config.settings import settings
 from ...database.connection import get_db
 from ...database.models import User, Payment as DBPayment, SubscriptionTier as DBSubscriptionTier
 from ...services.captcha_service import captcha_service
+from ...core.structured_logging import business_logger
 from .service import PaymentService
 from .models import (
     PaymentRequest,
@@ -101,6 +102,20 @@ async def create_payment(
 
     db.add(db_payment)
     db.commit()
+
+    # Business audit log for created payment (initially pending)
+    try:
+        business_logger.log_payment_event(
+            user_id=str(current_user.id),
+            amount=db_payment.amount,
+            currency=str(db_payment.currency),
+            status="pending",
+            payment_id=str(db_payment.provider_payment_id),
+            provider=str(db_payment.provider) if db_payment.provider is not None else None,
+        )
+    except Exception:
+        # Do not break API flow if logging fails
+        logger.exception("Failed to log payment creation event")
 
     return payment_response
 
