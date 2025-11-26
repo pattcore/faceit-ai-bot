@@ -59,7 +59,7 @@
     "login": "Login / Register",
     "logout": "Logout",
     "subscriptions": "Subscriptions",
-    "admin_rate_limit": "Admin (rate limit)"
+    "admin_rate_limit": "Admin"
   },
   "subscription": {
     "title": "Subscriptions",

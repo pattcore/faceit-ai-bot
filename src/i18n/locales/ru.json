@@ -59,7 +59,7 @@
     "login": "Вход / Регистрация",
     "logout": "Выйти",
     "subscriptions": "Подписки",
-    "admin_rate_limit": "Админка (rate limit)"
+    "admin_rate_limit": "Админка"
   },
   "subscription": {
     "title": "Подписки",
