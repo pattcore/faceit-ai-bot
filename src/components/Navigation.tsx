@@ -41,6 +41,14 @@ const Navigation = () => {
               <Link href="/dashboard" className="text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
                 {t('nav.dashboard')}
               </Link>
+              {user.is_admin && (
+                <Link
+                  href="/admin/rate-limit"
+                  className="text-orange-500 dark:text-orange-400 font-medium hover:text-orange-600 dark:hover:text-orange-300 transition-colors"
+                >
+                  {t('nav.admin_rate_limit', { defaultValue: 'Admin (rate limit)' })}
+                </Link>
+              )}
             </>
           )}
         </div>

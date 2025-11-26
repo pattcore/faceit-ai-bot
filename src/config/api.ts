@@ -33,8 +33,10 @@ export const API_ENDPOINTS = {
   TEAMMATES_PREFERENCES: `${API_BASE_URL}/teammates/preferences`,
   
   // Admin
+  ADMIN_RATE_LIMIT_CONFIG: `${API_BASE_URL}/admin/rate-limit/config`,
   ADMIN_RATE_LIMIT_BANS: `${API_BASE_URL}/admin/rate-limit/bans`,
   ADMIN_RATE_LIMIT_VIOLATIONS: `${API_BASE_URL}/admin/rate-limit/violations`,
+  ADMIN_RATE_LIMIT_VIOLATIONS_CLEANUP: `${API_BASE_URL}/admin/rate-limit/violations/cleanup`,
   ADMIN_RATE_LIMIT_BAN: (kind: string, value: string) =>
     `${API_BASE_URL}/admin/rate-limit/bans/${encodeURIComponent(kind)}/${encodeURIComponent(value)}`,
   

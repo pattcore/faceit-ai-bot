@@ -22,6 +22,21 @@ interface Violation {
   ttl: number | null;
 }
 
+interface RateLimitConfig {
+  requests_per_minute: number;
+  requests_per_hour: number;
+  ban_enabled: boolean;
+  ban_threshold: number;
+  ban_window_seconds: number;
+  ban_ttl_seconds: number;
+}
+
+interface ConfigResponse {
+  redis_enabled?: boolean;
+  rate_limit?: RateLimitConfig;
+  detail?: unknown;
+}
+
 interface BansResponse {
   enabled?: boolean;
   bans?: Ban[];
@@ -46,9 +61,15 @@ export default function AdminRateLimitPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [config, setConfig] = useState<RateLimitConfig | null>(null);
+  const [configRedisEnabled, setConfigRedisEnabled] = useState<boolean | null>(null);
+
   const [formKind, setFormKind] = useState<BanKind>('ip');
   const [formValue, setFormValue] = useState('');
   const [formLoading, setFormLoading] = useState(false);
+  const [filterType, setFilterType] = useState<'all' | BanKind>('all');
+  const [searchValue, setSearchValue] = useState('');
+  const [cleanupLoading, setCleanupLoading] = useState(false);
 
   const formatTtl = (ttl: number | null | undefined): string => {
     if (ttl == null || ttl < 0) {
@@ -122,11 +143,14 @@ export default function AdminRateLimitPage() {
     setError(null);
 
     try {
-      const [bansRes, violRes] = await Promise.all([
+      const [bansRes, violRes, configRes] = await Promise.all([
         fetch(API_ENDPOINTS.ADMIN_RATE_LIMIT_BANS, {
           credentials: 'include',
         }),
         fetch(API_ENDPOINTS.ADMIN_RATE_LIMIT_VIOLATIONS, {
+          credentials: 'include',
+        }),
+        fetch(API_ENDPOINTS.ADMIN_RATE_LIMIT_CONFIG, {
           credentials: 'include',
         }),
       ]);
@@ -135,7 +159,9 @@ export default function AdminRateLimitPage() {
         bansRes.status === 401 ||
         bansRes.status === 403 ||
         violRes.status === 401 ||
-        violRes.status === 403
+        violRes.status === 403 ||
+        configRes.status === 401 ||
+        configRes.status === 403
       ) {
         const message = t('adminRateLimit.error_forbidden', {
           defaultValue:
@@ -148,12 +174,33 @@ export default function AdminRateLimitPage() {
       const bansJson = (await bansRes.json()) as BansResponse;
       const violJson = (await violRes.json()) as ViolationsResponse;
 
+      let configJson: ConfigResponse | null = null;
+      if (configRes.ok) {
+        try {
+          configJson = (await configRes.json()) as ConfigResponse;
+        } catch (configError) {
+          console.error('Failed to parse rate limit config', configError);
+        }
+      }
+
       setBansEnabled(Boolean(bansJson.enabled));
       setViolationsEnabled(Boolean(violJson.enabled));
       setBans(Array.isArray(bansJson.bans) ? bansJson.bans : []);
       setViolations(
         Array.isArray(violJson.violations) ? violJson.violations : [],
       );
+
+      if (configJson && configJson.rate_limit) {
+        setConfig(configJson.rate_limit);
+      } else {
+        setConfig(null);
+      }
+
+      if (typeof configJson?.redis_enabled === 'boolean') {
+        setConfigRedisEnabled(configJson.redis_enabled);
+      } else {
+        setConfigRedisEnabled(null);
+      }
     } catch (e) {
       console.error('Failed to load rate limit admin data', e);
       setError(
@@ -277,6 +324,133 @@ export default function AdminRateLimitPage() {
     }
   };
 
+  const handleCreateBanFromViolation = async (violation: Violation) => {
+    const value = violation.value.trim();
+    if (!value) {
+      return;
+    }
+
+    setFormLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(
+        API_ENDPOINTS.ADMIN_RATE_LIMIT_BAN(violation.type, value),
+        {
+          method: 'POST',
+          credentials: 'include',
+        },
+      );
+
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          setError(
+            t('adminRateLimit.error_forbidden', {
+              defaultValue:
+                'Нет доступа. Зайдите под админской учётной записью или проверьте права.',
+            }),
+          );
+          return;
+        }
+
+        const message = await extractErrorMessage(res);
+        setError(
+          t('adminRateLimit.error_create_ban', {
+            defaultValue: 'Не удалось создать бан: {{message}}',
+            message,
+          }),
+        );
+        return;
+      }
+
+      await loadData();
+    } catch (e) {
+      console.error('Failed to create rate limit ban from violation', e);
+      setError(
+        t('adminRateLimit.error_create_ban_generic', {
+          defaultValue: 'Не удалось создать бан. Попробуйте позже.',
+        }),
+      );
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleCleanupViolations = async () => {
+    if (violations.length === 0) {
+      return;
+    }
+
+    setError(null);
+    setCleanupLoading(true);
+
+    try {
+      const res = await fetch(
+        API_ENDPOINTS.ADMIN_RATE_LIMIT_VIOLATIONS_CLEANUP,
+        {
+          method: 'POST',
+          credentials: 'include',
+        },
+      );
+
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          setError(
+            t('adminRateLimit.error_forbidden', {
+              defaultValue:
+                'Нет доступа. Зайдите под админской учётной записью или проверьте права.',
+            }),
+          );
+          return;
+        }
+
+        const message = await extractErrorMessage(res);
+        setError(
+          t('adminRateLimit.error_cleanup_violations', {
+            defaultValue: 'Не удалось очистить нарушения: {{message}}',
+            message,
+          }),
+        );
+        return;
+      }
+
+      await loadData();
+    } catch (e) {
+      console.error('Failed to cleanup rate limit violations', e);
+      setError(
+        t('adminRateLimit.error_cleanup_violations_generic', {
+          defaultValue: 'Не удалось очистить нарушения. Попробуйте позже.',
+        }),
+      );
+    } finally {
+      setCleanupLoading(false);
+    }
+  };
+
+  const normalizedSearch = searchValue.trim().toLowerCase();
+  const filteredBans = bans.filter((ban) => {
+    if (filterType !== 'all' && ban.type !== filterType) {
+      return false;
+    }
+    if (normalizedSearch && !ban.value.toLowerCase().includes(normalizedSearch)) {
+      return false;
+    }
+    return true;
+  });
+
+  const filteredViolations = violations.filter((viol) => {
+    if (filterType !== 'all' && viol.type !== filterType) {
+      return false;
+    }
+    if (
+      normalizedSearch &&
+      !viol.value.toLowerCase().includes(normalizedSearch)
+    ) {
+      return false;
+    }
+    return true;
+  });
+
   if (!authLoading && !user) {
     return (
       <div className="min-h-screen flex items-center justify-center px-6 py-20">
@@ -351,6 +525,90 @@ export default function AdminRateLimitPage() {
           </p>
         </div>
 
+        {config && (
+          <div className="card p-4 bg-gray-800/60 border border-gray-700 rounded-xl">
+            <h2 className="text-lg font-semibold mb-2">
+              {t('adminRateLimit.config_title', {
+                defaultValue: 'Текущие настройки rate limit',
+              })}
+            </h2>
+            <div className="grid sm:grid-cols-2 gap-2 text-sm text-gray-200">
+              <div>
+                {t('adminRateLimit.config_requests_per_minute', {
+                  defaultValue: 'Лимит в минуту:',
+                })}{' '}
+                <span className="font-mono">
+                  {config.requests_per_minute}
+                </span>
+              </div>
+              <div>
+                {t('adminRateLimit.config_requests_per_hour', {
+                  defaultValue: 'Лимит в час:',
+                })}{' '}
+                <span className="font-mono">
+                  {config.requests_per_hour}
+                </span>
+              </div>
+              <div>
+                {t('adminRateLimit.config_ban_enabled', {
+                  defaultValue: 'Автобан:',
+                })}{' '}
+                <span className="font-mono">
+                  {config.ban_enabled
+                    ? t('adminRateLimit.config_ban_on', {
+                        defaultValue: 'включён',
+                      })
+                    : t('adminRateLimit.config_ban_off', {
+                        defaultValue: 'выключен',
+                      })}
+                </span>
+              </div>
+              <div>
+                {t('adminRateLimit.config_ban_rule', {
+                  defaultValue: 'Порог автобана:',
+                })}{' '}
+                <span className="font-mono">
+                  {config.ban_threshold} / {config.ban_window_seconds}{' '}
+                  {t('adminRateLimit.config_seconds', {
+                    defaultValue: 'с',
+                  })}{' '}
+                  → {config.ban_ttl_seconds}{' '}
+                  {t('adminRateLimit.config_seconds', {
+                    defaultValue: 'с',
+                  })}
+                </span>
+              </div>
+            </div>
+            <div className="mt-3 text-sm">
+              <span
+                className={
+                  configRedisEnabled
+                    ? 'text-green-400'
+                    : configRedisEnabled === false
+                    ? 'text-red-400'
+                    : 'text-gray-400'
+                }
+              >
+                {t('adminRateLimit.config_redis_status', {
+                  defaultValue: 'Статус Redis: ',
+                })}
+                {configRedisEnabled === null &&
+                  t('adminRateLimit.config_redis_unknown', {
+                    defaultValue: 'нет данных',
+                  })}
+                {configRedisEnabled === true &&
+                  t('adminRateLimit.config_redis_on', {
+                    defaultValue: 'подключен',
+                  })}
+                {configRedisEnabled === false &&
+                  t('adminRateLimit.config_redis_off', {
+                    defaultValue: 'не подключен',
+                  })}
+              </span>
+            </div>
+          </div>
+        )}
+
         {error && (
           <div className="p-3 bg-red-900/40 border border-red-700 rounded-lg text-sm text-red-200">
             {error}
@@ -365,6 +623,62 @@ export default function AdminRateLimitPage() {
             })}
           </div>
         )}
+
+        <div className="card p-4 bg-gray-800/60 border border-gray-700 rounded-xl">
+          <h2 className="text-lg font-semibold">
+            {t('adminRateLimit.filters_title', {
+              defaultValue: 'Фильтры',
+            })}
+          </h2>
+          <div className="mt-3 flex flex-col md:flex-row gap-3">
+            <div className="flex flex-col">
+              <label className="text-sm text-gray-300 mb-1">
+                {t('adminRateLimit.filter_type_label', {
+                  defaultValue: 'Тип (IP/User)',
+                })}
+              </label>
+              <select
+                value={filterType}
+                onChange={(e) =>
+                  setFilterType(e.target.value as 'all' | BanKind)
+                }
+                className="px-3 py-2 rounded-md bg-gray-900 border border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                <option value="all">
+                  {t('adminRateLimit.filter_type_all', {
+                    defaultValue: 'Все',
+                  })}
+                </option>
+                <option value="ip">
+                  {t('adminRateLimit.filter_type_ip', {
+                    defaultValue: 'Только IP',
+                  })}
+                </option>
+                <option value="user">
+                  {t('adminRateLimit.filter_type_user', {
+                    defaultValue: 'Только пользователи',
+                  })}
+                </option>
+              </select>
+            </div>
+            <div className="flex-1 flex flex-col">
+              <label className="text-sm text-gray-300 mb-1">
+                {t('adminRateLimit.filter_search_label', {
+                  defaultValue: 'Поиск по значению',
+                })}
+              </label>
+              <input
+                type="text"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                className="w-full px-3 py-2 rounded-md bg-gray-900 border border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder={t('adminRateLimit.filter_search_placeholder', {
+                  defaultValue: 'Часть IP или user id',
+                })}
+              />
+            </div>
+          </div>
+        </div>
 
         <form
           onSubmit={handleCreateBan}
@@ -446,7 +760,7 @@ export default function AdminRateLimitPage() {
               )}
             </div>
 
-            {bans.length === 0 ? (
+            {filteredBans.length === 0 ? (
               <p className="text-sm text-gray-400">
                 {t('adminRateLimit.bans_empty', {
                   defaultValue: 'Сейчас нет активных банов.',
@@ -464,7 +778,7 @@ export default function AdminRateLimitPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {bans.map((ban) => (
+                    {filteredBans.map((ban) => (
                       <tr key={`${ban.type}:${ban.value}`} className="border-t border-gray-700">
                         <td className="py-2 pr-4 align-top text-gray-200">
                           {ban.type}
@@ -501,14 +815,32 @@ export default function AdminRateLimitPage() {
                   defaultValue: 'Нарушения rate limit',
                 })}
               </h2>
-              {loading && (
-                <span className="text-xs text-gray-400">
-                  {t('adminRateLimit.loading', { defaultValue: 'Загрузка...' })}
-                </span>
-              )}
+              <div className="flex items-center gap-3">
+                {loading && (
+                  <span className="text-xs text-gray-400">
+                    {t('adminRateLimit.loading', {
+                      defaultValue: 'Загрузка...',
+                    })}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={handleCleanupViolations}
+                  disabled={cleanupLoading || loading || violations.length === 0}
+                  className="text-xs px-2 py-1 rounded-md border border-yellow-500 text-yellow-200 hover:bg-yellow-900/40 disabled:opacity-60 transition-colors"
+                >
+                  {cleanupLoading
+                    ? t('adminRateLimit.button_cleanup_running', {
+                        defaultValue: 'Очистка...',
+                      })
+                    : t('adminRateLimit.button_cleanup', {
+                        defaultValue: 'Очистить нарушения',
+                      })}
+                </button>
+              </div>
             </div>
 
-            {violations.length === 0 ? (
+            {filteredViolations.length === 0 ? (
               <p className="text-sm text-gray-400">
                 {t('adminRateLimit.violations_empty', {
                   defaultValue: 'Нарушения не зафиксированы.',
@@ -526,7 +858,7 @@ export default function AdminRateLimitPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {violations.map((viol) => (
+                    {filteredViolations.map((viol) => (
                       <tr
                         key={`${viol.type}:${viol.value}`}
                         className="border-t border-gray-700"
@@ -542,6 +874,18 @@ export default function AdminRateLimitPage() {
                         </td>
                         <td className="py-2 pr-4 align-top text-gray-300">
                           {formatTtl(viol.ttl)}
+                        </td>
+                        <td className="py-2 align-top text-right">
+                          <button
+                            type="button"
+                            onClick={() => handleCreateBanFromViolation(viol)}
+                            disabled={formLoading}
+                            className="text-xs px-2 py-1 rounded-md border border-orange-500 text-orange-200 hover:bg-orange-900/40 disabled:opacity-60 transition-colors"
+                          >
+                            {t('adminRateLimit.button_ban_from_violation', {
+                              defaultValue: 'Забанить',
+                            })}
+                          </button>
                         </td>
                       </tr>
                     ))}

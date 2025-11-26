@@ -12,6 +12,24 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/admin/rate-limit", tags=["admin"])
 
 
+@router.get("/config")
+async def get_rate_limit_config(
+    _: Any = Depends(get_current_admin_user),
+) -> Dict[str, Any]:
+    redis_enabled = getattr(cache_service, "enabled", False) and cache_service.redis_client is not None
+    return {
+        "redis_enabled": redis_enabled,
+        "rate_limit": {
+            "requests_per_minute": settings.RATE_LIMIT_REQUESTS_PER_MINUTE,
+            "requests_per_hour": settings.RATE_LIMIT_REQUESTS_PER_HOUR,
+            "ban_enabled": settings.RATE_LIMIT_BAN_ENABLED,
+            "ban_threshold": settings.RATE_LIMIT_BAN_THRESHOLD,
+            "ban_window_seconds": settings.RATE_LIMIT_BAN_WINDOW_SECONDS,
+            "ban_ttl_seconds": settings.RATE_LIMIT_BAN_TTL_SECONDS,
+        },
+    }
+
+
 @router.get("/bans")
 async def list_rate_limit_bans(
     _: Any = Depends(get_current_admin_user),
@@ -140,6 +158,41 @@ async def list_rate_limit_violations(
         raise HTTPException(status_code=500, detail="Failed to list rate limit violations")
 
     return {"enabled": True, "violations": violations}
+
+
+@router.post("/violations/cleanup")
+async def cleanup_rate_limit_violations(
+    _: Any = Depends(get_current_admin_user),
+) -> Dict[str, Any]:
+    if not getattr(cache_service, "enabled", False) or cache_service.redis_client is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Rate limiting with Redis is not enabled",
+        )
+
+    client = cache_service.redis_client
+
+    try:
+        cursor: int = 0
+        pattern = "rate:viol:*"
+        removed_total = 0
+
+        while True:
+            cursor, keys = await client.scan(cursor=cursor, match=pattern, count=100)
+            if keys:
+                removed = await client.delete(*keys)
+                removed_total += int(removed)
+            if cursor == 0:
+                break
+
+        logger.info("Rate limit violations cleanup: removed=%s", removed_total)
+
+        return {"removed": removed_total}
+    except HTTPException:
+        raise
+    except Exception as e:  # pragma: no cover - defensive logging
+        logger.error("Failed to cleanup rate limit violations: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to cleanup rate limit violations")
 
 
 @router.post("/bans/{kind}/{value}")
