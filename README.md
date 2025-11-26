@@ -216,25 +216,6 @@ cd ../..
 npm install
 npm run dev
 ```
-
-**Продакшн-деплой через Docker Compose (VPS):**
-
-```bash
-cd /opt/faceit-ai-bot
-git pull origin main
-
-# Обновить .env (CAPTCHA, rate limit, автобан и т.д.)
-
-# Обновить образы/собрать фронтенд и перезапустить основные сервисы
-docker compose -f docker-compose.prod.yml pull api
-docker compose -f docker-compose.prod.yml up -d --build nginx web api discord_bot telegram_bot
-```
-
-После этого:
-
-- сайт доступен по https://pattmsc.online,
-- Discord/Telegram-боты работают внутри того же docker-compose стека.
-
 **Доступ:**
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
