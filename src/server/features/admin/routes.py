@@ -9,13 +9,15 @@ from ...config.settings import settings
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/admin/rate-limit", tags=["admin"])
+router = APIRouter(
+    prefix="/admin/rate-limit",
+    tags=["admin"],
+    dependencies=[Depends(get_current_admin_user)],
+)
 
 
 @router.get("/config")
-async def get_rate_limit_config(
-    _: Any = Depends(get_current_admin_user),
-) -> Dict[str, Any]:
+async def get_rate_limit_config() -> Dict[str, Any]:
     redis_enabled = getattr(cache_service, "enabled", False) and cache_service.redis_client is not None
     return {
         "redis_enabled": redis_enabled,
@@ -31,9 +33,7 @@ async def get_rate_limit_config(
 
 
 @router.get("/bans")
-async def list_rate_limit_bans(
-    _: Any = Depends(get_current_admin_user),
-) -> Dict[str, Any]:
+async def list_rate_limit_bans() -> Dict[str, Any]:
     """List active rate limit bans (IP and users) from Redis."""
     if not getattr(cache_service, "enabled", False) or cache_service.redis_client is None:
         return {"enabled": False, "bans": []}
@@ -74,7 +74,6 @@ async def list_rate_limit_bans(
 async def delete_rate_limit_ban(
     kind: Literal["ip", "user"],
     value: str,
-    _: Any = Depends(get_current_admin_user),
 ) -> Dict[str, Any]:
     """Remove rate limit ban and violation counters for IP or user."""
     if not getattr(cache_service, "enabled", False) or cache_service.redis_client is None:
@@ -114,9 +113,7 @@ async def delete_rate_limit_ban(
 
 
 @router.get("/violations")
-async def list_rate_limit_violations(
-    _: Any = Depends(get_current_admin_user),
-) -> Dict[str, Any]:
+async def list_rate_limit_violations() -> Dict[str, Any]:
     if not getattr(cache_service, "enabled", False) or cache_service.redis_client is None:
         return {"enabled": False, "violations": []}
 
@@ -161,9 +158,7 @@ async def list_rate_limit_violations(
 
 
 @router.post("/violations/cleanup")
-async def cleanup_rate_limit_violations(
-    _: Any = Depends(get_current_admin_user),
-) -> Dict[str, Any]:
+async def cleanup_rate_limit_violations() -> Dict[str, Any]:
     if not getattr(cache_service, "enabled", False) or cache_service.redis_client is None:
         raise HTTPException(
             status_code=400,
@@ -199,7 +194,6 @@ async def cleanup_rate_limit_violations(
 async def create_rate_limit_ban(
     kind: Literal["ip", "user"],
     value: str,
-    _: Any = Depends(get_current_admin_user),
 ) -> Dict[str, Any]:
     if not getattr(cache_service, "enabled", False) or cache_service.redis_client is None:
         raise HTTPException(
