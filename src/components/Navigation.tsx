@@ -20,7 +20,7 @@ const Navigation = () => {
           <span>Faceit AI Bot</span>
         </Link>
 
-        <div className="hidden md:flex gap-8 flex-1 justify-center">
+        <div className="hidden md:flex gap-5 flex-1 justify-center">
           <Link href="/" className="text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
             {t('nav.home')}
           </Link>
@@ -44,7 +44,7 @@ const Navigation = () => {
               {user.is_admin && (
                 <Link
                   href="/admin/rate-limit"
-                  className="text-orange-500 dark:text-orange-400 font-medium hover:text-orange-600 dark:hover:text-orange-300 transition-colors"
+                  className="text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                   {t('nav.admin_rate_limit', { defaultValue: 'Admin (rate limit)' })}
                 </Link>
