@@ -20,31 +20,31 @@ const Navigation = () => {
           <span>Faceit AI Bot</span>
         </Link>
 
-        <div className="hidden md:flex gap-5 flex-1 justify-center">
-          <Link href="/" className="text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
+        <div className="hidden md:flex gap-4 flex-1 justify-center">
+          <Link href="/" className="text-sm text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
             {t('nav.home')}
           </Link>
-          <Link href="/demo" className="text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
+          <Link href="/demo" className="text-sm text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
             {t('nav.demo')}
           </Link>
-          <Link href="/teammates" className="text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
+          <Link href="/teammates" className="text-sm text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
             {t('nav.teammates')}
           </Link>
-          <Link href="/subscriptions" className="text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
+          <Link href="/subscriptions" className="text-sm text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
             {t('nav.subscriptions')}
           </Link>
           {user && (
             <>
-              <Link href="/analysis" className="text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
+              <Link href="/analysis" className="text-sm text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
                 {t('nav.player_analysis', { defaultValue: 'Player Analysis' })}
               </Link>
-              <Link href="/dashboard" className="text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
+              <Link href="/dashboard" className="text-sm text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
                 {t('nav.dashboard')}
               </Link>
               {user.is_admin && (
                 <Link
                   href="/admin/rate-limit"
-                  className="text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors"
+                  className="text-sm text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                   {t('nav.admin_rate_limit', { defaultValue: 'Admin (rate limit)' })}
                 </Link>
