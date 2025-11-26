@@ -48,7 +48,6 @@ class PriceWithCurrency(BaseModel):
 
 
 class PaymentRequest(BaseModel):
-    user_id: str
     subscription_tier: str
     amount: float
     currency: Currency
@@ -57,6 +56,7 @@ class PaymentRequest(BaseModel):
     description: str = "Faceit AI Bot subscription"
     meta: Optional[Dict] = None
     captcha_token: Optional[str] = None
+    user_id: Optional[str] = None
 
 
 class PaymentResponse(BaseModel):

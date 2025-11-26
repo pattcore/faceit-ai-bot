@@ -2,9 +2,8 @@ import React from 'react';
 import './globals.css';
 import Navigation from '../src/components/Navigation';
 import { Providers } from './providers';
-import type { Metadata, Viewport } from 'next';
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'Faceit AI Bot — AI demo coach and teammate search for CS2',
   description: 'Faceit AI Bot analyzes your CS2 demos with an AI coach and helps you find teammates on FACEIT.',
   icons: {
@@ -12,7 +11,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport: Viewport = {
+export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,

@@ -144,6 +144,7 @@ class Settings(BaseSettings):
     # SBP settings
     SBP_API_URL: Optional[str] = None
     SBP_TOKEN: Optional[str] = None
+    SBP_WEBHOOK_SECRET: Optional[str] = None
 
     # Redis settings (for caching)
     REDIS_HOST: str = "localhost"

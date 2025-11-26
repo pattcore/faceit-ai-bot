@@ -74,7 +74,11 @@ class Payment(Base):
     currency = Column(String(3), default="RUB")
     status = Column(Enum(PaymentStatus), default=PaymentStatus.PENDING)
     provider = Column(String(50))
-    created_at = Column(DateTime, default=datetime.utcnow)
+    provider_payment_id = Column(String(100), unique=True, index=True, nullable=True)
+    subscription_tier = Column(Enum(SubscriptionTier), nullable=True)
+    description = Column(String(255), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    completed_at = Column(DateTime, nullable=True)
 
     user = relationship("User", back_populates="payments")
 
