@@ -179,6 +179,9 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
     restart: always
+    networks:
+      - default
+      - faceit-network
 
   prometheus:
     image: prom/prometheus:latest
