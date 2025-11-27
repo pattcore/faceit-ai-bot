@@ -6,6 +6,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from .cache_service import cache_service
+from ..config.settings import settings
 from ..database.models import Subscription, SubscriptionTier
 
 
@@ -62,6 +63,10 @@ class RateLimitService:
 
         Raises HTTPException(429) when limit is exceeded.
         """
+        bypass_user_id = getattr(settings, "RATE_LIMIT_BYPASS_USER_ID", None)
+        if bypass_user_id is not None and str(user_id) == str(bypass_user_id):
+            return
+
         if self.redis_client is None:
             return
 

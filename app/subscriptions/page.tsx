@@ -132,9 +132,11 @@ export default function SubscriptionsPage() {
   return (
     <div className="min-h-screen py-20 px-6 bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-white animate-fade-in">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-8 flex justify-center">
-          <CaptchaWidget onTokenChange={handleCaptchaTokenChange} action="payment_create" />
-        </div>
+        {user && (
+          <div className="mb-8 flex justify-center">
+            <CaptchaWidget onTokenChange={handleCaptchaTokenChange} action="payment_create" />
+          </div>
+        )}
         {status && (
           <div
             className={`mb-8 px-4 py-3 rounded-lg text-sm border ${

@@ -1,0 +1,35 @@
+groups:
+  - name: payments-alerts
+    rules:
+      - alert: HighPaymentCreateErrorRate
+        expr: |
+          sum(rate(payment_create_failed_total[5m]))
+            / clamp_min(sum(rate(payment_create_total[5m])), 1) > 0.2
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High payment create error rate"
+          description: "More than 20% of payment create attempts failed in the last 5 minutes."
+
+      - alert: PaymentWebhookFailures
+        expr: |
+          sum by (provider) (rate(payment_webhook_failed_total[5m])) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Payment webhook failures detected ({{ $labels.provider }})"
+          description: "Payment webhook processing has non-zero error rate for provider={{ $labels.provider }} in the last 5 minutes."
+
+      - alert: PaymentConversionDrop
+        expr: |
+          (sum(rate(payment_webhook_completed_total[15m]))
+            / clamp_min(sum(rate(payment_create_total[15m])), 1)) < 0.5
+            and sum(rate(payment_create_total[15m])) > 0
+        for: 15m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Payment conversion dropped"
+          description: "Conversion from created to completed payments is below 50% over the last 15 minutes."

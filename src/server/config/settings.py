@@ -68,6 +68,7 @@ class Settings(BaseSettings):
     RATE_LIMIT_BAN_THRESHOLD: int = 20
     RATE_LIMIT_BAN_WINDOW_SECONDS: int = 600
     RATE_LIMIT_BAN_TTL_SECONDS: int = 3600
+    RATE_LIMIT_BYPASS_USER_ID: Optional[int] = None
 
     # Payment settings
     WEBSITE_URL: str = "http://localhost:3000"

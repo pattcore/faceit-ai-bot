@@ -1,0 +1,88 @@
+{
+  "id": null,
+  "uid": "payments-rate-limits",
+  "title": "Payments & Rate Limits",
+  "timezone": "browser",
+  "schemaVersion": 16,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "graph",
+      "title": "Payment create rate by provider",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (provider) (rate(payment_create_total[5m]))",
+          "legendFormat": "{{provider}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "graph",
+      "title": "Payment create error rate",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(payment_create_failed_total[5m]))",
+          "legendFormat": "errors"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(payment_create_total[5m]))",
+          "legendFormat": "total"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "graph",
+      "title": "Payment conversion (completed / created)",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(payment_webhook_completed_total[15m])) / clamp_min(sum(rate(payment_create_total[15m])), 1)",
+          "legendFormat": "conversion"
+        }
+      ],
+      "yaxes": [
+        { "format": "percent", "min": 0, "max": 1 },
+        { "format": "short" }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "graph",
+      "title": "Rate limit violations and bans",
+      "datasource": "Prometheus",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (scope, limit_type) (rate(rate_limit_violations_total[5m]))",
+          "legendFormat": "violations {{scope}}/{{limit_type}}"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (scope) (rate(rate_limit_bans_total[15m]))",
+          "legendFormat": "bans {{scope}}"
+        }
+      ]
+    }
+  ],
+  "templating": {
+    "list": []
+  }
+}

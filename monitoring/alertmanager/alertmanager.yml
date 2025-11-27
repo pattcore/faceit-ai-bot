@@ -33,11 +33,49 @@ receivers:
         title: "CRITICAL: {{ .GroupLabels.alertname }}"
         text: "{{ range .Alerts }}{{ .Annotations.description }}{{ end }}"
 
+    telegram_configs:
+      - bot_token: "${TELEGRAM_BOT_TOKEN}"
+        chat_id: 123456789
+        parse_mode: "Markdown"
+        message: |-
+          {{ range .Alerts }}[*{{ .Status | toUpper }}*] {{ .Annotations.summary }}
+          {{ .Annotations.description }}
+          Labels: {{ .Labels }}
+
+          {{ end }}
+
+    email_configs:
+      - to: "${ALERT_EMAIL_TO}"
+        from: "${ALERT_EMAIL_FROM}"
+        smarthost: "${ALERT_EMAIL_SMARTHOST}"
+        auth_username: "${ALERT_EMAIL_USERNAME}"
+        auth_password: "${ALERT_EMAIL_PASSWORD}"
+        require_tls: true
+
   - name: "warning"
     slack_configs:
       - channel: "#warnings"
         title: "Warning: {{ .GroupLabels.alertname }}"
         text: "{{ range .Alerts }}{{ .Annotations.description }}{{ end }}"
+
+    telegram_configs:
+      - bot_token: "${TELEGRAM_BOT_TOKEN}"
+        chat_id: 123456789
+        parse_mode: "Markdown"
+        message: |-
+          {{ range .Alerts }}[*{{ .Status | toUpper }}*] {{ .Annotations.summary }}
+          {{ .Annotations.description }}
+          Labels: {{ .Labels }}
+
+          {{ end }}
+
+    email_configs:
+      - to: "${ALERT_EMAIL_TO}"
+        from: "${ALERT_EMAIL_FROM}"
+        smarthost: "${ALERT_EMAIL_SMARTHOST}"
+        auth_username: "${ALERT_EMAIL_USERNAME}"
+        auth_password: "${ALERT_EMAIL_PASSWORD}"
+        require_tls: true
 
 inhibit_rules:
   - source_match:

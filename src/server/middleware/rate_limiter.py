@@ -7,11 +7,26 @@ import logging
 from typing import Dict, Tuple
 from fastapi import Request, HTTPException
 from collections import defaultdict
+from prometheus_client import Counter
 from ..services.cache_service import cache_service
 from ..auth.security import decode_access_token
 from ..config.settings import settings
 
 logger = logging.getLogger(__name__)
+
+
+RATE_LIMIT_VIOLATIONS_TOTAL = Counter(
+    "rate_limit_violations_total",
+    "Total number of rate limit violations",
+    ["scope", "limit_type"],
+)
+
+
+RATE_LIMIT_BANS_TOTAL = Counter(
+    "rate_limit_bans_total",
+    "Total number of rate limit autobans",
+    ["scope"],
+)
 
 
 class RateLimiter:
@@ -96,6 +111,15 @@ class RateLimiter:
         limit_type: str,
     ) -> None:
         """Log detailed information about a rate limit violation"""
+        scope = "ip_and_user" if user_id is not None else "ip"
+        try:
+            RATE_LIMIT_VIOLATIONS_TOTAL.labels(
+                scope=scope,
+                limit_type=limit_type,
+            ).inc()
+        except Exception:
+            logger.exception("Failed to increment rate limit violation metric")
+
         logger.warning(
             "Rate limit exceeded: ip=%s user_id=%s method=%s path=%s minute_count=%s hour_count=%s limit_type=%s",
             client_ip,
@@ -171,6 +195,12 @@ class RateLimiter:
                     user_id,
                     max_count,
                 )
+
+                scope = "ip_and_user" if user_id is not None else "ip"
+                try:
+                    RATE_LIMIT_BANS_TOTAL.labels(scope=scope).inc()
+                except Exception:
+                    logger.exception("Failed to increment rate limit ban metric")
         except Exception as e:
             logger.error("Rate limit violation registration error: %s", e)
 
@@ -183,6 +213,10 @@ class RateLimiter:
         """
         client_ip, user_id = self._get_rate_identity(request)
         current_time = time.time()
+
+        bypass_user_id = getattr(settings, "RATE_LIMIT_BYPASS_USER_ID", None)
+        if user_id is not None and bypass_user_id is not None and str(user_id) == str(bypass_user_id):
+            return True, "OK"
 
         if self.redis_client is not None:
             # Check active ban first

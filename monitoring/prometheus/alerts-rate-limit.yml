@@ -1,0 +1,22 @@
+groups:
+  - name: rate-limit-alerts
+    rules:
+      - alert: RateLimitViolationsHigh
+        expr: |
+          sum(rate(rate_limit_violations_total[5m])) > 20
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High rate limit violation rate"
+          description: "More than 20 rate limit violations in the last 5 minutes across the system."
+
+      - alert: RateLimitAutobans
+        expr: |
+          sum(rate(rate_limit_bans_total[15m])) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Rate limit autobans detected"
+          description: "Autobans are being applied due to repeated rate limit violations in the last 15 minutes."
