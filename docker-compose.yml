@@ -44,6 +44,7 @@ services:
       - '8000:8000'
     volumes:
       - ./:/app:cached
+    restart: always
   celery_worker:
     build:
       context: .
@@ -118,6 +119,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+    restart: always
 
   discord_bot:
     build:
