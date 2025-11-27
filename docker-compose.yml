@@ -140,6 +140,9 @@ services:
     volumes:
       - ./:/app:cached
     restart: always
+    networks:
+      - default
+      - faceit-network
 
   telegram_bot:
     build:
@@ -157,6 +160,9 @@ services:
     volumes:
       - ./:/app:cached
     restart: always
+    networks:
+      - default
+      - faceit-network
 
   ollama:
     image: ollama/ollama:latest
