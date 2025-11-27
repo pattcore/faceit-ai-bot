@@ -153,6 +153,21 @@ services:
       - ./:/app:cached
     restart: always
 
+  nginx:
+    image: nginx:alpine
+    depends_on:
+      web:
+        condition: service_started
+      api:
+        condition: service_started
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    restart: always
+
   prometheus:
     image: prom/prometheus:latest
     ports:
