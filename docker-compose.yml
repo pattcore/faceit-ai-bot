@@ -45,6 +45,9 @@ services:
     volumes:
       - ./:/app:cached
     restart: always
+    networks:
+      - default
+      - faceit-network
   celery_worker:
     build:
       context: .
@@ -158,6 +161,8 @@ services:
   ollama:
     image: ollama/ollama:latest
     restart: always
+    networks:
+      - faceit-network
 
   nginx:
     image: nginx:alpine
@@ -232,3 +237,6 @@ volumes:
   prometheus_data:
   grafana_data:
   loki_data:
+
+networks:
+  faceit-network:
