@@ -449,41 +449,48 @@ class GroqService:
                             ]
                             text = "\n".join(cleaned_lines).strip()
 
+                        plan = None
+
                         try:
                             plan = json.loads(text)
-                            self._log_sample(
-                                task="training_plan",
-                                language=lang,
-                                input_payload={
-                                    "player_stats": player_stats,
-                                    "focus_areas": focus_areas,
-                                },
-                                output_payload=plan,
-                            )
-                            return plan
                         except json.JSONDecodeError:
-                            # Try to extract the first JSON object from the text
                             start = text.find("{")
                             end = text.rfind("}")
                             if start != -1 and end != -1 and end > start:
+                                candidate_span = text[start : end + 1]
                                 try:
-                                    plan = json.loads(text[start : end + 1])
-                                    self._log_sample(
-                                        task="training_plan",
-                                        language=lang,
-                                        input_payload={
-                                            "player_stats": player_stats,
-                                            "focus_areas": focus_areas,
-                                        },
-                                        output_payload=plan,
-                                    )
-                                    return plan
+                                    plan = json.loads(candidate_span)
                                 except json.JSONDecodeError:
-                                    logger.error(
-                                        "Failed to parse Groq training plan JSON",
-                                        exc_info=True,
-                                    )
+                                    brace_level = 0
+                                    for idx, ch in enumerate(text[start:], start):
+                                        if ch == "{":
+                                            brace_level += 1
+                                        elif ch == "}":
+                                            brace_level -= 1
+                                            if brace_level == 0:
+                                                candidate = text[start : idx + 1]
+                                                try:
+                                                    plan = json.loads(candidate)
+                                                    break
+                                                except json.JSONDecodeError:
+                                                    continue
+
+                        if plan is None:
+                            logger.error(
+                                "Failed to parse Groq training plan JSON",
+                            )
                             return self._get_default_training_plan(lang)
+
+                        self._log_sample(
+                            task="training_plan",
+                            language=lang,
+                            input_payload={
+                                "player_stats": player_stats,
+                                "focus_areas": focus_areas,
+                            },
+                            output_payload=plan,
+                        )
+                        return plan
                     else:
                         return self._get_default_training_plan(lang)
 
