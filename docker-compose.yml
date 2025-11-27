@@ -155,6 +155,10 @@ services:
       - ./:/app:cached
     restart: always
 
+  ollama:
+    image: ollama/ollama:latest
+    restart: always
+
   nginx:
     image: nginx:alpine
     entrypoint: ["nginx", "-g", "daemon off;"]
