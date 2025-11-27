@@ -92,7 +92,10 @@ class AIService:
             weaknesses_recs = ["Поддерживай текущий уровень игры и стабильность"]
 
         # Enrich recommendations with AI-generated suggestions
-        ai_recs = self._extract_ai_recommendations(detailed_analysis)
+        ai_recs = self._extract_ai_recommendations(
+            detailed_analysis,
+            language=language,
+        )
         if ai_recs:
             for rec in ai_recs:
                 if rec not in weaknesses_recs:
@@ -298,18 +301,89 @@ class AIService:
             "estimated_time": estimated_time,
         }
 
-    def _extract_ai_recommendations(self, detailed_text: str) -> List[str]:
-        """Extract bullet-style recommendations from Groq detailed analysis text."""
+    def _extract_ai_recommendations(
+        self,
+        detailed_text: str,
+        language: str = "ru",
+    ) -> List[str]:
+        """Extract and sanitize bullet-style recommendations from AI analysis text."""
         recommendations: List[str] = []
+
+        # Normalize language to a small set
+        lang = str(language or "ru").lower()
+        if lang.startswith("en"):
+            lang = "en"
+        elif lang.startswith("ru"):
+            lang = "ru"
+        else:
+            lang = "en"
+
+        def _contains_cjk(s: str) -> bool:
+            for ch in s:
+                if "\u4e00" <= ch <= "\u9fff":
+                    return True
+            return False
+
+        def _contains_cyrillic(s: str) -> bool:
+            for ch in s:
+                if "а" <= ch <= "я" or "А" <= ch <= "Я":
+                    return True
+            return False
+
+        # Phrases that look like generic / template garbage rather than
+        # concrete CS2 coaching tips.
+        banned_substrings = [
+            "модульный анализ",
+            "силовые методы",
+            "контрольные рекомендации",
+            "влияние на ее игроков",
+            "влияние на её игроков",
+            "влияние на ее игру",
+            "влияние на её игру",
+        ]
+
         try:
-            for line in detailed_text.splitlines():
-                line = line.strip()
+            for raw_line in detailed_text.splitlines():
+                line = raw_line.strip()
                 if not line:
                     continue
-                if line[0].isdigit() or line.startswith(("-", "•", "*")):
-                    clean_line = line.lstrip("-•*0123456789. ").strip()
-                    if clean_line:
-                        recommendations.append(clean_line)
+
+                # We only consider bullet-style or numbered lines
+                if not (
+                    line[0].isdigit()
+                    or line.startswith(("-", "•", "*"))
+                ):
+                    continue
+
+                clean_line = line.lstrip("-•*0123456789. ").strip()
+                if not clean_line:
+                    continue
+
+                # Drop too short / meaningless fragments
+                if len(clean_line) < 10:
+                    continue
+
+                # Remove lines with obvious non-target language content
+                if _contains_cjk(clean_line):
+                    continue
+
+                lower = clean_line.lower()
+                if any(bad in lower for bad in banned_substrings):
+                    continue
+
+                # For Russian we expect at least some Cyrillic characters,
+                # иначе это, скорее всего, мусор или общее описание.
+                if lang == "ru" and not _contains_cyrillic(clean_line):
+                    continue
+
+                recommendations.append(clean_line)
+
+                # Защитный лимит на количество AI-рекомендаций
+                if len(recommendations) >= 10:
+                    break
         except Exception:
-            logger.exception("Failed to parse AI recommendations from detailed analysis")
+            logger.exception(
+                "Failed to parse AI recommendations from detailed analysis",
+            )
+
         return recommendations
