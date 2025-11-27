@@ -190,6 +190,7 @@ async def cmd_faceit_analyze(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     strengths = analysis.strengths
     weaknesses = analysis.weaknesses
+    training_plan = analysis.training_plan
 
     lines = [
         f"AI-анализ игрока {nickname}:",
@@ -211,6 +212,28 @@ async def cmd_faceit_analyze(update: Update, context: ContextTypes.DEFAULT_TYPE)
     lines.append("Рекомендации:")
     for rec in weaknesses.recommendations:
         lines.append(f"  - {rec}")
+
+    lines.append("")
+    lines.append("Тренировочный план:")
+    if training_plan.focus_areas:
+        lines.append("Фокус: " + ", ".join(training_plan.focus_areas))
+    if training_plan.daily_exercises:
+        lines.append("Ежедневные упражнения:")
+        for ex in training_plan.daily_exercises[:5]:
+            if isinstance(ex, dict):
+                name = ex.get("name") or "Упражнение"
+                duration = ex.get("duration") or ""
+                description = ex.get("description") or ""
+                line = f"  - {name}"
+                if duration:
+                    line += f" ({duration})"
+                if description:
+                    line += f": {description}"
+                lines.append(line)
+            else:
+                lines.append(f"  - {ex}")
+    if training_plan.estimated_time:
+        lines.append(f"Оценочный срок: {training_plan.estimated_time}")
 
     await update.effective_chat.send_message("\n".join(lines))
 
