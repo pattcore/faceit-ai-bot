@@ -16,12 +16,51 @@ interface UserInfo {
   username?: string;
 }
 
+interface PlayerStats {
+  kd_ratio: number;
+  win_rate: number;
+  headshot_percentage: number;
+  average_kills: number;
+  matches_played: number;
+  elo?: number | null;
+  level?: number | null;
+}
+
+interface TrainingExercise {
+  name: string;
+  duration: string;
+  description?: string;
+}
+
+interface TrainingPlan {
+  focus_areas: string[];
+  daily_exercises: TrainingExercise[];
+  estimated_time: string;
+}
+
+interface PlayerAnalysis {
+  nickname: string;
+  overall_rating: number;
+  stats: PlayerStats;
+  training_plan: TrainingPlan;
+}
+
 function openInNewTab(path: string) {
   const url = SITE_BASE + path;
   if ((window as any).chrome?.tabs?.create) {
     (window as any).chrome.tabs.create({ url });
   } else {
     window.open(url, '_blank');
+  }
+}
+
+function getInitialNicknameFromLocation(): string {
+  try {
+    const url = new URL(window.location.href);
+    const param = url.searchParams.get('nickname');
+    return param ? param : '';
+  } catch {
+    return '';
   }
 }
 
@@ -33,6 +72,10 @@ const Popup: React.FC = () => {
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState<boolean>(false);
+  const [nickname, setNickname] = useState(() => getInitialNicknameFromLocation());
+  const [analysis, setAnalysis] = useState<PlayerAnalysis | null>(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -70,6 +113,12 @@ const Popup: React.FC = () => {
     loadFromToken();
     return () => controller.abort();
   }, []);
+
+  useEffect(() => {
+    if (user?.username && !nickname) {
+      setNickname(user.username);
+    }
+  }, [user, nickname]);
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -128,6 +177,42 @@ const Popup: React.FC = () => {
     setUser(null);
   };
 
+  const handleAnalyzePlayer = async () => {
+    const trimmed = nickname.trim();
+    if (!trimmed) {
+      return;
+    }
+
+    setAnalysisLoading(true);
+    setAnalysisError(null);
+    setAnalysis(null);
+
+    try {
+      const res = await fetch(
+        `${API_BASE}/players/${encodeURIComponent(trimmed)}/analysis?language=ru`,
+        {
+          headers: token
+            ? {
+                Authorization: `Bearer ${token}`,
+              }
+            : undefined,
+        }
+      );
+
+      if (!res.ok) {
+        setAnalysisError('Не удалось выполнить анализ игрока.');
+        return;
+      }
+
+      const data = (await res.json()) as PlayerAnalysis;
+      setAnalysis(data);
+    } catch {
+      setAnalysisError('Ошибка сети. Попробуйте ещё раз.');
+    } finally {
+      setAnalysisLoading(false);
+    }
+  };
+
   const name = user?.username || user?.email || 'Player';
 
   return (
@@ -145,11 +230,100 @@ const Popup: React.FC = () => {
         ) : user ? (
           <>
             <div style={{ fontSize: 12, color: '#9ca3af' }}>Signed in as {name}</div>
+
+            <div
+              style={{
+                borderRadius: 10,
+                border: '1px solid #1f2937',
+                padding: 8,
+                marginTop: 4,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 6,
+                backgroundColor: '#020617',
+              }}
+            >
+              <div style={{ fontSize: 12, fontWeight: 600 }}>Quick AI analysis</div>
+              <div style={{ fontSize: 11, color: '#9ca3af' }}>
+                Введите ник на Faceit (или свой) и получите быстрый анализ прямо в
+                расширении.
+              </div>
+              <input
+                type="text"
+                placeholder="Faceit nickname"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                style={{
+                  padding: '6px 8px',
+                  borderRadius: 6,
+                  border: '1px solid #374151',
+                  backgroundColor: '#020617',
+                  color: '#f9fafb',
+                  fontSize: 12,
+                }}
+              />
+              {analysisError && (
+                <div style={{ fontSize: 11, color: '#f87171' }}>{analysisError}</div>
+              )}
+              <button
+                className="btn-primary"
+                onClick={handleAnalyzePlayer}
+                disabled={analysisLoading || !nickname.trim()}
+              >
+                {analysisLoading ? 'Анализируем...' : 'Запустить AI-анализ'}
+              </button>
+
+              {analysis && (
+                <div
+                  style={{
+                    marginTop: 4,
+                    borderTop: '1px solid #1f2937',
+                    paddingTop: 6,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 4,
+                  }}
+                >
+                  <div style={{ fontSize: 11, color: '#9ca3af' }}>
+                    Рейтинг: <strong>{analysis.overall_rating}/10</strong>
+                  </div>
+                  <div style={{ fontSize: 11, color: '#9ca3af' }}>
+                    K/D: <strong>{analysis.stats.kd_ratio.toFixed(2)}</strong>, Win
+                    rate: <strong>{analysis.stats.win_rate.toFixed(1)}%</strong>, HS:{' '}
+                    <strong>{analysis.stats.headshot_percentage.toFixed(1)}%</strong>
+                  </div>
+                  <div style={{ fontSize: 11, color: '#9ca3af' }}>
+                    Матчей сыграно:{' '}
+                    <strong>{analysis.stats.matches_played}</strong>
+                  </div>
+                  <div style={{ fontSize: 11, color: '#9ca3af' }}>
+                    План тренировки: <strong>{analysis.training_plan.estimated_time}</strong>
+                  </div>
+                  {analysis.training_plan.daily_exercises?.length > 0 && (
+                    <ul
+                      style={{
+                        margin: 0,
+                        paddingLeft: 16,
+                        fontSize: 11,
+                        color: '#9ca3af',
+                      }}
+                    >
+                      {analysis.training_plan.daily_exercises.slice(0, 3).map((ex, i) => (
+                        <li key={i}>
+                          <strong>{ex.name}</strong> — {ex.duration}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
+
             <button
-              className="btn-primary"
+              className="btn-secondary"
               onClick={() => openInNewTab('/analysis?auto=1')}
             >
-              Analyze my account
+              Open full analysis page
             </button>
             <button
               className="btn-secondary"
