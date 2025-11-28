@@ -164,20 +164,100 @@ class AIService:
             if not focus_areas:
                 focus_areas.append("consistency")
 
-        # Try to get structured training plan from Groq
-        player_stats = {
-            "kd_ratio": kd,
-            "win_rate": win_rate,
-            "hs_percentage": hs_pct,
-        }
+        # Normalize language to a compact set
+        lang = str(language or "ru").lower()
+        if lang.startswith("en"):
+            lang = "en"
+        elif lang.startswith("ru"):
+            lang = "ru"
+        else:
+            lang = "en"
 
-        plan_data = await self.groq_service.generate_training_plan(
-            player_stats=player_stats,
-            focus_areas=focus_areas,
-            language=language,
+        # Rule-based daily exercises built from stats and focus areas
+        daily_exercises_raw: List[Dict[str, Any]] = []
+
+        def add_ex(
+            name_ru: str,
+            name_en: str,
+            duration_ru: str,
+            duration_en: str,
+            desc_ru: str,
+            desc_en: str,
+        ) -> None:
+            name = name_en if lang == "en" else name_ru
+            duration = duration_en if lang == "en" else duration_ru
+            description = desc_en if lang == "en" else desc_ru
+            daily_exercises_raw.append(
+                {
+                    "name": name,
+                    "duration": duration,
+                    "description": description,
+                }
+            )
+
+        focus_lower = [area.lower() for area in focus_areas]
+
+        need_aim = (
+            "aim" in focus_lower
+            or "headshot" in "".join(focus_lower)
+            or kd < 1.05
+            or hs_pct < 45
         )
+        need_game_sense = "game sense" in focus_lower or win_rate < 50
+        need_positioning = "position" in "".join(focus_lower)
+        need_teamwork = "teamwork" in focus_lower
+        need_consistency = "consistency" in focus_lower
 
-        daily_exercises_raw = plan_data.get("daily_exercises", [])
+        if need_aim:
+            add_ex(
+                "Тренировка аима",
+                "Aim training",
+                "30 мин",
+                "30 min",
+                "Рутина на aim_botz и тренировочных картах с упором на хедшоты.",
+                "Routine on aim_botz and training maps with focus on headshots.",
+            )
+
+        if need_game_sense:
+            add_ex(
+                "Разбор демо и ситуаций",
+                "Demo and situation review",
+                "25 мин",
+                "25 min",
+                "Смотреть свои последние матчи, выписывать ошибки по решениям и позициям.",
+                "Watch your recent matches and write down mistakes in decisions and positions.",
+            )
+
+        if need_positioning:
+            add_ex(
+                "Позиционирование и карты",
+                "Positioning and maps",
+                "20 мин",
+                "20 min",
+                "Отработка стандартных позиций и off-углов на 1–2 любимых картах.",
+                "Practice standard spots and off-angles on 1–2 favorite maps.",
+            )
+
+        if need_teamwork:
+            add_ex(
+                "Командное взаимодействие",
+                "Teamplay routines",
+                "20 мин",
+                "20 min",
+                "Игра с пати с упором на коммуникацию и раскидки.",
+                "Play with a stack focusing on communication and utility usage.",
+            )
+
+        if need_consistency or not daily_exercises_raw:
+            add_ex(
+                "Стабильность и матчмейкинг",
+                "Consistency and matchmaking",
+                "2-3 матча",
+                "2-3 matches",
+                "Сыграть 2–3 соревновательных матча, фиксируя ключевые ошибки после игры.",
+                "Play 2–3 competitive matches and note key mistakes after each game.",
+            )
+
         daily_exercises: List[Dict[str, Any]] = []
 
         for ex in daily_exercises_raw:
@@ -200,11 +280,14 @@ class AIService:
                 }
             )
 
-        estimated_time_raw = plan_data.get("estimated_time")
-        if estimated_time_raw:
-            estimated_time = str(estimated_time_raw)
+        if win_rate < 45 or kd < 0.9:
+            estimated_time_raw = "6 weeks" if lang == "en" else "6 недель"
+        elif win_rate < 55 or kd < 1.1:
+            estimated_time_raw = "4 weeks" if lang == "en" else "4 недели"
         else:
-            estimated_time = "4 weeks" if language == "en" else "4 недели"
+            estimated_time_raw = "2-3 weeks" if lang == "en" else "2-3 недели"
+
+        estimated_time = str(estimated_time_raw)
 
         # Heuristic validation: if the AI returned an obviously non-CS2 or
         # malformed plan (fitness, skiing, non-Russian/CJK, etc.),
