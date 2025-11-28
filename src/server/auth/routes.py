@@ -3,6 +3,8 @@
 from datetime import datetime, timedelta
 import logging
 import secrets
+import hashlib
+import base64
 from urllib.parse import urlencode
 
 import aiohttp
@@ -194,9 +196,15 @@ async def faceit_login(request: Request):
 
     redirect_uri = f"{settings.WEBSITE_URL.rstrip('/')}/api/auth/faceit/callback"
 
+    # PKCE: generate code_verifier and code_challenge (S256)
+    code_verifier = secrets.token_urlsafe(64)
+    code_challenge = base64.urlsafe_b64encode(
+        hashlib.sha256(code_verifier.encode("utf-8")).digest()
+    ).rstrip(b"=").decode("ascii")
+
     # Short-lived signed state to protect against CSRF
     state_token = create_access_token(
-        data={"sub": "faceit_oauth"},
+        data={"sub": "faceit_oauth", "cv": code_verifier},
         expires_delta=timedelta(minutes=10),
     )
 
@@ -206,6 +214,8 @@ async def faceit_login(request: Request):
         "response_type": "code",
         "scope": "openid email profile",
         "state": state_token,
+        "code_challenge": code_challenge,
+        "code_challenge_method": "S256",
     }
 
     url = f"{FACEIT_AUTHORIZATION_URL}?{urlencode(params)}"
@@ -237,6 +247,11 @@ async def faceit_callback(
     if not state_payload or state_payload.get("sub") != "faceit_oauth":
         raise HTTPException(status_code=400, detail="Invalid state parameter")
 
+    code_verifier = state_payload.get("cv")
+    if not code_verifier:
+        logger.error("FACEIT OAuth state missing code_verifier")
+        raise HTTPException(status_code=400, detail="Invalid state parameter")
+
     client_id = getattr(settings, "FACEIT_CLIENT_ID", None)
     client_secret = getattr(settings, "FACEIT_CLIENT_SECRET", None)
     if not client_id or not client_secret:
@@ -258,6 +273,7 @@ async def faceit_callback(
                     "grant_type": "authorization_code",
                     "code": code,
                     "redirect_uri": redirect_uri,
+                    "code_verifier": code_verifier,
                 },
                 headers={"Accept": "application/json"},
                 auth=aiohttp.BasicAuth(client_id, client_secret),
