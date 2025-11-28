@@ -717,17 +717,21 @@ async def login(
         password = body.get("password")
         captcha_token = body.get("captcha_token")
 
+    origin = request.headers.get("origin") or ""
+    skip_captcha_for_extension = origin.startswith("chrome-extension://")
+
     remote_ip = request.client.host if request.client else None
-    captcha_ok = await captcha_service.verify_token(
-        token=captcha_token,
-        remote_ip=remote_ip,
-        action="auth_login",
-    )
-    if not captcha_ok:
-        raise HTTPException(
-            status_code=400,
-            detail="CAPTCHA verification failed",
+    if not skip_captcha_for_extension:
+        captcha_ok = await captcha_service.verify_token(
+            token=captcha_token,
+            remote_ip=remote_ip,
+            action="auth_login",
         )
+        if not captcha_ok:
+            raise HTTPException(
+                status_code=400,
+                detail="CAPTCHA verification failed",
+            )
 
     user = db.execute(
         select(User).where(User.email == email)
