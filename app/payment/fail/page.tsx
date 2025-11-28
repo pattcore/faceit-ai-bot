@@ -20,8 +20,8 @@ export default function PaymentFailPage() {
           <Link href="/subscriptions" className="btn-primary w-full sm:w-auto">
             {t('payment.fail_button_retry', 'Try again')}
           </Link>
-          <Link href="/" className="btn-secondary w-full sm:w-auto">
-            {t('payment.fabutton_home', 'Back to home')}
+          <Link href="/" className="btn-primary w-full sm:w-auto">
+            {t('payment.fail_button_home', 'Back to home')}
           </Link>
         </div>
       </div>
