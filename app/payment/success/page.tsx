@@ -20,7 +20,7 @@ export default function PaymentSuccessPage() {
           <Link href="/dashboard" className="btn-primary w-full sm:w-auto">
             {t('payment.success_button_dashboard')}
           </Link>
-          <Link href="/" className="btn-secondary w-full sm:w-auto">
+          <Link href="/" className="btn-primary w-full sm:w-auto">
             {t('payment.success_button_home')}
           </Link>
         </div>
