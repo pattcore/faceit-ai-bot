@@ -157,15 +157,16 @@ async def handle_main_menu_button(
         return WAITING_TM_PARAMS
 
     if query.data == "menu_demo":
+        user_session_data[user_id] = {"action": "demo"}
         await query.edit_message_text(
             "🎮 Анализ демки\n\n"
-            "Используй команду:\n"
-            "/demo_analyze [ru|en] и прикрепи .dem файл в том же сообщении.",
+            "Пришли сюда демку CS2 в файле .dem.\n"
+            "Опционально в подписи к файлу можно указать язык: ru или en.",
             reply_markup=InlineKeyboardMarkup(
                 [[InlineKeyboardButton("◀️ Назад", callback_data="back_main")]]
             ),
         )
-        return ConversationHandler.END
+        return WAITING_DEMO
 
     if query.data == "menu_help":
         await query.edit_message_text(
@@ -254,15 +255,34 @@ async def handle_tm_params(
     return ConversationHandler.END
 
 
+async def handle_demo_message(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> int:
+    message = update.effective_message
+    if not message or not message.document:
+        return WAITING_DEMO
+
+    caption_parts = (
+        (message.caption or "").strip().split() if message.caption else []
+    )
+    args: list[str] = []
+    if caption_parts and caption_parts[0] in {"ru", "en"}:
+        args = [caption_parts[0]]
+
+    context.args = args
+    await cmd_demo_analyze(update, context)
+    await update.effective_chat.send_message(
+        "Готово. Вернуться в главное меню:",
+        reply_markup=get_main_menu_keyboard(),
+    )
+    return ConversationHandler.END
+
+
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.effective_chat.send_message(
-        "Привет! Я Faceit AI Bot в Telegram.\n"
-        "Команды:\n"
-        "/faceit_stats <ник> — быстрая стата\n"
-        "/faceit_analyze <ник> [ru|en] — AI-анализ игрока\n"
-        "/tm_find <min_elo> <max_elo> [lang] [role] — поиск тиммейтов\n"
-        "/demo_analyze [lang] + .dem файл — анализ демки\n\n"
-        "Или воспользуйся удобным меню ниже.",
+        "Привет! Я Faceit AI Bot в Telegram.\n\n"
+        "Выбери нужный раздел в меню ниже "
+        "или используй команды вручную: /faceit_stats, /faceit_analyze, /tm_find, /demo_analyze.",
         reply_markup=get_main_menu_keyboard(),
     )
 
@@ -637,12 +657,16 @@ def main() -> None:
             WAITING_TM_PARAMS: [
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_tm_params),
             ],
+            WAITING_DEMO: [
+                MessageHandler(filters.Document.ALL, handle_demo_message),
+            ],
         },
-        fallbacks=[],
+        fallbacks=[
+            CallbackQueryHandler(handle_back_to_main, pattern="^back_main$"),
+        ],
     )
 
     app.add_handler(conv_handler)
-    app.add_handler(CallbackQueryHandler(handle_back_to_main, pattern="^back_main$"))
 
     logger.info("Starting Telegram bot...")
     app.run_polling(allowed_updates=["message", "edited_message", "callback_query"])
