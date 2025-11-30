@@ -27,11 +27,12 @@ from src.server.config.settings import settings
 logger = logging.getLogger("discord_bot")
 logging.basicConfig(level=logging.INFO)
 
-
 intents = discord.Intents.default()
 intents.message_content = True
 
-client = discord.Client(intents=intents)
+DISCORD_PROXY_URL = os.getenv("DISCORD_PROXY_URL") or os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY")
+
+client = discord.Client(intents=intents, proxy=DISCORD_PROXY_URL)
 tree = app_commands.CommandTree(client)
 
 

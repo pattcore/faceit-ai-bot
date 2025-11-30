@@ -132,9 +132,16 @@ services:
     environment:
       - DATABASE_URL=postgresql://faceit_user:faceit_local_2024@db:5432/faceit_user
       - REDIS_URL=redis://redis:6379
+      - ALL_PROXY=http://host.docker.internal:2080
+      - HTTPS_PROXY=http://host.docker.internal:2080
+      - HTTP_PROXY=http://host.docker.internal:2080
+      - DISCORD_PROXY_URL=http://host.docker.internal:2080
+      - NO_PROXY=localhost,127.0.0.1,db,redis,api
     command: python -m scripts.discord_bot
     volumes:
       - ./:/app:cached
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: always
     networks:
       - default
