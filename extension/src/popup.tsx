@@ -76,6 +76,14 @@ const Popup: React.FC = () => {
   const [analysis, setAnalysis] = useState<PlayerAnalysis | null>(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    try {
+      const stored = window.localStorage.getItem('faceit_ai_bot_popup_theme');
+      return stored === 'light' ? 'light' : 'dark';
+    } catch {
+      return 'dark';
+    }
+  });
 
   useEffect(() => {
     const controller = new AbortController();
@@ -139,6 +147,14 @@ const Popup: React.FC = () => {
     }
   }, [user, nickname]);
 
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('faceit_ai_bot_popup_theme', theme);
+    } catch {
+      // ignore
+    }
+  }, [theme]);
+
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     setAuthLoading(true);
@@ -158,13 +174,13 @@ const Popup: React.FC = () => {
       });
 
       if (!res.ok) {
-        setAuthError('Login failed. Check your credentials.');
+        setAuthError('Не удалось войти. Проверьте почту и пароль.');
         return;
       }
 
       const data = (await res.json()) as LoginResponse;
       if (!data.access_token) {
-        setAuthError('No access token returned from API.');
+        setAuthError('Сервер не вернул токен доступа.');
         return;
       }
 
@@ -185,7 +201,7 @@ const Popup: React.FC = () => {
         setUser(null);
       }
     } catch {
-      setAuthError('Network error. Please try again.');
+      setAuthError('Ошибка сети. Попробуйте ещё раз.');
     } finally {
       setAuthLoading(false);
       setLoading(false);
@@ -267,23 +283,59 @@ const Popup: React.FC = () => {
     }
   };
 
-  const name = user?.username || user?.email || 'Player';
+  const name = user?.username || user?.email || 'Игрок';
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
 
   return (
-    <div className="popup-root">
+    <div
+      className={`popup-root ${
+        theme === 'light' ? 'popup-root-light' : 'popup-root-dark'
+      }`}
+    >
       <header className="popup-header">
-        <div className="popup-title">Faceit AI Bot</div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          <div className="popup-title">Faceit AI Bot</div>
+          <button
+            type="button"
+            onClick={toggleTheme}
+            style={{
+              fontSize: 10,
+              padding: '2px 6px',
+              borderRadius: 9999,
+              border: '1px solid #374151',
+              backgroundColor: theme === 'light' ? '#e5e7eb' : '#020617',
+              color: theme === 'light' ? '#111827' : '#e5e7eb',
+              cursor: 'pointer',
+            }}
+          >
+            {theme === 'light' ? 'Тема: светлая' : 'Тема: тёмная'}
+          </button>
+        </div>
         <div className="popup-subtitle">
-          AI demo coach and teammate search for CS2
+          AI-помощник для разбора демок и поиска тиммейтов в CS2
         </div>
       </header>
 
       <main className="popup-main">
         {loading ? (
-          <div style={{ fontSize: 12, color: '#9ca3af' }}>Checking extension session...</div>
+          <div style={{ fontSize: 12, color: '#9ca3af' }}>
+            Проверяем сессию расширения...
+          </div>
         ) : user ? (
           <>
-            <div style={{ fontSize: 12, color: '#9ca3af' }}>Signed in as {name}</div>
+            <div style={{ fontSize: 12, color: '#9ca3af' }}>
+              Выполнен вход как {name}
+            </div>
 
             <div
               style={{
@@ -297,14 +349,14 @@ const Popup: React.FC = () => {
                 backgroundColor: '#020617',
               }}
             >
-              <div style={{ fontSize: 12, fontWeight: 600 }}>Quick AI analysis</div>
+              <div style={{ fontSize: 12, fontWeight: 600 }}>Быстрый AI-анализ</div>
               <div style={{ fontSize: 11, color: '#9ca3af' }}>
                 Введите ник на Faceit (или свой) и получите быстрый анализ прямо в
                 расширении.
               </div>
               <input
                 type="text"
-                placeholder="Faceit nickname"
+                placeholder="Ник на Faceit"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
                 style={{
@@ -377,31 +429,31 @@ const Popup: React.FC = () => {
               className="btn-secondary"
               onClick={() => openInNewTab('/analysis?auto=1')}
             >
-              Open full analysis page
+              Открыть полную страницу анализа
             </button>
             <button
               className="btn-secondary"
               onClick={() => openInNewTab('/demo')}
             >
-              Demo analysis
+              Демо-анализ
             </button>
             <button
               className="btn-secondary"
               onClick={() => openInNewTab('/teammates')}
             >
-              Teammates
+              Поиск тиммейтов
             </button>
             <button
               className="btn-secondary"
               onClick={handleLogout}
             >
-              Sign out in extension
+              Выйти в расширении
             </button>
           </>
         ) : (
           <>
             <div style={{ fontSize: 12, color: '#9ca3af' }}>
-              Log in with your Faceit AI Bot account to use the extension.
+              Войдите в аккаунт Faceit AI Bot, чтобы использовать расширение.
             </div>
             <form
               onSubmit={handleLogin}
@@ -414,7 +466,7 @@ const Popup: React.FC = () => {
             >
               <input
                 type="email"
-                placeholder="Email"
+                placeholder="Почта"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 style={{
@@ -428,7 +480,7 @@ const Popup: React.FC = () => {
               />
               <input
                 type="password"
-                placeholder="Password"
+                placeholder="Пароль"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 style={{
@@ -448,20 +500,30 @@ const Popup: React.FC = () => {
                 className="btn-primary"
                 disabled={authLoading}
               >
-                {authLoading ? 'Logging in...' : 'Log in'}
+                {authLoading ? 'Входим...' : 'Войти'}
               </button>
             </form>
-            <button
-              className="btn-secondary"
-              onClick={() => openInNewTab('/auth')}
+            <div
+              style={{
+                marginTop: 8,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 6,
+              }}
             >
-              Open auth page
-            </button>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => openInNewTab('/auth')}
+              >
+                Войти через Steam
+              </button>
+            </div>
             <button
               className="btn-secondary"
               onClick={() => openInNewTab('/demo/example')}
             >
-              Demo analysis example
+              Пример демо-анализа
             </button>
           </>
         )}
@@ -469,7 +531,7 @@ const Popup: React.FC = () => {
 
       <footer className="popup-footer">
         <span className="popup-hint">
-          The extension uses an API token stored in the extension (not browser cookies).
+          Расширение использует API-токен, сохранённый в расширении (а не cookie браузера).
         </span>
       </footer>
     </div>

@@ -15,6 +15,19 @@ export default function ExtensionPage() {
           прямо в попапе (вход по email и паролю).
         </p>
 
+        <div className="mb-8">
+          <a
+            href="/assets/prod/faceit-ai-bot-extension.zip"
+            className="btn-primary inline-flex items-center justify-center px-6 py-3 text-base font-semibold"
+          >
+            Download browser extension (ZIP)
+          </a>
+          <p className="mt-2 text-sm text-gray-400">
+            Latest Faceit AI Bot browser extension build for Chrome, Edge and Opera. Install via
+            your browser's developer mode.
+          </p>
+        </div>
+
         <div className="space-y-8">
           <section className="card">
             <h2 className="text-2xl font-semibold mb-3">Возможности</h2>
