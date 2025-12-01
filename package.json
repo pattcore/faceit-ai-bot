@@ -68,7 +68,8 @@
     "typescript": "^5.2.2",
     "webpack": "^5.101.3",
     "webpack-cli": "^5.1.4",
-    "whatwg-fetch": "^3.6.20"
+    "whatwg-fetch": "^3.6.20",
+    "yazl": "^2.5.1"
   },
   "scripts": {
     "dev": "next dev",
@@ -84,6 +85,7 @@
     "type-check": "tsc --noEmit",
     "build:all": "npm run build && npm run webpack:build",
     "build:extension": "node build-extension.js",
+    "build:extension:zip": "npm run build:extension && node build-extension-zip.js",
     "docker:build": "docker-compose build",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",

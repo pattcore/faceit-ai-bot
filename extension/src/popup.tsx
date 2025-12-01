@@ -45,6 +45,114 @@ interface PlayerAnalysis {
   training_plan: TrainingPlan;
 }
 
+type Lang = 'ru' | 'en';
+
+const POPUP_LANG_STORAGE_KEY = 'faceit_ai_bot_popup_lang';
+
+interface PopupTranslations {
+  themeLight: string;
+  themeDark: string;
+  langButton: string;
+  subtitle: string;
+  checkingSession: string;
+  signedInAs: string;
+  quickTitle: string;
+  quickDescription: string;
+  nicknamePlaceholder: string;
+  analyzeButtonIdle: string;
+  analyzeButtonLoading: string;
+  ratingLabel: string;
+  matchesPlayedLabel: string;
+  trainingPlanLabel: string;
+  openFullAnalysis: string;
+  demoAnalysis: string;
+  teammates: string;
+  logoutInExtension: string;
+  loginPrompt: string;
+  emailPlaceholder: string;
+  passwordPlaceholder: string;
+  loginButtonIdle: string;
+  loginButtonLoading: string;
+  steamLoginButton: string;
+  demoExampleButton: string;
+  footerHint: string;
+  loginFailed: string;
+  noToken: string;
+  networkError: string;
+  defaultPlayerName: string;
+}
+
+const POPUP_TRANSLATIONS: Record<Lang, PopupTranslations> = {
+  ru: {
+    themeLight: 'Тема: светлая',
+    themeDark: 'Тема: тёмная',
+    langButton: 'Язык: RU',
+    subtitle: 'AI-помощник для разбора демок и поиска тиммейтов в CS2',
+    checkingSession: 'Проверяем сессию расширения...',
+    signedInAs: 'Выполнен вход как',
+    quickTitle: 'Быстрый AI-анализ',
+    quickDescription:
+      'Введите ник на Faceit (или свой) и получите быстрый анализ прямо в расширении.',
+    nicknamePlaceholder: 'Ник на Faceit',
+    analyzeButtonIdle: 'Запустить AI-анализ',
+    analyzeButtonLoading: 'Анализируем...',
+    ratingLabel: 'Рейтинг',
+    matchesPlayedLabel: 'Матчей сыграно',
+    trainingPlanLabel: 'План тренировки',
+    openFullAnalysis: 'Открыть полную страницу анализа',
+    demoAnalysis: 'Демо-анализ',
+    teammates: 'Поиск тиммейтов',
+    logoutInExtension: 'Выйти в расширении',
+    loginPrompt: 'Войдите в аккаунт Faceit AI Bot, чтобы использовать расширение.',
+    emailPlaceholder: 'Почта',
+    passwordPlaceholder: 'Пароль',
+    loginButtonIdle: 'Войти',
+    loginButtonLoading: 'Входим...',
+    steamLoginButton: 'Войти через Steam',
+    demoExampleButton: 'Пример демо-анализа',
+    footerHint:
+      'Расширение использует API-токен, сохранённый в расширении (а не cookie браузера).',
+    loginFailed: 'Не удалось войти. Проверьте почту и пароль.',
+    noToken: 'Сервер не вернул токен доступа.',
+    networkError: 'Ошибка сети. Попробуйте ещё раз.',
+    defaultPlayerName: 'Игрок',
+  },
+  en: {
+    themeLight: 'Theme: light',
+    themeDark: 'Theme: dark',
+    langButton: 'Language: EN',
+    subtitle: 'AI assistant for demo review and teammate search in CS2',
+    checkingSession: 'Checking extension session...',
+    signedInAs: 'Signed in as',
+    quickTitle: 'Quick AI analysis',
+    quickDescription:
+      'Enter a Faceit nickname (yours or any) to get a quick analysis right in the extension.',
+    nicknamePlaceholder: 'Faceit nickname',
+    analyzeButtonIdle: 'Run AI analysis',
+    analyzeButtonLoading: 'Analyzing...',
+    ratingLabel: 'Rating',
+    matchesPlayedLabel: 'Matches played',
+    trainingPlanLabel: 'Training plan',
+    openFullAnalysis: 'Open full analysis page',
+    demoAnalysis: 'Demo analysis',
+    teammates: 'Teammate search',
+    logoutInExtension: 'Sign out in extension',
+    loginPrompt: 'Sign in to your Faceit AI Bot account to use the extension.',
+    emailPlaceholder: 'Email',
+    passwordPlaceholder: 'Password',
+    loginButtonIdle: 'Sign in',
+    loginButtonLoading: 'Signing in...',
+    steamLoginButton: 'Sign in with Steam',
+    demoExampleButton: 'Demo analysis example',
+    footerHint:
+      'The extension uses an API token stored inside the extension (not browser cookies).',
+    loginFailed: 'Login failed. Check your email and password.',
+    noToken: 'API did not return an access token.',
+    networkError: 'Network error. Please try again.',
+    defaultPlayerName: 'Player',
+  },
+};
+
 function openInNewTab(path: string) {
   const url = SITE_BASE + path;
   if ((window as any).chrome?.tabs?.create) {
@@ -82,6 +190,14 @@ const Popup: React.FC = () => {
       return stored === 'light' ? 'light' : 'dark';
     } catch {
       return 'dark';
+    }
+  });
+  const [lang, setLang] = useState<Lang>(() => {
+    try {
+      const stored = window.localStorage.getItem(POPUP_LANG_STORAGE_KEY);
+      return stored === 'en' ? 'en' : 'ru';
+    } catch {
+      return 'ru';
     }
   });
 
@@ -155,6 +271,16 @@ const Popup: React.FC = () => {
     }
   }, [theme]);
 
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(POPUP_LANG_STORAGE_KEY, lang);
+    } catch {
+      // ignore
+    }
+  }, [lang]);
+
+  const tr = POPUP_TRANSLATIONS[lang];
+
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     setAuthLoading(true);
@@ -174,13 +300,13 @@ const Popup: React.FC = () => {
       });
 
       if (!res.ok) {
-        setAuthError('Не удалось войти. Проверьте почту и пароль.');
+        setAuthError(tr.loginFailed);
         return;
       }
 
       const data = (await res.json()) as LoginResponse;
       if (!data.access_token) {
-        setAuthError('Сервер не вернул токен доступа.');
+        setAuthError(tr.noToken);
         return;
       }
 
@@ -201,7 +327,7 @@ const Popup: React.FC = () => {
         setUser(null);
       }
     } catch {
-      setAuthError('Ошибка сети. Попробуйте ещё раз.');
+      setAuthError(tr.networkError);
     } finally {
       setAuthLoading(false);
       setLoading(false);
@@ -226,7 +352,7 @@ const Popup: React.FC = () => {
 
     try {
       const res = await fetch(
-        `${API_BASE}/players/${encodeURIComponent(trimmed)}/analysis?language=ru`,
+        `${API_BASE}/players/${encodeURIComponent(trimmed)}/analysis?language=${lang}`,
         {
           headers: token
             ? {
@@ -283,10 +409,14 @@ const Popup: React.FC = () => {
     }
   };
 
-  const name = user?.username || user?.email || 'Игрок';
+  const name = user?.username || user?.email || tr.defaultPlayerName;
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
+
+  const toggleLanguage = () => {
+    setLang((prev) => (prev === 'ru' ? 'en' : 'ru'));
   };
 
   return (
@@ -305,36 +435,58 @@ const Popup: React.FC = () => {
           }}
         >
           <div className="popup-title">Faceit AI Bot</div>
-          <button
-            type="button"
-            onClick={toggleTheme}
+          <div
             style={{
-              fontSize: 10,
-              padding: '2px 6px',
-              borderRadius: 9999,
-              border: '1px solid #374151',
-              backgroundColor: theme === 'light' ? '#e5e7eb' : '#020617',
-              color: theme === 'light' ? '#111827' : '#e5e7eb',
-              cursor: 'pointer',
+              display: 'flex',
+              gap: 4,
             }}
           >
-            {theme === 'light' ? 'Тема: светлая' : 'Тема: тёмная'}
-          </button>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              style={{
+                fontSize: 10,
+                padding: '2px 6px',
+                borderRadius: 9999,
+                border: '1px solid #374151',
+                backgroundColor: theme === 'light' ? '#e5e7eb' : '#020617',
+                color: theme === 'light' ? '#111827' : '#e5e7eb',
+                cursor: 'pointer',
+              }}
+            >
+              {theme === 'light' ? tr.themeLight : tr.themeDark}
+            </button>
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              style={{
+                fontSize: 10,
+                padding: '2px 6px',
+                borderRadius: 9999,
+                border: '1px solid #374151',
+                backgroundColor: theme === 'light' ? '#e5e7eb' : '#020617',
+                color: theme === 'light' ? '#111827' : '#e5e7eb',
+                cursor: 'pointer',
+              }}
+            >
+              {tr.langButton}
+            </button>
+          </div>
         </div>
         <div className="popup-subtitle">
-          AI-помощник для разбора демок и поиска тиммейтов в CS2
+          {tr.subtitle}
         </div>
       </header>
 
       <main className="popup-main">
         {loading ? (
           <div style={{ fontSize: 12, color: '#9ca3af' }}>
-            Проверяем сессию расширения...
+            {tr.checkingSession}
           </div>
         ) : user ? (
           <>
             <div style={{ fontSize: 12, color: '#9ca3af' }}>
-              Выполнен вход как {name}
+              {tr.signedInAs} {name}
             </div>
 
             <div
@@ -349,14 +501,13 @@ const Popup: React.FC = () => {
                 backgroundColor: '#020617',
               }}
             >
-              <div style={{ fontSize: 12, fontWeight: 600 }}>Быстрый AI-анализ</div>
+              <div style={{ fontSize: 12, fontWeight: 600 }}>{tr.quickTitle}</div>
               <div style={{ fontSize: 11, color: '#9ca3af' }}>
-                Введите ник на Faceit (или свой) и получите быстрый анализ прямо в
-                расширении.
+                {tr.quickDescription}
               </div>
               <input
                 type="text"
-                placeholder="Ник на Faceit"
+                placeholder={tr.nicknamePlaceholder}
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
                 style={{
@@ -376,7 +527,7 @@ const Popup: React.FC = () => {
                 onClick={handleAnalyzePlayer}
                 disabled={analysisLoading || !nickname.trim()}
               >
-                {analysisLoading ? 'Анализируем...' : 'Запустить AI-анализ'}
+                {analysisLoading ? tr.analyzeButtonLoading : tr.analyzeButtonIdle}
               </button>
 
               {analysis && (
@@ -391,7 +542,7 @@ const Popup: React.FC = () => {
                   }}
                 >
                   <div style={{ fontSize: 11, color: '#9ca3af' }}>
-                    Рейтинг: <strong>{analysis.overall_rating}/10</strong>
+                    {tr.ratingLabel}: <strong>{analysis.overall_rating}/10</strong>
                   </div>
                   <div style={{ fontSize: 11, color: '#9ca3af' }}>
                     K/D: <strong>{analysis.stats.kd_ratio.toFixed(2)}</strong>, Win
@@ -399,11 +550,11 @@ const Popup: React.FC = () => {
                     <strong>{analysis.stats.headshot_percentage.toFixed(1)}%</strong>
                   </div>
                   <div style={{ fontSize: 11, color: '#9ca3af' }}>
-                    Матчей сыграно:{' '}
-                    <strong>{analysis.stats.matches_played}</strong>
+                    {tr.matchesPlayedLabel}: <strong>{analysis.stats.matches_played}</strong>
                   </div>
                   <div style={{ fontSize: 11, color: '#9ca3af' }}>
-                    План тренировки: <strong>{analysis.training_plan.estimated_time}</strong>
+                    {tr.trainingPlanLabel}:{' '}
+                    <strong>{analysis.training_plan.estimated_time}</strong>
                   </div>
                   {analysis.training_plan.daily_exercises?.length > 0 && (
                     <ul
@@ -429,31 +580,31 @@ const Popup: React.FC = () => {
               className="btn-secondary"
               onClick={() => openInNewTab('/analysis?auto=1')}
             >
-              Открыть полную страницу анализа
+              {tr.openFullAnalysis}
             </button>
             <button
               className="btn-secondary"
               onClick={() => openInNewTab('/demo')}
             >
-              Демо-анализ
+              {tr.demoAnalysis}
             </button>
             <button
               className="btn-secondary"
               onClick={() => openInNewTab('/teammates')}
             >
-              Поиск тиммейтов
+              {tr.teammates}
             </button>
             <button
               className="btn-secondary"
               onClick={handleLogout}
             >
-              Выйти в расширении
+              {tr.logoutInExtension}
             </button>
           </>
         ) : (
           <>
             <div style={{ fontSize: 12, color: '#9ca3af' }}>
-              Войдите в аккаунт Faceit AI Bot, чтобы использовать расширение.
+              {tr.loginPrompt}
             </div>
             <form
               onSubmit={handleLogin}
@@ -466,7 +617,7 @@ const Popup: React.FC = () => {
             >
               <input
                 type="email"
-                placeholder="Почта"
+                placeholder={tr.emailPlaceholder}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 style={{
@@ -480,7 +631,7 @@ const Popup: React.FC = () => {
               />
               <input
                 type="password"
-                placeholder="Пароль"
+                placeholder={tr.passwordPlaceholder}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 style={{
@@ -500,7 +651,7 @@ const Popup: React.FC = () => {
                 className="btn-primary"
                 disabled={authLoading}
               >
-                {authLoading ? 'Входим...' : 'Войти'}
+                {authLoading ? tr.loginButtonLoading : tr.loginButtonIdle}
               </button>
             </form>
             <div
@@ -516,14 +667,14 @@ const Popup: React.FC = () => {
                 className="btn-secondary"
                 onClick={() => openInNewTab('/auth')}
               >
-                Войти через Steam
+                {tr.steamLoginButton}
               </button>
             </div>
             <button
               className="btn-secondary"
               onClick={() => openInNewTab('/demo/example')}
             >
-              Пример демо-анализа
+              {tr.demoExampleButton}
             </button>
           </>
         )}
@@ -531,7 +682,7 @@ const Popup: React.FC = () => {
 
       <footer className="popup-footer">
         <span className="popup-hint">
-          Расширение использует API-токен, сохранённый в расширении (а не cookie браузера).
+          {tr.footerHint}
         </span>
       </footer>
     </div>

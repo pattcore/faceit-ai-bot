@@ -20,7 +20,7 @@ const Navigation = () => {
           <span>Faceit AI Bot</span>
         </Link>
 
-        <div className="hidden md:flex gap-4 flex-1 justify-center">
+        <div className="hidden md:flex gap-3 flex-1 justify-center">
           <Link href="/" className="text-xs md:text-sm text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white transition-colors">
             {t('nav.home')}
           </Link>
@@ -81,7 +81,7 @@ const Navigation = () => {
             <>
               <Link
                 href="/auth"
-                className="px-6 py-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg text-white font-semibold transition-colors"
+                className="px-4 md:px-6 py-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg text-white font-semibold text-xs md:text-sm transition-colors"
               >
                 {t('nav.login')}
               </Link>
