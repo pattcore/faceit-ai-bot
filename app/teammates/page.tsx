@@ -146,13 +146,16 @@ export default function TeammatesPage() {
         <div className="glass-effect rounded-xl p-6 mb-8 space-y-4">
           <h2 className="text-2xl font-semibold">
             {t('teammate.my_profile_title', {
-              defaultValue: 'Мой профиль для тиммейта',
+              defaultValue:
+                lang === 'en' ? 'My profile for teammates' : 'Мой профиль для тиммейта',
             })}
           </h2>
           <p className="text-sm text-zinc-400">
             {t('teammate.my_profile_hint', {
               defaultValue:
-                'Укажи контакты и пару слов о себе, чтобы тиммейты могли связаться с тобой.',
+                lang === 'en'
+                  ? 'Add your contacts and a few words about yourself so teammates can reach you.'
+                  : 'Укажи контакты и пару слов о себе, чтобы тиммейты могли связаться с тобой.',
             })}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -160,7 +163,10 @@ export default function TeammatesPage() {
               type="text"
               className="px-4 py-3 glass-effect rounded-lg focus:outline-none focus:border-primary"
               placeholder={t('teammate.discord_placeholder', {
-                defaultValue: 'Discord (например, user#1234)',
+                defaultValue:
+                  lang === 'en'
+                    ? 'Discord (e.g. user#1234)'
+                    : 'Discord (например, user#1234)',
               })}
               value={profile.discord_contact}
               onChange={(e) =>
@@ -174,7 +180,10 @@ export default function TeammatesPage() {
               type="text"
               className="px-4 py-3 glass-effect rounded-lg focus:outline-none focus:border-primary"
               placeholder={t('teammate.telegram_placeholder', {
-                defaultValue: 'Telegram (например, @nickname)',
+                defaultValue:
+                  lang === 'en'
+                    ? 'Telegram (e.g. @nickname)'
+                    : 'Telegram (например, @nickname)',
               })}
               value={profile.telegram_contact}
               onChange={(e) =>
@@ -188,7 +197,10 @@ export default function TeammatesPage() {
               type="text"
               className="px-4 py-3 glass-effect rounded-lg focus:outline-none focus:border-primary"
               placeholder={t('teammate.contact_url_placeholder', {
-                defaultValue: 'Ссылка для связи (Discord/Telegram/сайт)',
+                defaultValue:
+                  lang === 'en'
+                    ? 'Contact link (Discord/Telegram/website)'
+                    : 'Ссылка для связи (Discord/Telegram/сайт)',
               })}
               value={profile.contact_url}
               onChange={(e) =>
@@ -203,7 +215,10 @@ export default function TeammatesPage() {
             <textarea
               className="px-4 py-3 glass-effect rounded-lg focus:outline-none focus:border-primary min-h-[96px]"
               placeholder={t('teammate.about_placeholder', {
-                defaultValue: 'Пара слов о себе, стиле игры, любимых ролях...',
+                defaultValue:
+                  lang === 'en'
+                    ? 'A few words about you, playstyle, favorite roles...'
+                    : 'Пара слов о себе, стиле игры, любимых ролях...',
               })}
               value={profile.about}
               onChange={(e) =>
@@ -217,7 +232,10 @@ export default function TeammatesPage() {
               type="text"
               className="px-4 py-3 glass-effect rounded-lg focus:outline-none focus:border-primary"
               placeholder={t('teammate.availability_placeholder', {
-                defaultValue: 'Когда обычно играешь (например, вечера по МСК)',
+                defaultValue:
+                  lang === 'en'
+                    ? 'When you usually play (e.g. evenings in CET)'
+                    : 'Когда обычно играешь (например, вечера по МСК)',
               })}
               value={profile.availability}
               onChange={(e) =>
