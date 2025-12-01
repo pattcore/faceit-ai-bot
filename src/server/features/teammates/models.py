@@ -19,6 +19,11 @@ class TeammatePreferences(BaseModel):
     communication_lang: List[str]
     play_style: str
     time_zone: str
+    about: Optional[str] = None
+    availability: Optional[str] = None
+    discord_contact: Optional[str] = None
+    telegram_contact: Optional[str] = None
+    contact_url: Optional[str] = None
 
 class TeammateProfile(BaseModel):
     user_id: str
@@ -27,5 +32,9 @@ class TeammateProfile(BaseModel):
     preferences: TeammatePreferences
     availability: List[str]
     team_history: List[Dict]
+    about: Optional[str] = None
+    discord_contact: Optional[str] = None
+    telegram_contact: Optional[str] = None
+    contact_url: Optional[str] = None
     compatibility_score: Optional[float] = None
     match_summary: Optional[str] = None

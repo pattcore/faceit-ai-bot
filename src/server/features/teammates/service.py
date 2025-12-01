@@ -100,6 +100,10 @@ class TeammateService:
                     if current_profile.availability
                     else [],
                     team_history=[],
+                    about=current_profile.about,
+                    discord_contact=current_profile.discord_contact,
+                    telegram_contact=current_profile.telegram_contact,
+                    contact_url=current_profile.contact_url,
                 )
 
                 return [demo_profile]
@@ -175,6 +179,10 @@ class TeammateService:
                     preferences=candidate_prefs,
                     availability=[row.availability] if row.availability else [],
                     team_history=[],
+                    about=row.about,
+                    discord_contact=row.discord_contact,
+                    telegram_contact=row.telegram_contact,
+                    contact_url=row.contact_url,
                 )
                 result.append(profile)
 
@@ -310,6 +318,17 @@ class TeammateService:
             profile.languages = ",".join(preferences.communication_lang or [])
             profile.preferred_maps = ",".join(preferences.preferred_maps or [])
             profile.play_style = preferences.play_style
+
+            if preferences.about is not None:
+                profile.about = preferences.about
+            if preferences.availability is not None:
+                profile.availability = preferences.availability
+            if preferences.discord_contact is not None:
+                profile.discord_contact = preferences.discord_contact
+            if preferences.telegram_contact is not None:
+                profile.telegram_contact = preferences.telegram_contact
+            if preferences.contact_url is not None:
+                profile.contact_url = preferences.contact_url
 
             db.commit()
             db.refresh(profile)

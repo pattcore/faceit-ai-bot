@@ -107,6 +107,9 @@ class TeammateProfile(Base):
     voice_required = Column(Boolean, default=True, nullable=False)
     about = Column(String(500), nullable=True)
     availability = Column(String(255), nullable=True)
+    discord_contact = Column(String(100), nullable=True)
+    telegram_contact = Column(String(100), nullable=True)
+    contact_url = Column(String(255), nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)

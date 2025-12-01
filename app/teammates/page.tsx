@@ -16,12 +16,23 @@ interface TeammateProfile {
   };
   compatibility_score?: number;
   match_summary?: string;
+  about?: string;
+  discord_contact?: string;
+  telegram_contact?: string;
+  contact_url?: string;
 }
 
 export default function TeammatesPage() {
   const { user, token } = useAuth();
   const router = useRouter();
   const [filters, setFilters] = useState({ rank: '', region: '', role: '' });
+  const [profile, setProfile] = useState({
+    about: '',
+    availability: '',
+    discord_contact: '',
+    telegram_contact: '',
+    contact_url: '',
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<TeammateProfile[]>([]);
@@ -74,6 +85,11 @@ export default function TeammatesPage() {
       communication_lang: [lang],
       play_style: 'balanced',
       time_zone: 'UTC',
+      about: profile.about || undefined,
+      availability: profile.availability || undefined,
+      discord_contact: profile.discord_contact || undefined,
+      telegram_contact: profile.telegram_contact || undefined,
+      contact_url: profile.contact_url || undefined,
     };
 
     try {
@@ -116,14 +132,103 @@ export default function TeammatesPage() {
   return (
     <div className="min-h-screen px-8 py-12 bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-white animate-fade-in">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold mb-4 gradient-text">👥 {t('teammate.title')}</h1>
+        <h1 className="text-4xl font-bold mb-4 gradient-text">
+          👥 {t('teammate.title')}
+        </h1>
         <p className="text-zinc-400 mb-8">
           {t('teammate.placeholder', {
             defaultValue:
               'ИИ поможет подобрать тиммейтов по твоему уровню Faceit и стилю игры. Сейчас поиск в бета и подбирает партнёров по рангу, роли и базовой статистике.',
           })}
         </p>
-        
+
+        <div className="glass-effect rounded-xl p-6 mb-8 space-y-4">
+          <h2 className="text-2xl font-semibold">
+            {t('teammate.my_profile_title', {
+              defaultValue: 'Мой профиль для тиммейта',
+            })}
+          </h2>
+          <p className="text-sm text-zinc-400">
+            {t('teammate.my_profile_hint', {
+              defaultValue:
+                'Укажи контакты и пару слов о себе, чтобы тиммейты могли связаться с тобой.',
+            })}
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input
+              type="text"
+              className="px-4 py-3 glass-effect rounded-lg focus:outline-none focus:border-primary"
+              placeholder={t('teammate.discord_placeholder', {
+                defaultValue: 'Discord (например, user#1234)',
+              })}
+              value={profile.discord_contact}
+              onChange={(e) =>
+                setProfile((prev) => ({
+                  ...prev,
+                  discord_contact: e.target.value,
+                }))
+              }
+            />
+            <input
+              type="text"
+              className="px-4 py-3 glass-effect rounded-lg focus:outline-none focus:border-primary"
+              placeholder={t('teammate.telegram_placeholder', {
+                defaultValue: 'Telegram (например, @nickname)',
+              })}
+              value={profile.telegram_contact}
+              onChange={(e) =>
+                setProfile((prev) => ({
+                  ...prev,
+                  telegram_contact: e.target.value,
+                }))
+              }
+            />
+            <input
+              type="text"
+              className="px-4 py-3 glass-effect rounded-lg focus:outline-none focus:border-primary"
+              placeholder={t('teammate.contact_url_placeholder', {
+                defaultValue: 'Ссылка для связи (Discord/Telegram/сайт)',
+              })}
+              value={profile.contact_url}
+              onChange={(e) =>
+                setProfile((prev) => ({
+                  ...prev,
+                  contact_url: e.target.value,
+                }))
+              }
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <textarea
+              className="px-4 py-3 glass-effect rounded-lg focus:outline-none focus:border-primary min-h-[96px]"
+              placeholder={t('teammate.about_placeholder', {
+                defaultValue: 'Пара слов о себе, стиле игры, любимых ролях...',
+              })}
+              value={profile.about}
+              onChange={(e) =>
+                setProfile((prev) => ({
+                  ...prev,
+                  about: e.target.value,
+                }))
+              }
+            />
+            <input
+              type="text"
+              className="px-4 py-3 glass-effect rounded-lg focus:outline-none focus:border-primary"
+              placeholder={t('teammate.availability_placeholder', {
+                defaultValue: 'Когда обычно играешь (например, вечера по МСК)',
+              })}
+              value={profile.availability}
+              onChange={(e) =>
+                setProfile((prev) => ({
+                  ...prev,
+                  availability: e.target.value,
+                }))
+              }
+            />
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <select
             className="px-4 py-3 glass-effect rounded-lg focus:outline-none focus:border-primary"
@@ -244,6 +349,35 @@ export default function TeammatesPage() {
                   )}
                   {p.match_summary && (
                     <p className="text-sm text-zinc-300 mt-2">{p.match_summary}</p>
+                  )}
+                  {(p.discord_contact || p.telegram_contact || p.contact_url) && (
+                    <div className="text-sm text-zinc-300 mt-2 space-y-1">
+                      {p.discord_contact && (
+                        <p>
+                          {t('teammate.contact_discord', { defaultValue: 'Discord:' })}{' '}
+                          {p.discord_contact}
+                        </p>
+                      )}
+                      {p.telegram_contact && (
+                        <p>
+                          {t('teammate.contact_telegram', { defaultValue: 'Telegram:' })}{' '}
+                          {p.telegram_contact}
+                        </p>
+                      )}
+                      {p.contact_url && (
+                        <p>
+                          {t('teammate.contact_link', { defaultValue: 'Ссылка:' })}{' '}
+                          <a
+                            href={p.contact_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="underline text-primary"
+                          >
+                            {p.contact_url}
+                          </a>
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
