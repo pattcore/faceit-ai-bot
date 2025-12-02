@@ -1,6 +1,6 @@
 {
   "name": "faceit-stats-bot",
-  "version": "0.4.5",
+  "version": "0.4.7",
   "description": "Удобный инструмент для анализа игровой статистики и поиска тиммейтов на Faceit",
   "keywords": [
     "faceit",
