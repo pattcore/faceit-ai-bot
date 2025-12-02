@@ -80,7 +80,7 @@
     "test:unit": "pytest tests/unit -v",
     "test:integration": "pytest tests/integration -v",
     "test:all": "pytest tests -v --cov=src/server --cov-report=html --cov-report=term-missing",
-    "test:coverage": "pytest tests --cov=src/server --cov-report=html --cov-report=term-missing --cov-fail-under=70",
+    "test:coverage": "pytest tests -m \"not e2e\" --cov=src/server --cov-report=html --cov-report=term-missing --cov-fail-under=70",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "type-check": "tsc --noEmit",
     "build:all": "npm run build && npm run webpack:build",

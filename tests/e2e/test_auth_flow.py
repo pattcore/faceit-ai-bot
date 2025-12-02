@@ -3,6 +3,9 @@
 import pytest
 
 
+pytestmark = pytest.mark.e2e
+
+
 def test_auth_page_loads(page):
     """Test that auth page loads correctly"""
     page.goto("http://localhost:3000/auth")

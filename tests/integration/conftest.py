@@ -7,7 +7,6 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import redis
 import os
 from faker import Faker
 from unittest.mock import patch
@@ -30,13 +29,19 @@ def test_db_url():
     """URL тестовой базы данных"""
     # Используем в-memory SQLite для скорости
     # Или реальный PostgreSQL если нужно протестировать специфическое поведение
-    return os.getenv("TEST_DATABASE_URL", "sqlite:///:memory:")
+    return os.getenv("TEST_DATABASE_URL", "sqlite:///./test_integration.db")
 
 
 @pytest.fixture(scope="session")
 def test_db_engine(test_db_url):
     """Создание движка тестовой БД"""
-    engine = create_engine(test_db_url, echo=False)
+    connect_args = {}
+    if test_db_url.startswith("sqlite"):
+        # Для SQLite разрешаем использование соединения из разных потоков,
+        # чтобы FastAPI TestClient не падал с ProgrammingError.
+        connect_args = {"check_same_thread": False}
+
+    engine = create_engine(test_db_url, echo=False, connect_args=connect_args)
     # Создаем все таблицы
     Base.metadata.create_all(bind=engine)
     yield engine
@@ -66,22 +71,33 @@ def db_session(test_db_engine):
 
 
 # ============================================
-# TEST REDIS SETUP
+# TEST REDIS SETUP (in-memory dummy)
 # ============================================
 
 
-@pytest.fixture(scope="session")
-def redis_url():
-    """URL тестового Redis"""
-    return os.getenv("TEST_REDIS_URL", "redis://localhost:6379")
+class DummyRedisClient:
+    """Простейший in-memory Redis-заменитель для тестов.
+
+    Достаточно реализовать flushdb и connection_pool.connection_kwargs["host"],
+    так как только это используется в текущих тестах.
+    """
+
+    def __init__(self):
+        self._store = {}
+        # Минимальный объект с полем connection_kwargs["host"]
+        self.connection_pool = type(
+            "Pool", (), {"connection_kwargs": {"host": "localhost"}}
+        )()
+
+    def flushdb(self):
+        self._store.clear()
 
 
 @pytest.fixture
-def redis_client(redis_url):
-    """Клиент тестового Redis с очисткой после каждого теста"""
-    client = redis.Redis.from_url(redis_url, decode_responses=True)
-
-    # Очищаем БД перед тестом
+def redis_client():
+    """In-memory Redis-подобный клиент без подключения к реальному Redis."""
+    client = DummyRedisClient()
+    # Очищаем "БД" перед тестом
     client.flushdb()
 
     yield client
@@ -104,9 +120,6 @@ def test_client(db_session, redis_client):
 
     # Переопределяем зависимости для тестов
     fastapi_app.dependency_overrides[get_db] = override_get_db
-
-    # Мокируем текущего пользователя по умолчанию
-    fastapi_app.dependency_overrides[get_current_user] = lambda: None
 
     with TestClient(fastapi_app) as client:
         yield client
@@ -143,15 +156,20 @@ fake = Faker()
 
 def create_test_user(db_session, **overrides):
     """Создать тестового пользователя в БД"""
-    from src.server.models.user import User
+    from src.server.database.models import User
     from src.server.auth.security import get_password_hash
+
+    # Поддерживаем старый параметр is_superuser, маппя его на is_admin
+    # в новой модели пользователя.
+    is_superuser = overrides.pop("is_superuser", None)
+    if is_superuser is not None and "is_admin" not in overrides:
+        overrides["is_admin"] = bool(is_superuser)
 
     user_data = {
         "email": fake.email(),
         "username": fake.user_name(),
         "hashed_password": get_password_hash("password123"),
         "is_active": True,
-        "is_superuser": False,
         "created_at": datetime.utcnow(),
         **overrides,
     }

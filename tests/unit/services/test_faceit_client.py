@@ -1,7 +1,17 @@
-"""Unit tests for Faceit client"""
+"""Unit tests for Faceit client
+
+Эти тесты относятся к старой синхронной реализации FaceitClient и временно
+отключены. Текущая реализация использует асинхронный FaceitAPIClient
+на базе aiohttp и требует отдельных тестов.
+"""
 
 import pytest
 from unittest.mock import Mock, patch
+
+
+pytestmark = pytest.mark.skip(
+    reason="Legacy FaceitClient removed; tests will be rewritten for FaceitAPIClient",
+)
 
 
 class TestFaceitClient:

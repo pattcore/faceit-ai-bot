@@ -31,6 +31,6 @@ class TestJWTTokens:
         from src.server.auth.security import create_access_token
 
         user_id = "test_user_123"
-        token = create_access_token(user_id)
+        token = create_access_token(data={"sub": user_id})
         assert token is not None
         assert isinstance(token, str)

@@ -1,7 +1,19 @@
-"""Tests for authentication"""
+"""Tests for authentication
+
+Legacy auth endpoint tests are skipped in favour of integration tests in
+tests/integration/test_auth_endpoints.py, которые используют тестовые фикстуры
+БД и настроенный TestClient.
+"""
+
+import pytest
 from fastapi.testclient import TestClient
 from src.server.auth.security import get_password_hash
 from src.server.main import app
+
+
+pytestmark = pytest.mark.skip(
+    reason="Replaced by integration tests in tests/integration/test_auth_endpoints.py",
+)
 
 
 client = TestClient(app)
