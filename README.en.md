@@ -101,7 +101,7 @@ A tool for analyzing CS2 player statistics on the Faceit platform. Helps find te
 - 🤖 Personalized recommendations and training plans
 - ⚡ Fast performance with Redis caching
 - 🔒 HTTPS and production deployment on VPS
- - 🔐 CAPTCHA protection for login, registration and payment creation (Cloudflare Turnstile + Yandex SmartCaptcha for Russian users)
+- 🔐 CAPTCHA protection for login, registration and payment creation (Cloudflare Turnstile + Yandex SmartCaptcha for Russian users)
 
 ---
 
