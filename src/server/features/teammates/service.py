@@ -297,6 +297,8 @@ class TeammateService:
             player_roles = list(preferences.preferred_roles or [])
             player_elo = preferences.max_elo
             player_style = preferences.play_style
+            player_maps = list(preferences.preferred_maps or [])
+            player_time_zone = preferences.time_zone
 
             if current_profile is not None:
                 if current_profile.elo is not None:
@@ -319,12 +321,22 @@ class TeammateService:
                         player_roles = roles
                 if current_profile.play_style:
                     player_style = current_profile.play_style
+                if getattr(current_profile, "preferred_maps", None):
+                    maps = [
+                        m.strip()
+                        for m in (current_profile.preferred_maps or "").split(",")
+                        if m.strip()
+                    ]
+                    if maps:
+                        player_maps = maps
 
             player_payload = {
                 "elo": player_elo,
                 "preferred_roles": player_roles,
                 "communication_lang": player_langs,
                 "play_style": player_style,
+                "preferred_maps": player_maps,
+                "time_zone": player_time_zone,
             }
 
             candidates_payload = []
@@ -337,15 +349,31 @@ class TeammateService:
                         "preferred_roles": p.preferences.preferred_roles,
                         "communication_lang": p.preferences.communication_lang,
                         "play_style": p.preferences.play_style,
+                        "preferred_maps": p.preferences.preferred_maps,
+                        "time_zone": p.preferences.time_zone,
+                        "availability": p.availability,
                     }
                 )
+
+            ai_language = "ru"
+            try:
+                for lang_value in (preferences.communication_lang or []):
+                    lang_str = str(lang_value).lower()
+                    if lang_str.startswith("en"):
+                        ai_language = "en"
+                        break
+                    if lang_str.startswith("ru"):
+                        ai_language = "ru"
+                        break
+            except Exception:
+                ai_language = "ru"
 
             ai_result = await self.ai.describe_teammate_matches(
                 {
                     "player": player_payload,
                     "candidates": candidates_payload,
                 },
-                language="ru",
+                language=ai_language,
             )
 
             if isinstance(ai_result, dict):
