@@ -90,7 +90,10 @@ class PaymentService:
 
                 # Process payment through corresponding provider
                 return await self.providers[request.provider](request)
-
+        except HTTPException:
+            # Не заворачиваем уже сформированные HTTP ошибки (например, 4xx)
+            # в общий 500, чтобы клиент получал корректный статус.
+            raise
         except Exception as e:
             try:
                 PAYMENT_CREATE_FAILED_TOTAL.labels(provider=provider_label).inc()
@@ -123,7 +126,10 @@ class PaymentService:
                     f"for status check: {provider}"
                 )
             )
-
+        except HTTPException:
+            # Сохраняем оригинальный HTTP статус (например, 400)
+            # вместо заворачивания его в общий 500.
+            raise
         except Exception as e:
             logger.exception(
                 f"Payment status check failed: {str(e)}"
