@@ -165,7 +165,7 @@ class TestAuthRoutesExtended:
     def test_steam_login_redirects_when_captcha_ok(self, test_client, monkeypatch):
         """Steam login should redirect to Steam OpenID when CAPTCHA passes."""
 
-        async def ok_verify(token, remote_ip=None, action=None):  # noqa: ARG001
+        async def ok_verify(token, remote_ip=None, action=None, fail_open_on_error=False):  # noqa: ARG001, ARG002
             return True
 
         monkeypatch.setattr(captcha_service, "verify_token", ok_verify)
@@ -182,7 +182,7 @@ class TestAuthRoutesExtended:
     def test_steam_login_captcha_invalid_returns_400(self, test_client, monkeypatch):
         """Steam login should fail when CAPTCHA verification fails."""
 
-        async def bad_verify(token, remote_ip=None, action=None):  # noqa: ARG001
+        async def bad_verify(token, remote_ip=None, action=None, fail_open_on_error=False):  # noqa: ARG001, ARG002
             return False
 
         monkeypatch.setattr(captcha_service, "verify_token", bad_verify)
