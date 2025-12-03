@@ -139,6 +139,7 @@ async def steam_login(request: Request):
         token=captcha_token,
         remote_ip=remote_ip,
         action="auth_steam_login",
+        fail_open_on_error=True,
     )
     if not captcha_ok:
         raise HTTPException(
@@ -178,6 +179,7 @@ async def faceit_login(request: Request):
         token=captcha_token,
         remote_ip=remote_ip,
         action="auth_faceit_login",
+        fail_open_on_error=True,
     )
     if not captcha_ok:
         raise HTTPException(
@@ -726,6 +728,7 @@ async def login(
             token=captcha_token,
             remote_ip=remote_ip,
             action="auth_login",
+            fail_open_on_error=True,
         )
         if not captcha_ok:
             raise HTTPException(

@@ -8,6 +8,10 @@ from ..config.settings import settings
 logger = logging.getLogger(__name__)
 
 
+class CaptchaProviderError(Exception):
+    """Infrastructure or configuration error while talking to CAPTCHA provider."""
+
+
 class CaptchaService:
     """Service for verifying CAPTCHA tokens (e.g. Cloudflare Turnstile).
 
@@ -39,6 +43,7 @@ class CaptchaService:
         token: Optional[str],
         remote_ip: Optional[str] = None,
         action: Optional[str] = None,
+        fail_open_on_error: bool = False,
     ) -> bool:
         """Verify CAPTCHA token.
 
@@ -52,11 +57,24 @@ class CaptchaService:
         if not token:
             return False
 
-        if self.provider == "turnstile":
-            return await self._verify_turnstile(token, remote_ip=remote_ip, action=action)
+        try:
+            if self.provider == "turnstile":
+                return await self._verify_turnstile(
+                    token,
+                    remote_ip=remote_ip,
+                    action=action,
+                )
 
-        if self.provider in ("smartcaptcha", "yandex_smartcaptcha", "yandex"):
-            return await self._verify_smartcaptcha(token, remote_ip=remote_ip)
+            if self.provider in ("smartcaptcha", "yandex_smartcaptcha", "yandex"):
+                return await self._verify_smartcaptcha(
+                    token,
+                    remote_ip=remote_ip,
+                )
+        except CaptchaProviderError as exc:
+            logger.error("CAPTCHA provider error for %s: %s", self.provider, exc)
+            # For login-like flows we may choose fail-open (do not block user),
+            # while for registration or sensitive operations we fail-closed.
+            return True if fail_open_on_error else False
 
         # Unknown provider – fail open to avoid blocking legit users
         logger.warning("Unknown CAPTCHA provider configured: %s", self.provider)
@@ -70,7 +88,7 @@ class CaptchaService:
     ) -> bool:
         """Verify token against Cloudflare Turnstile API."""
         if not self.turnstile_secret_key:
-            return False
+            raise CaptchaProviderError("TURNSTILE_SECRET_KEY is not configured")
 
         data = {
             "secret": self.turnstile_secret_key,
@@ -90,12 +108,14 @@ class CaptchaService:
                         logger.warning(
                             "Turnstile verification HTTP %s: %s", resp.status, text
                         )
-                        return False
+                        raise CaptchaProviderError(
+                            f"HTTP {resp.status}: {text.strip()}"
+                        )
 
                     payload = await resp.json()
         except Exception as exc:  # pragma: no cover - network/SaaS errors
             logger.error("Turnstile verification error: %s", exc)
-            return False
+            raise CaptchaProviderError(str(exc))
 
         success = bool(payload.get("success"))
 
@@ -117,7 +137,7 @@ class CaptchaService:
         x-www-form-urlencoded body: secret, token, optional ip.
         """
         if not self.smartcaptcha_secret_key:
-            return False
+            raise CaptchaProviderError("SMARTCAPTCHA_SECRET_KEY is not configured")
 
         data = {
             "secret": self.smartcaptcha_secret_key,
@@ -137,12 +157,14 @@ class CaptchaService:
                         logger.warning(
                             "SmartCaptcha verification HTTP %s: %s", resp.status, text
                         )
-                        return False
+                        raise CaptchaProviderError(
+                            f"HTTP {resp.status}: {text.strip()}"
+                        )
 
                     payload = await resp.json()
         except Exception as exc:  # pragma: no cover - network/SaaS errors
             logger.error("SmartCaptcha verification error: %s", exc)
-            return False
+            raise CaptchaProviderError(str(exc))
 
         status = payload.get("status")
 
