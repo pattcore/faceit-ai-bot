@@ -15,6 +15,7 @@ services:
       - '--web.listen-address=0.0.0.0:9090'
     networks:
       - monitoring
+      - faceit-network
     ports:
       - "9090:9090"
 
@@ -59,4 +60,6 @@ volumes:
 
 networks:
   monitoring:
+    driver: bridge
+  faceit-network:
     driver: bridge

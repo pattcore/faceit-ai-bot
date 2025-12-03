@@ -2,7 +2,9 @@
 
 import time
 import logging
+
 from fastapi import Request
+from prometheus_client import Counter, Histogram
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
@@ -11,12 +13,30 @@ from ..core.structured_logging import request_logger
 logger = logging.getLogger(__name__)
 
 
+HTTP_REQUESTS_TOTAL = Counter(
+    "http_requests_total",
+    "Total HTTP requests",
+    ["method", "route", "status"],
+)
+
+
+HTTP_REQUEST_DURATION_SECONDS = Histogram(
+    "http_request_duration_seconds",
+    "HTTP request duration in seconds",
+    ["method", "route"],
+    buckets=(0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0),
+)
+
+
 class StructuredLoggingMiddleware(BaseHTTPMiddleware):
     """Middleware to log HTTP requests and responses with structlog."""
 
     async def dispatch(self, request: Request, call_next) -> Response:
         """Log request and response."""
         start_time = time.time()
+
+        route = request.scope.get("route")
+        route_path = getattr(route, "path", request.url.path)
 
         user_id = None
         if hasattr(request.state, "user_id"):
@@ -31,7 +51,8 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
 
         try:
             response = await call_next(request)
-            duration_ms = (time.time() - start_time) * 1000
+            duration_seconds = time.time() - start_time
+            duration_ms = duration_seconds * 1000
 
             request_logger.log_response(
                 method=request.method,
@@ -41,10 +62,24 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
                 user_id=user_id,
             )
 
+            try:
+                HTTP_REQUESTS_TOTAL.labels(
+                    method=request.method,
+                    route=route_path,
+                    status=str(response.status_code),
+                ).inc()
+                HTTP_REQUEST_DURATION_SECONDS.labels(
+                    method=request.method,
+                    route=route_path,
+                ).observe(duration_seconds)
+            except Exception:
+                logger.exception("Failed to update HTTP Prometheus metrics")
+
             return response
 
         except Exception as exc:
-            duration_ms = (time.time() - start_time) * 1000
+            duration_seconds = time.time() - start_time
+            duration_ms = duration_seconds * 1000
 
             request_logger.log_error(
                 method=request.method,
@@ -52,5 +87,18 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
                 error=exc,
                 user_id=user_id,
             )
+
+            try:
+                HTTP_REQUESTS_TOTAL.labels(
+                    method=request.method,
+                    route=route_path,
+                    status="500",
+                ).inc()
+                HTTP_REQUEST_DURATION_SECONDS.labels(
+                    method=request.method,
+                    route=route_path,
+                ).observe(duration_seconds)
+            except Exception:
+                logger.exception("Failed to update HTTP Prometheus metrics on error")
 
             raise

@@ -4,17 +4,34 @@ Redis caching service
 """
 import json
 import logging
-from typing import Optional, Any
 import os
+from typing import Any, Optional
+
+from prometheus_client import Counter
 
 logger = logging.getLogger(__name__)
 
 try:
     import redis.asyncio as redis
+
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False
     logger.warning("Redis not available, caching disabled")
+
+
+CACHE_HITS_TOTAL = Counter(
+    "redis_cache_hits_total",
+    "Total Redis cache hits",
+    ["cache"],
+)
+
+
+CACHE_MISSES_TOTAL = Counter(
+    "redis_cache_misses_total",
+    "Total Redis cache misses",
+    ["cache"],
+)
 
 
 class CacheService:
@@ -45,8 +62,24 @@ class CacheService:
 
         try:
             value = await self.redis_client.get(key)
-            if value:
+            cache_label = "generic"
+            if key.startswith("player:analysis:"):
+                cache_label = "player_analysis"
+            elif key.startswith("player:stats:"):
+                cache_label = "player_stats"
+
+            if value is not None:
+                try:
+                    CACHE_HITS_TOTAL.labels(cache=cache_label).inc()
+                except Exception:
+                    # Metrics must not affect cache behavior
+                    pass
                 return json.loads(value)
+
+            try:
+                CACHE_MISSES_TOTAL.labels(cache=cache_label).inc()
+            except Exception:
+                pass
             return None
         except Exception as e:
             logger.error(f"Cache get error: {e}")

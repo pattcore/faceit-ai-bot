@@ -1,12 +1,16 @@
 import logging
 import os
+import time
 from datetime import datetime
+from functools import wraps
 from io import BytesIO
 from typing import Optional
 
 import discord
 from discord import app_commands
 from fastapi import UploadFile
+from prometheus_client import Counter, Histogram, start_http_server
+
 try:
     import redis.asyncio as redis
     REDIS_AVAILABLE = True
@@ -26,6 +30,28 @@ from src.server.config.settings import settings
 
 logger = logging.getLogger("discord_bot")
 logging.basicConfig(level=logging.INFO)
+
+
+BOT_COMMANDS_TOTAL = Counter(
+    "bot_commands_total",
+    "Total bot commands handled",
+    ["bot", "command", "status"],
+)
+
+
+BOT_COMMAND_DURATION_SECONDS = Histogram(
+    "bot_command_duration_seconds",
+    "Bot command handling duration in seconds",
+    ["bot", "command"],
+    buckets=(0.5, 1.0, 2.5, 5.0, 10.0, 20.0, 30.0, 60.0),
+)
+
+
+BOT_RATE_LIMIT_DENIED_TOTAL = Counter(
+    "bot_rate_limit_denied_total",
+    "Total bot rate limit denials",
+    ["bot", "operation"],
+)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -89,6 +115,10 @@ async def check_bot_rate_limit(
         if count == 1:
             await redis_client.expire(key, 60)
         if count > limit_per_minute:
+            try:
+                BOT_RATE_LIMIT_DENIED_TOTAL.labels(bot="discord", operation=operation).inc()
+            except Exception:
+                logger.exception("Failed to update Discord bot rate limit metric")
             return False
 
         if limit_per_day is not None and limit_per_day > 0:
@@ -98,12 +128,49 @@ async def check_bot_rate_limit(
             if day_count == 1:
                 await redis_client.expire(day_key, 86400)
             if day_count > limit_per_day:
+                try:
+                    BOT_RATE_LIMIT_DENIED_TOTAL.labels(bot="discord", operation=operation).inc()
+                except Exception:
+                    logger.exception("Failed to update Discord bot rate limit metric")
                 return False
 
         return True
     except Exception as e:
         logger.error("Discord bot rate limit error: %s", e)
         return True
+
+
+def track_discord_command(command_name: str):
+    """Decorator to record command count, status and latency for Discord commands."""
+
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            start_time = time.perf_counter()
+            status = "success"
+            try:
+                return await func(*args, **kwargs)
+            except Exception:
+                status = "error"
+                raise
+            finally:
+                duration = time.perf_counter() - start_time
+                try:
+                    BOT_COMMANDS_TOTAL.labels(
+                        bot="discord",
+                        command=command_name,
+                        status=status,
+                    ).inc()
+                    BOT_COMMAND_DURATION_SECONDS.labels(
+                        bot="discord",
+                        command=command_name,
+                    ).observe(duration)
+                except Exception:
+                    logger.exception("Failed to update Discord bot Prometheus metrics")
+
+        return wrapper
+
+    return decorator
 
 
 class FaceitStatsModal(discord.ui.Modal, title="📊 Статистика игрока"):
@@ -451,6 +518,7 @@ class FaceitAIMenuView(discord.ui.View):
 
 
 @tree.command(name="menu", description="Главное меню Faceit AI Bot")
+@track_discord_command("menu")
 async def menu(interaction: discord.Interaction) -> None:
     embed = discord.Embed(
         title="🤖 Faceit AI Bot",
@@ -468,11 +536,13 @@ async def menu(interaction: discord.Interaction) -> None:
 
 
 @tree.command(name="hello", description="Тестовая команда")
+@track_discord_command("hello")
 async def hello(interaction: discord.Interaction) -> None:
     await interaction.response.send_message("Работает!", ephemeral=True)
 
 
 @tree.command(name="website", description="Ссылка на основной сайт")
+@track_discord_command("website")
 async def website(interaction: discord.Interaction) -> None:
     embed = discord.Embed(
         title="🌐 Сайт проекта",
@@ -484,6 +554,7 @@ async def website(interaction: discord.Interaction) -> None:
 
 
 @tree.command(name="github", description="Ссылка на GitHub проект")
+@track_discord_command("github")
 async def github(interaction: discord.Interaction) -> None:
     embed = discord.Embed(
         title="💻 GitHub репозиторий",
@@ -495,6 +566,7 @@ async def github(interaction: discord.Interaction) -> None:
 
 
 @tree.command(name="links", description="Все основные ссылки проекта")
+@track_discord_command("links")
 async def links(interaction: discord.Interaction) -> None:
     embed = discord.Embed(title="🔗 Ссылки проекта", color=discord.Color.purple())
     embed.add_field(
@@ -511,6 +583,7 @@ async def links(interaction: discord.Interaction) -> None:
 
 
 @tree.command(name="project", description="Краткая информация о проекте")
+@track_discord_command("project")
 async def project(interaction: discord.Interaction) -> None:
     embed = discord.Embed(
         title="📦 Faceit AI Bot",
@@ -532,6 +605,7 @@ async def project(interaction: discord.Interaction) -> None:
 
 @tree.command(name="faceit_stats", description="Быстрая статистика игрока по нику Faceit")
 @app_commands.describe(nickname="Никнейм на Faceit")
+@track_discord_command("faceit_stats")
 async def faceit_stats(
     interaction: discord.Interaction,
     nickname: str,
@@ -587,6 +661,7 @@ async def faceit_stats(
     language="Язык общения (например, ru или en)",
     role="Желаемая роль (entry/support/igl/any)",
 )
+@track_discord_command("tm_find")
 async def tm_find(
     interaction: discord.Interaction,
     min_elo: int,
@@ -688,6 +763,7 @@ async def tm_find(
     demo="Файл демки (.dem)",
     language="Язык отчёта (ru/en)",
 )
+@track_discord_command("demo_analyze")
 async def demo_analyze(
     interaction: discord.Interaction,
     demo: discord.Attachment,
@@ -802,6 +878,7 @@ async def demo_analyze(
     nickname="Никнейм на Faceit",
     language="Язык ответа (ru/en)",
 )
+@track_discord_command("faceit_analyze")
 async def faceit_analyze(
     interaction: discord.Interaction,
     nickname: str,
@@ -925,6 +1002,12 @@ def main() -> None:
     token = os.getenv("DISCORD_BOT_TOKEN")
     if not token:
         raise RuntimeError("DISCORD_BOT_TOKEN не задан в переменных окружения")
+
+    metrics_port = int(os.getenv("DISCORD_METRICS_PORT", "9101"))
+    start_http_server(metrics_port)
+    logger.info(
+        "Starting Discord bot Prometheus metrics server on port %s", metrics_port
+    )
 
     client.run(token)
 

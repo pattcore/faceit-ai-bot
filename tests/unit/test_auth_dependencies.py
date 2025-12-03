@@ -236,3 +236,43 @@ async def test_get_current_admin_user_ok(client, db_session, app):
 
     assert response.status_code == 200
     assert response.json()["id"] == admin_user.id
+
+
+@pytest.mark.asyncio
+async def test_get_current_user_payload_without_sub_raises_401(monkeypatch, db_session):
+    """If JWT payload has no 'sub', dependency should return 401."""
+
+    def fake_decode(token: str):  # noqa: ARG001
+        return {}
+
+    monkeypatch.setattr(auth_deps, "decode_access_token", fake_decode)
+
+    scope = {
+        "type": "http",
+        "method": "GET",
+        "path": "/me",
+        "headers": [],
+        "client": ("testclient", 50000),
+    }
+    request = Request(scope)
+
+    with pytest.raises(HTTPException) as exc:
+        await get_current_user(request=request, token="testtoken", db=db_session)
+
+    assert exc.value.status_code == 401
+    assert exc.value.detail == "Could not validate credentials"
+
+
+@pytest.mark.asyncio
+async def test_get_optional_current_user_payload_without_sub_returns_none(monkeypatch, client):
+    """Optional current user should return None when payload has no 'sub'."""
+
+    def fake_decode(token: str):  # noqa: ARG001
+        return {}
+
+    monkeypatch.setattr(auth_deps, "decode_access_token", fake_decode)
+
+    response = client.get("/me-optional", headers={"Authorization": "Bearer token"})
+
+    assert response.status_code == 200
+    assert response.json()["user_id"] is None

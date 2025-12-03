@@ -1,0 +1,73 @@
+groups:
+  - name: http-db-bots-alerts
+    rules:
+      - alert: HighHttp5xxErrorRate
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m]))
+            / clamp_min(sum(rate(http_requests_total[5m])), 1) > 0.05
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTTP 5xx error rate"
+          description: "More than 5% of HTTP requests returned 5xx status codes in the last 10 minutes."
+
+      - alert: HttpLatencyP95High
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le) (rate(http_request_duration_seconds_bucket{job="faceit-api"}[5m]))
+          ) > 2
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTTP latency (p95)"
+          description: "HTTP request latency p95 is above 2 seconds for the faceit-api job over the last 15 minutes."
+
+      - alert: DbLatencyP95High
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le) (rate(db_query_duration_seconds_bucket[5m]))
+          ) > 0.2
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High DB query latency (p95)"
+          description: "Database query latency p95 is above 200ms over the last 15 minutes."
+
+      - alert: BotCommandErrorRateHigh
+        expr: |
+          sum(rate(bot_commands_total{status="error"}[5m])) by (bot)
+            / clamp_min(sum(rate(bot_commands_total[5m])) by (bot), 1) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High bot command error rate ({{ $labels.bot }})"
+          description: "More than 10% of commands for bot={{ $labels.bot }} failed in the last 10 minutes."
+
+      - alert: BotCommandLatencyP95High
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le, bot) (rate(bot_command_duration_seconds_bucket[5m]))
+          ) > 10
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High bot command latency (p95)"
+          description: "Bot command latency p95 is above 10 seconds for bot={{ $labels.bot }} over the last 15 minutes."
+
+      - alert: BotRateLimitDenialsSpike
+        expr: |
+          sum(rate(bot_rate_limit_denied_total[5m])) by (bot) > 20
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Spike in bot rate limit denials ({{ $labels.bot }})"
+          description: "More than 20 rate-limited operations per 5 minutes for bot={{ $labels.bot }}. This may indicate abuse or too-strict limits."

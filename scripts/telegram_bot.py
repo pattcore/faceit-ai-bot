@@ -1,10 +1,13 @@
 import logging
 import os
+import time
 from datetime import datetime
+from functools import wraps
 from io import BytesIO
 from typing import Optional
 
 from fastapi import UploadFile
+from prometheus_client import Counter, Histogram, start_http_server
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder,
@@ -34,6 +37,28 @@ from src.server.config.settings import settings
 
 logger = logging.getLogger("telegram_bot")
 logging.basicConfig(level=logging.INFO)
+
+
+BOT_COMMANDS_TOTAL = Counter(
+    "bot_commands_total",
+    "Total bot commands handled",
+    ["bot", "command", "status"],
+)
+
+
+BOT_COMMAND_DURATION_SECONDS = Histogram(
+    "bot_command_duration_seconds",
+    "Bot command handling duration in seconds",
+    ["bot", "command"],
+    buckets=(0.5, 1.0, 2.5, 5.0, 10.0, 20.0, 30.0, 60.0),
+)
+
+
+BOT_RATE_LIMIT_DENIED_TOTAL = Counter(
+    "bot_rate_limit_denied_total",
+    "Total bot rate limit denials",
+    ["bot", "operation"],
+)
 
 
 player_service = PlayerAnalysisService()
@@ -82,6 +107,10 @@ async def check_bot_rate_limit(
         if count == 1:
             await redis_client.expire(key, 60)
         if count > limit_per_minute:
+            try:
+                BOT_RATE_LIMIT_DENIED_TOTAL.labels(bot="telegram", operation=operation).inc()
+            except Exception:
+                logger.exception("Failed to update Telegram bot rate limit metric")
             return False
 
         if limit_per_day is not None and limit_per_day > 0:
@@ -91,12 +120,49 @@ async def check_bot_rate_limit(
             if day_count == 1:
                 await redis_client.expire(day_key, 86400)
             if day_count > limit_per_day:
+                try:
+                    BOT_RATE_LIMIT_DENIED_TOTAL.labels(bot="telegram", operation=operation).inc()
+                except Exception:
+                    logger.exception("Failed to update Telegram bot rate limit metric")
                 return False
 
         return True
     except Exception as e:
         logger.error("Telegram bot rate limit error: %s", e)
         return True
+
+
+def track_telegram_command(command_name: str):
+    """Decorator to record command count, status and latency for Telegram commands."""
+
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+            start_time = time.perf_counter()
+            status = "success"
+            try:
+                return await func(update, context, *args, **kwargs)
+            except Exception:
+                status = "error"
+                raise
+            finally:
+                duration = time.perf_counter() - start_time
+                try:
+                    BOT_COMMANDS_TOTAL.labels(
+                        bot="telegram",
+                        command=command_name,
+                        status=status,
+                    ).inc()
+                    BOT_COMMAND_DURATION_SECONDS.labels(
+                        bot="telegram",
+                        command=command_name,
+                    ).observe(duration)
+                except Exception:
+                    logger.exception("Failed to update Telegram bot Prometheus metrics")
+
+        return wrapper
+
+    return decorator
 
 
 def get_main_menu_keyboard() -> InlineKeyboardMarkup:
@@ -292,6 +358,7 @@ async def cancel_conversation(
     return ConversationHandler.END
 
 
+@track_telegram_command("start")
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.effective_chat.send_message(
         "Привет! Я Faceit AI Bot в Telegram.\n\n"
@@ -300,6 +367,7 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     )
 
 
+@track_telegram_command("faceit_stats")
 async def cmd_faceit_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     user_key = f"{user.id if user else 0}"
@@ -349,6 +417,7 @@ async def cmd_faceit_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     await update.effective_chat.send_message("\n".join(lines))
 
 
+@track_telegram_command("faceit_analyze")
 async def cmd_faceit_analyze(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     user_key = f"{user.id if user else 0}"
@@ -435,6 +504,7 @@ async def cmd_faceit_analyze(update: Update, context: ContextTypes.DEFAULT_TYPE)
     await update.effective_chat.send_message("\n".join(lines))
 
 
+@track_telegram_command("tm_find")
 async def cmd_tm_find(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if len(context.args) < 2:
         await update.effective_chat.send_message(
@@ -537,6 +607,7 @@ async def cmd_tm_find(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         db.close()
 
 
+@track_telegram_command("demo_analyze")
 async def cmd_demo_analyze(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     user_key = f"{user.id if user else 0}"
@@ -696,6 +767,12 @@ def main() -> None:
     )
 
     app.add_handler(conv_handler)
+
+    metrics_port = int(os.getenv("TELEGRAM_METRICS_PORT", "9102"))
+    start_http_server(metrics_port)
+    logger.info(
+        "Starting Telegram bot Prometheus metrics server on port %s", metrics_port
+    )
 
     logger.info("Starting Telegram bot...")
     app.run_polling(allowed_updates=["message", "edited_message", "callback_query"])
