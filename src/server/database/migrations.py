@@ -92,20 +92,19 @@ def get_table_stats(db: Session, table_name: str) -> dict:
     """Get statistics for a table."""
 
     try:
-        result = db.execute(
-            text(
-                f"""
-                SELECT
-                    table_name,
-                    row_count,
-                    avg_row_length,
-                    data_length,
-                    index_length
-                FROM information_schema.TABLES
-                WHERE table_name = '{table_name}'
-                """
-            )
-        ).fetchone()
+        stmt = text(
+            """
+            SELECT
+                table_name,
+                row_count,
+                avg_row_length,
+                data_length,
+                index_length
+            FROM information_schema.TABLES
+            WHERE table_name = :table_name
+            """
+        )
+        result = db.execute(stmt, {"table_name": table_name}).fetchone()
 
         if result:
             return {

@@ -124,7 +124,7 @@ class CacheMiddleware(BaseHTTPMiddleware):
 
         # Create hash of URL + query params
         key_data = f"{url}:{query_params}"
-        key_hash = hashlib.md5(key_data.encode()).hexdigest()
+        key_hash = hashlib.sha256(key_data.encode()).hexdigest()
 
         return f"api_cache:{key_hash}"
 

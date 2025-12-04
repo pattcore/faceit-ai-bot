@@ -313,3 +313,36 @@ class TestAuthRoutesExtended:
         assert isinstance(user.last_login, datetime)
 
         assert dummy_counter.calls == 1
+
+    def test_steam_callback_creates_user_and_sets_cookie_and_redirect(self, test_client, db_session, monkeypatch):
+        """Steam callback should create a new user, update login activity and redirect with token."""
+
+        async def fake_verify_steam_openid(query_params):  # noqa: ARG001
+            return "76561198000009999"
+
+        async def fake_fetch_persona(steam_id: str):  # noqa: ARG001
+            return "TestPersona"
+
+        monkeypatch.setattr(auth_routes, "verify_steam_openid", fake_verify_steam_openid)
+        monkeypatch.setattr(auth_routes, "fetch_steam_persona_name", fake_fetch_persona)
+
+        response = test_client.get("/auth/steam/callback?dummy=1")
+
+        assert response.status_code in (302, 303, 307)
+        location = response.headers.get("location") or response.headers.get("Location")
+        assert location is not None
+        assert "/auth?steam_token=" in location
+
+        # New user should be created with given steam_id
+        user = (
+            db_session.query(User)
+            .filter(User.steam_id == "76561198000009999")
+            .first()
+        )
+        assert user is not None
+        assert user.last_login is not None
+        assert user.login_count == 1
+
+        # access_token cookie should be set
+        set_cookie = response.headers.get("set-cookie") or ""
+        assert "access_token=" in set_cookie
