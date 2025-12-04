@@ -87,9 +87,10 @@ def test_create_payment_success_persists_db_record(
 ):
     service = DummyPaymentService()
     _override_payment_service(service)
-    monkeypatch.setattr(
-        captcha_service, "verify_token", lambda **_: True
-    )
+    async def ok_verify(**_):  # noqa: ARG001
+        return True
+
+    monkeypatch.setattr(captcha_service, "verify_token", ok_verify)
 
     try:
         payload = {
@@ -127,9 +128,10 @@ def test_create_payment_invalid_captcha_returns_400(
 ):
     service = DummyPaymentService()
     _override_payment_service(service)
-    monkeypatch.setattr(
-        captcha_service, "verify_token", lambda **_: False
-    )
+    async def bad_verify(**_):  # noqa: ARG001
+        return False
+
+    monkeypatch.setattr(captcha_service, "verify_token", bad_verify)
 
     try:
         payload = {
@@ -162,9 +164,10 @@ def test_create_payment_invalid_subscription_tier_returns_400(
 ):
     service = DummyPaymentService()
     _override_payment_service(service)
-    monkeypatch.setattr(
-        captcha_service, "verify_token", lambda **_: True
-    )
+    async def ok_verify(**_):  # noqa: ARG001
+        return True
+
+    monkeypatch.setattr(captcha_service, "verify_token", ok_verify)
 
     try:
         payload = {

@@ -37,12 +37,14 @@ def test_db_engine(test_db_url):
     """Создание движка тестовой БД"""
     connect_args = {}
     if test_db_url.startswith("sqlite"):
-        # Для SQLite разрешаем использование соединения из разных потоков,
-        # чтобы FastAPI TestClient не падал с ProgrammingError.
+        # Используем в-memory SQLite для скорости
+        # Или реальный PostgreSQL если нужно протестировать специфическое поведение
         connect_args = {"check_same_thread": False}
 
     engine = create_engine(test_db_url, echo=False, connect_args=connect_args)
-    # Создаем все таблицы
+    # Обнуляем схему, если файл БД уже существует от прошлых прогонов
+    Base.metadata.drop_all(bind=engine)
+    # Создаем все таблицы для текущего тестового запуска
     Base.metadata.create_all(bind=engine)
     yield engine
     Base.metadata.drop_all(bind=engine)
@@ -121,7 +123,8 @@ def test_client(db_session, redis_client):
     # Переопределяем зависимости для тестов
     fastapi_app.dependency_overrides[get_db] = override_get_db
 
-    with TestClient(fastapi_app) as client:
+    # Не следуем автоматически за редиректами, чтобы можно было проверять 3xx коды
+    with TestClient(fastapi_app, follow_redirects=False) as client:
         yield client
 
     # Очищаем переопределения

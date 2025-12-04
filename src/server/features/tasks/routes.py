@@ -45,35 +45,38 @@ async def submit_task(request: TaskSubmitRequest):
         if task_type == "analyze_demo":
             task = analyze_demo_task.delay(
                 params.get("demo_path"),
-                params.get("user_id")
+                params.get("user_id"),
             )
         elif task_type == "analyze_player":
             task = analyze_player_task.delay(
-                params.get("player_nickname")
+                params.get("player_nickname"),
             )
         elif task_type == "send_email":
             task = send_email_task.delay(
                 params.get("to_email"),
                 params.get("subject"),
-                params.get("body")
+                params.get("body"),
             )
         else:
             raise HTTPException(
                 status_code=400,
-                detail=f"Unknown task type: {task_type}"
+                detail=f"Unknown task type: {task_type}",
             )
 
         return {
             "task_id": task.id,
             "status": "submitted",
-            "task_type": task_type
+            "task_type": task_type,
         }
 
+    except HTTPException:
+        # Preserve explicit HTTP errors (e.g. for unknown task types)
+        raise
     except Exception as e:
         logger.exception(f"Task submission failed: {e}")
         raise HTTPException(
             status_code=500,
-            detail="Failed to submit task"
+            detail="Failed to submit task",
         )
 
 

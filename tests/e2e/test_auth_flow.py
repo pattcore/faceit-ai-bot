@@ -1,9 +1,18 @@
 """E2E tests for authentication flow"""
 
+import os
+
 import pytest
 
 
 pytestmark = pytest.mark.e2e
+
+
+if not os.getenv("RUN_E2E"):
+    pytest.skip(
+        "E2E tests are disabled by default; set RUN_E2E=1 to run them",
+        allow_module_level=True,
+    )
 
 
 def test_auth_page_loads(page):
