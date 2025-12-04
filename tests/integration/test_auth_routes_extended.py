@@ -258,3 +258,58 @@ class TestAuthRoutesExtended:
 
         db_session.refresh(current_user)
         assert current_user.steam_id is None
+
+    def test_login_updates_last_login_login_count_and_active_users_metric(
+        self,
+        test_client,
+        db_session,
+        monkeypatch,
+    ):
+        """Successful login should update last_login, increment login_count and ACTIVE_USERS."""
+
+        class DummyCounter:
+            def __init__(self) -> None:
+                self.calls = 0
+
+            def inc(self) -> None:
+                self.calls += 1
+
+        dummy_counter = DummyCounter()
+        monkeypatch.setattr(auth_routes, "ACTIVE_USERS", dummy_counter)
+
+        email = "metric-login@example.com"
+        password = "password123"
+
+        user = User(
+            email=email,
+            username="metric_user",
+            hashed_password=get_password_hash(password),
+            is_active=True,
+            created_at=datetime.utcnow(),
+            login_count=5,
+        )
+        db_session.add(user)
+        db_session.commit()
+        db_session.refresh(user)
+
+        assert user.last_login is None
+        assert user.login_count == 5
+
+        response = test_client.post(
+            "/auth/login",
+            data={
+                "username": email,
+                "password": password,
+                "captcha_token": "dummy-token",
+            },
+            # Chrome extension origin skips CAPTCHA verification path
+            headers={"Origin": "chrome-extension://extension-id"},
+        )
+
+        assert response.status_code == 200
+
+        db_session.refresh(user)
+        assert user.login_count == 6
+        assert isinstance(user.last_login, datetime)
+
+        assert dummy_counter.calls == 1
