@@ -26,6 +26,7 @@ from ..middleware.rate_limiter import rate_limiter
 from ..database.models import User, Subscription, SubscriptionTier, TeammateProfile as TeammateProfileDB
 from ..database import get_db
 from ..services.captcha_service import captcha_service
+from ..metrics_business import ACTIVE_USERS
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -472,6 +473,20 @@ async def faceit_callback(
         logger.exception("Failed to sync teammate profile from Faceit on login")
         db.rollback()
 
+    try:
+        user.last_login = datetime.utcnow()
+        user.login_count = (user.login_count or 0) + 1
+        db.add(user)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to update login activity for user {user.id}: {str(e)}")
+
+    try:
+        ACTIVE_USERS.inc()
+    except Exception:
+        pass
+
     access_token = create_access_token(data={"sub": str(user.id)})
 
     redirect_url = f"{settings.WEBSITE_URL.rstrip('/')}/auth?faceit_token={access_token}&auto=1"
@@ -567,6 +582,20 @@ async def steam_callback(
             db.add(user)
             db.commit()
             db.refresh(user)
+
+    try:
+        user.last_login = datetime.utcnow()
+        user.login_count = (user.login_count or 0) + 1
+        db.add(user)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to update login activity for user {user.id}: {str(e)}")
+
+    try:
+        ACTIVE_USERS.inc()
+    except Exception:
+        pass
 
     access_token = create_access_token(data={"sub": str(user.id)})
 
@@ -750,6 +779,20 @@ async def login(
         raise HTTPException(
             status_code=400, detail="User account is inactive"
         )
+
+    try:
+        user.last_login = datetime.utcnow()
+        user.login_count = (user.login_count or 0) + 1
+        db.add(user)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to update login activity for user {user.id}: {str(e)}")
+
+    try:
+        ACTIVE_USERS.inc()
+    except Exception:
+        pass
 
     access_token = create_access_token(data={"sub": str(user.id)})
 
