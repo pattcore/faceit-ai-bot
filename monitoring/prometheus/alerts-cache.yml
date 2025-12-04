@@ -1,0 +1,9 @@
+groups:
+  - name: cache_metrics
+    interval: 30s
+    rules:
+      - record: redis_cache_hit_rate
+        expr: |
+          rate(redis_cache_hits_total[5m])
+          /
+          (rate(redis_cache_hits_total[5m]) + rate(redis_cache_misses_total[5m]))

@@ -134,7 +134,9 @@ app.include_router(admin_router)
 async def analyze_player_route(nickname: str):
     service = PlayerAnalysisService()
     try:
-        analysis = await service.analyze_player(nickname)
+        ANALYSIS_REQUESTS.inc()
+        with ANALYSIS_DURATION.time():
+            analysis = await service.analyze_player(nickname)
         if not analysis:
             raise HTTPException(
                 status_code=404,

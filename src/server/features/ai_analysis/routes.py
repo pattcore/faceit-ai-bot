@@ -1,16 +1,17 @@
-"""
-AI Analysis API Routes
-"""
-from fastapi import APIRouter, HTTPException, Depends
+"""AI Analysis API Routes"""
+import logging
 from typing import Dict, List, Optional
+
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-import logging
 
 from ...auth.dependencies import get_optional_current_user
 from ...database.connection import get_db
 from ...database.models import User
+from ...integrations.faceit_client import FaceitAPIClient
 from ...middleware.rate_limiter import rate_limiter
+from ...services.ai_service import AIService
 from ...services.rate_limit_service import rate_limit_service
 
 logger = logging.getLogger(__name__)
@@ -62,10 +63,6 @@ async def analyze_player(
     and generating personalized recommendations
     """
     try:
-        from ...services.ai_service import AIService
-        from ...integrations.faceit_client import FaceitAPIClient
-
-        # Service initialization
         ai_service = AIService()
         faceit_client = FaceitAPIClient()
 
@@ -164,9 +161,6 @@ async def get_training_plan(
     Get personalized training plan
     """
     try:
-        from ...services.ai_service import AIService
-        from ...integrations.faceit_client import FaceitAPIClient
-
         ai_service = AIService()
         faceit_client = FaceitAPIClient()
 

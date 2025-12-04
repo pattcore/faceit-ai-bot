@@ -16,7 +16,7 @@ from src.server.features.payments.models import (
     PaymentStatus,
 )
 from src.server.features.payments.routes import get_payment_service
-from src.server.services import captcha_service
+from src.server.services.captcha_service import captcha_service
 from src.server.core.structured_logging import business_logger
 
 
