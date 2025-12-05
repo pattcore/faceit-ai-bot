@@ -1,6 +1,6 @@
 import pytest
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from src.server.auth import security
 
@@ -46,3 +46,21 @@ def test_create_and_decode_access_token_roundtrip() -> None:
 
 def test_decode_access_token_invalid_returns_none() -> None:
     assert security.decode_access_token("this-is-not-a-jwt") is None
+
+
+def test_create_access_token_uses_settings_default_expire(monkeypatch) -> None:
+    # Ensure default expiration reads from settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    monkeypatch.setattr(security.settings, "ACCESS_TOKEN_EXPIRE_MINUTES", 5, raising=False)
+
+    data = {"sub": "123"}
+    token = security.create_access_token(data)
+
+    payload = security.decode_access_token(token)
+
+    assert payload is not None
+    assert payload["sub"] == "123"
+
+    now_ts = datetime.utcnow().timestamp()
+    exp_ts = payload["exp"]
+    # Expect expiration to be approximately 5 minutes from now
+    assert 5 * 60 - 15 <= exp_ts - now_ts <= 5 * 60 + 15
