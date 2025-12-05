@@ -782,6 +782,16 @@ async def login(
     ).scalars().first()
 
     if not user or not verify_password(password, user.hashed_password):
+        try:
+            if rate_limiter.redis_client is not None:
+                client_ip = rate_limiter._get_client_ip(request)
+                await rate_limiter._register_violation_and_maybe_ban(
+                    client_ip,
+                    None,
+                )
+        except Exception:
+            logger.exception("Failed to register login rate limit violation")
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",

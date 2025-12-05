@@ -10,6 +10,7 @@ import pytest
 
 from src.server.auth import routes as auth_routes
 from src.server.auth.security import get_password_hash
+from src.server.config.settings import settings
 from src.server.database.models import User
 from src.server.services.captcha_service import captcha_service
 import src.server.integrations.faceit_client as faceit_client_module
@@ -272,6 +273,87 @@ class TestAuthRoutesExtended:
 
         set_cookie = response.headers.get("set-cookie") or ""
         assert "access_token=" in set_cookie
+
+    def test_login_failed_attempts_trigger_redis_ban_and_lockout(self, test_client, db_session, monkeypatch):
+        email = "throttle-login@example.com"
+        correct_password = "password123"
+        wrong_password = "wrong-password"
+
+        user = User(
+            email=email,
+            username="login_throttle_user",
+            hashed_password=get_password_hash(correct_password),
+            is_active=True,
+            created_at=datetime.utcnow(),
+        )
+        db_session.add(user)
+        db_session.commit()
+
+        class _DummyRedis:
+            def __init__(self) -> None:
+                self.counters: dict[str, int] = {}
+                self.expires: dict[str, int] = {}
+                self.storage: dict[str, str] = {}
+
+            async def incr(self, key: str) -> int:
+                self.counters[key] = self.counters.get(key, 0) + 1
+                return self.counters[key]
+
+            async def expire(self, key: str, ttl: int) -> None:
+                self.expires[key] = ttl
+
+            async def exists(self, key: str) -> int:
+                return 1 if key in self.storage else 0
+
+            async def ttl(self, key: str) -> int:
+                return self.expires.get(key, -1)
+
+            async def setex(self, key: str, ttl: int, value: str) -> None:
+                self.storage[key] = value
+                self.expires[key] = ttl
+
+        dummy = _DummyRedis()
+
+        monkeypatch.setattr(auth_routes.rate_limiter, "redis_client", dummy)
+        monkeypatch.setattr(auth_routes.rate_limiter, "requests_per_minute", 1000, raising=False)
+        monkeypatch.setattr(auth_routes.rate_limiter, "requests_per_hour", 1000, raising=False)
+
+        monkeypatch.setattr(settings, "RATE_LIMIT_BAN_ENABLED", True, raising=False)
+        monkeypatch.setattr(settings, "RATE_LIMIT_BAN_THRESHOLD", 2, raising=False)
+        monkeypatch.setattr(settings, "RATE_LIMIT_BAN_WINDOW_SECONDS", 600, raising=False)
+        monkeypatch.setattr(settings, "RATE_LIMIT_BAN_TTL_SECONDS", 3600, raising=False)
+
+        headers = {"Origin": "chrome-extension://extension-id"}
+
+        for _ in range(2):
+            resp = test_client.post(
+                "/auth/login",
+                data={
+                    "username": email,
+                    "password": wrong_password,
+                    "captcha_token": "dummy-token",
+                },
+                headers=headers,
+            )
+            assert resp.status_code == 401
+
+        viol_keys = [k for k in dummy.counters.keys() if k.startswith("rate:viol:ip:")]
+        assert viol_keys
+
+        ban_keys = [k for k in dummy.storage.keys() if k.startswith("rate:ban:ip:")]
+        assert ban_keys
+
+        resp3 = test_client.post(
+            "/auth/login",
+            data={
+                "username": email,
+                "password": wrong_password,
+                "captcha_token": "dummy-token",
+            },
+            headers=headers,
+        )
+        assert resp3.status_code == 429
+        assert "temporarily blocked" in resp3.json()["detail"]
 
     def test_steam_login_redirects_when_captcha_ok(self, test_client, monkeypatch):
         """Steam login should redirect to Steam OpenID when CAPTCHA passes."""
