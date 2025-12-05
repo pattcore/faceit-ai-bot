@@ -50,7 +50,31 @@ class TestAuthRoutesExtended:
         )
 
         assert response.status_code == 400
-        assert response.json()["detail"] == "Password must be at least 6 characters"
+        assert (
+            response.json()["detail"]
+            == "Password must be at least 8 characters long and contain at least one letter and one digit"
+        )
+
+    def test_register_password_missing_complexity_returns_400(self, test_client, monkeypatch):
+        """Registration should fail when password lacks required letter/digit complexity."""
+
+        monkeypatch.setattr(captcha_service, "is_enabled", lambda: False)
+
+        # 8 characters but only digits
+        response = test_client.post(
+            "/auth/register",
+            data={
+                "email": "weakpass@example.com",
+                "username": "user3",
+                "password": "12345678",
+            },
+        )
+
+        assert response.status_code == 400
+        assert (
+            response.json()["detail"]
+            == "Password must be at least 8 characters long and contain at least one letter and one digit"
+        )
 
     def test_register_duplicate_email_returns_400(self, test_client, db_session, monkeypatch):
         """Registration should fail when email is already registered."""

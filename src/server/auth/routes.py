@@ -675,11 +675,21 @@ async def register(
         if "@" not in email:
             raise HTTPException(status_code=400, detail="Invalid email format")
 
-        # Validate password length
-        if len(password) < 6:
+        # Validate password strength: length + basic complexity
+        password_error = (
+            "Password must be at least 8 characters long and contain "
+            "at least one letter and one digit"
+        )
+        if len(password) < 8:
             raise HTTPException(
                 status_code=400,
-                detail="Password must be at least 6 characters",
+                detail=password_error,
+            )
+
+        if not any(c.isalpha() for c in password) or not any(c.isdigit() for c in password):
+            raise HTTPException(
+                status_code=400,
+                detail=password_error,
             )
 
         existing = db.execute(
