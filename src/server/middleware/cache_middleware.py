@@ -122,8 +122,25 @@ class CacheMiddleware(BaseHTTPMiddleware):
         url = str(request.url)
         query_params = str(request.query_params)
 
-        # Create hash of URL + query params
-        key_data = f"{url}:{query_params}"
+        # Include a user-specific component so cached responses are not shared
+        # across different authenticated users.
+        auth_header = request.headers.get("Authorization") or ""
+        user_token = ""
+
+        if auth_header.lower().startswith("bearer "):
+            user_token = auth_header.split(" ", 1)[1].strip()
+
+        if not user_token:
+            cookie_token = request.cookies.get("access_token")
+            if cookie_token:
+                user_token = cookie_token
+
+        user_token_hash = ""
+        if user_token:
+            user_token_hash = hashlib.sha256(user_token.encode()).hexdigest()
+
+        # Create hash of URL + query params + user identity (if any)
+        key_data = f"{url}:{query_params}:{user_token_hash}"
         key_hash = hashlib.sha256(key_data.encode()).hexdigest()
 
         return f"api_cache:{key_hash}"

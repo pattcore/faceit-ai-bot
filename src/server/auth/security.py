@@ -6,8 +6,10 @@ import bcrypt
 import jwt
 from jwt.exceptions import InvalidTokenError
 
-SECRET_KEY = "your-secret-key-change-in-production"
-ALGORITHM = "HS256"
+from ..config.settings import settings
+
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30  # 30 days
 
 

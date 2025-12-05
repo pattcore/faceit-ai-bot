@@ -67,7 +67,8 @@ async def verify_steam_openid(query_params) -> str | None:
             payload[key] = params[key]
 
     try:
-        async with aiohttp.ClientSession() as session:
+        timeout = aiohttp.ClientTimeout(total=5)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
             async with session.post(STEAM_OPENID_URL, data=payload) as resp:
                 text = await resp.text()
                 if "is_valid:true" not in text:
@@ -97,9 +98,9 @@ async def fetch_steam_persona_name(steam_id: str) -> str | None:
     }
 
     try:
-        async with aiohttp.ClientSession() as session:
+        timeout = aiohttp.ClientTimeout(total=5)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
             async with session.get(
-            
                 STEAM_API_PLAYER_SUMMARIES_URL,
                 params=params,
             ) as resp:
@@ -267,7 +268,8 @@ async def faceit_callback(
     redirect_uri = f"{settings.WEBSITE_URL.rstrip('/')}/api/auth/faceit/callback"
 
     try:
-        async with aiohttp.ClientSession() as session:
+        timeout = aiohttp.ClientTimeout(total=5)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
             token_data = None
             # Exchange code for tokens
             async with session.post(

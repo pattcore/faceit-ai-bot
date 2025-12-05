@@ -12,6 +12,7 @@ from src.server.auth import routes as auth_routes
 from src.server.auth.security import get_password_hash
 from src.server.database.models import User
 from src.server.services.captcha_service import captcha_service
+import src.server.integrations.faceit_client as faceit_client_module
 
 
 @pytest.mark.integration
@@ -161,6 +162,92 @@ class TestAuthRoutesExtended:
 
         assert response.status_code == 400
         assert response.json()["detail"] == "Invalid state parameter"
+
+    def test_faceit_callback_creates_user_and_sets_cookie_and_redirect(self, test_client, db_session, monkeypatch):
+        def fake_decode(token: str):  # noqa: ARG001
+            return {"sub": "faceit_oauth", "cv": "test_verifier"}
+
+        monkeypatch.setattr(auth_routes, "decode_access_token", fake_decode)
+
+        monkeypatch.setattr(auth_routes.settings, "FACEIT_CLIENT_ID", "test-client-id", raising=False)
+        monkeypatch.setattr(auth_routes.settings, "FACEIT_CLIENT_SECRET", "test-client-secret", raising=False)
+        monkeypatch.setattr(auth_routes.settings, "WEBSITE_URL", "https://example.com", raising=False)
+
+        userinfo = {
+            "guid": "faceit-guid-123",
+            "email": "faceit@example.com",
+            "nickname": "FaceitNick",
+        }
+
+        class _FakeResponse:
+            def __init__(self, status, json_data, text_data="") -> None:  # noqa: ANN001
+                self.status = status
+                self._json_data = json_data
+                self._text_data = text_data
+
+            async def __aenter__(self):  # noqa: D401
+                return self
+
+            async def __aexit__(self, exc_type, exc, tb):  # noqa: D401, ANN001
+                return False
+
+            async def json(self):  # noqa: D401
+                return self._json_data
+
+            async def text(self):  # noqa: D401
+                return self._text_data
+
+        class _FakeSession:
+            def __init__(self, *args, **kwargs) -> None:  # noqa: ANN001
+                self._post_response = _FakeResponse(200, {"access_token": "faceit-access-token"}, "ok")
+                self._get_response = _FakeResponse(200, userinfo, "ok")
+
+            async def __aenter__(self):  # noqa: D401
+                return self
+
+            async def __aexit__(self, exc_type, exc, tb):  # noqa: D401, ANN001
+                return False
+
+            def post(self, *args, **kwargs):  # noqa: ANN001
+                return self._post_response
+
+            def get(self, *args, **kwargs):  # noqa: ANN001
+                return self._get_response
+
+        class _FakeBasicAuth:  # noqa: D401
+            def __init__(self, *args, **kwargs) -> None:  # noqa: ANN001
+                self.args = args
+                self.kwargs = kwargs
+
+        monkeypatch.setattr(auth_routes.aiohttp, "ClientSession", lambda *args, **kwargs: _FakeSession(*args, **kwargs))
+        monkeypatch.setattr(auth_routes.aiohttp, "BasicAuth", _FakeBasicAuth)
+
+        class DummyFaceitClient:  # noqa: D401
+            async def get_player_by_nickname(self, nickname):  # noqa: ANN001, ARG002
+                return {"games": {"cs2": {"faceit_elo": 2000, "skill_level": 7}}}
+
+        monkeypatch.setattr(faceit_client_module, "FaceitAPIClient", DummyFaceitClient)
+
+        response = test_client.get("/auth/faceit/callback?code=abc&state=dummy-state")
+
+        assert response.status_code in (302, 303, 307)
+        location = response.headers.get("location") or response.headers.get("Location")
+        assert location is not None
+        assert "/auth?faceit_token=" in location
+        assert "&auto=1" in location
+
+        user = (
+            db_session.query(User)
+            .filter(User.faceit_id == "faceit-guid-123")
+            .first()
+        )
+        assert user is not None
+        assert user.email == "faceit@example.com"
+        assert user.last_login is not None
+        assert user.login_count == 1
+
+        set_cookie = response.headers.get("set-cookie") or ""
+        assert "access_token=" in set_cookie
 
     def test_steam_login_redirects_when_captcha_ok(self, test_client, monkeypatch):
         """Steam login should redirect to Steam OpenID when CAPTCHA passes."""
