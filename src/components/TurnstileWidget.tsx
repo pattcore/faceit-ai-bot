@@ -62,6 +62,10 @@ export default function TurnstileWidget({ onTokenChange, action }: Props) {
         if (!window.turnstile) return;
         if (!containerRef.current) return;
 
+        // Ensure we don't accumulate multiple widgets in the same container
+        // when the component is re-mounted or the action prop changes.
+        containerRef.current.innerHTML = '';
+
         widgetIdRef.current = window.turnstile.render(containerRef.current, {
           sitekey: siteKey,
           action,
