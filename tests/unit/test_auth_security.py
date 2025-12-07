@@ -1,6 +1,6 @@
 import pytest
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from src.server.auth import security
 
@@ -71,5 +71,33 @@ def test_create_access_token_uses_settings_default_expire(monkeypatch) -> None:
     assert payload["sub"] == "123"
 
     exp_ts = payload["exp"]
-    expected_exp_ts = int((fixed_now + timedelta(minutes=5)).timestamp())
+    expected_exp_ts = int(
+        (fixed_now + timedelta(minutes=5)).replace(tzinfo=timezone.utc).timestamp()
+    )
     assert exp_ts == expected_exp_ts
+
+
+def test_decode_expired_access_token_returns_none() -> None:
+    data = {"sub": "123"}
+    token = security.create_access_token(data, expires_delta=timedelta(seconds=-1))
+
+    payload = security.decode_access_token(token)
+
+    assert payload is None
+
+
+def test_create_refresh_token_and_hash_roundtrip() -> None:
+    token1 = security.create_refresh_token()
+    token2 = security.create_refresh_token()
+
+    assert isinstance(token1, str)
+    assert isinstance(token2, str)
+    assert token1 != token2
+
+    hash1 = security.hash_refresh_token(token1)
+    hash2 = security.hash_refresh_token(token1)
+    hash3 = security.hash_refresh_token(token2)
+
+    assert isinstance(hash1, str)
+    assert hash1 == hash2
+    assert hash1 != hash3

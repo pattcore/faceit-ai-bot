@@ -80,6 +80,25 @@ def service_with_redis(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_enforce_user_operation_limit_no_redis_does_nothing(monkeypatch, db_session):
+    # Simulate disabled cache/Redis so RateLimitService has no redis_client
+    monkeypatch.setattr(cache_service, "enabled", False, raising=False)
+    monkeypatch.setattr(cache_service, "redis_client", None, raising=False)
+
+    service = RateLimitService()
+    user = create_user(db_session)
+    add_subscription(db_session, user, SubscriptionTier.FREE, expired=False)
+
+    assert service.redis_client is None
+
+    await service.enforce_user_operation_limit(
+        db=db_session,
+        user_id=user.id,
+        operation="player_analysis",
+    )
+
+
+@pytest.mark.asyncio
 async def test_get_user_tier_key_free_when_no_subscription(db_session):
     service = RateLimitService()
     user = create_user(db_session)
