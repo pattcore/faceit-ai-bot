@@ -58,6 +58,26 @@ export default function SubscriptionsPage() {
     setCaptchaToken(token);
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handlePageShow = (event: any) => {
+      try {
+        if (event && (event as any).persisted) {
+          setCaptchaToken(null);
+          setCaptchaReset((prev) => prev + 1);
+        }
+      } catch {
+      }
+    };
+
+    window.addEventListener('pageshow', handlePageShow);
+
+    return () => {
+      window.removeEventListener('pageshow', handlePageShow);
+    };
+  }, []);
+
   const handleSelect = async (tier: string, price: number) => {
     if (!user) {
       router.push('/auth');
