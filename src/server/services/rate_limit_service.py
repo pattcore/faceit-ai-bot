@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from .cache_service import cache_service
 from ..config.settings import settings
 from ..database.models import Subscription, SubscriptionTier
+from ..metrics_business import RATE_LIMIT_EXCEEDED
 
 
 logger = logging.getLogger(__name__)
@@ -90,6 +91,15 @@ class RateLimitService:
                 if minute_count == 1:
                     await self.redis_client.expire(minute_key, 60)
                 if minute_count > per_min:
+                    try:
+                        RATE_LIMIT_EXCEEDED.labels(
+                            operation=operation,
+                            tier=tier_key,
+                            window="minute",
+                        ).inc()
+                    except Exception:
+                        # Metrics must not affect rate limiting behavior
+                        pass
                     raise HTTPException(
                         status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                         detail=(
@@ -112,6 +122,15 @@ class RateLimitService:
                 if day_count == 1:
                     await self.redis_client.expire(day_key, 86400)
                 if day_count > per_day:
+                    try:
+                        RATE_LIMIT_EXCEEDED.labels(
+                            operation=operation,
+                            tier=tier_key,
+                            window="day",
+                        ).inc()
+                    except Exception:
+                        # Metrics must not affect rate limiting behavior
+                        pass
                     raise HTTPException(
                         status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                         detail=(

@@ -20,17 +20,27 @@ ACTIVE_USERS = Counter(
     "Active user sessions",
 )
 
+
 CAPTCHA_SUCCESS = Counter(
     "faceit_captcha_success_total",
     "Successful CAPTCHA verifications",
 )
+
 
 CAPTCHA_FAILED = Counter(
     "faceit_captcha_failed_total",
     "Failed CAPTCHA verifications",
 )
 
+
 CAPTCHA_ERRORS = Counter(
     "faceit_captcha_errors_total",
     "Errors during CAPTCHA provider communication or configuration",
+)
+
+
+RATE_LIMIT_EXCEEDED = Counter(
+    "faceit_rate_limit_exceeded_total",
+    "Number of times per-user operation rate limit was exceeded",
+    ["operation", "tier", "window"],
 )

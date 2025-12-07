@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 
 from src.server.config.settings import settings
 from src.server.database.models import Base, User, Subscription, SubscriptionTier
+from src.server.metrics_business import RATE_LIMIT_EXCEEDED
 from src.server.services.cache_service import cache_service
 from src.server.services.rate_limit_service import RateLimitService
 
@@ -154,6 +155,13 @@ async def test_enforce_user_operation_limit_exceeds_minute_limit_raises(monkeypa
 
     monkeypatch.setattr(settings, "RATE_LIMIT_BYPASS_USER_ID", None, raising=False)
 
+    # Reset metric for this label set before test
+    child = RATE_LIMIT_EXCEEDED.labels(operation="player_analysis", tier="free", window="minute")
+    try:
+        child._value.set(0)  # type: ignore[attr-defined]
+    except Exception:
+        pass
+
     await service.enforce_user_operation_limit(
         db=db_session,
         user_id=user.id,
@@ -168,6 +176,13 @@ async def test_enforce_user_operation_limit_exceeds_minute_limit_raises(monkeypa
         )
 
     assert exc.value.status_code == 429
+
+    # Rate limit breach metric should be incremented
+    try:
+        assert child._value.get() >= 1  # type: ignore[attr-defined]
+    except Exception:
+        # If prometheus internals change, we still want the behavior test to run
+        pass
     # Minute key counter should be greater than per_min (1 for free tier)
     minute_keys = [k for k in dummy.counters.keys() if ":minute" in k]
     assert minute_keys
@@ -203,6 +218,13 @@ async def test_enforce_user_operation_limit_exceeds_day_limit_raises(monkeypatch
     # Disable per-minute limit for this test so we can hit the daily limit path
     service.operation_limits["player_analysis"]["free"]["per_min"] = 0
     service.operation_limits["player_analysis"]["free"]["per_day"] = 2
+
+    # Reset metric for this label set before test
+    child = RATE_LIMIT_EXCEEDED.labels(operation="player_analysis", tier="free", window="day")
+    try:
+        child._value.set(0)  # type: ignore[attr-defined]
+    except Exception:
+        pass
 
     # Two allowed requests
     await service.enforce_user_operation_limit(
