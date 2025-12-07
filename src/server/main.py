@@ -1,6 +1,8 @@
 """Main FastAPI application entry point."""
 
 import logging
+import os
+import sys
 from fastapi import FastAPI, Request, Response, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -35,6 +37,30 @@ init_sentry()
 init_telemetry()
 
 # Business metrics are defined in metrics_business and imported above
+
+
+def validate_env() -> None:
+    """Validate presence of critical environment variables.
+
+    This is a simple fail-fast check so that misconfigured deployments do
+    not start silently with missing secrets or database URL.
+    """
+
+    required_vars = [
+        "DATABASE_URL",
+        "SECRET_KEY",
+        "TURNSTILE_SECRET_KEY",
+    ]
+
+    missing = [var for var in required_vars if not os.getenv(var)]
+    if missing:
+        print(f"ERROR: Missing required environment variables: {missing}", file=sys.stderr)
+        # Non-zero exit so container / process manager can restart with proper config
+        sys.exit(1)
+
+
+validate_env()
+
 
 app = FastAPI(
     title=settings.APP_TITLE,

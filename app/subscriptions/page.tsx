@@ -14,6 +14,7 @@ export default function SubscriptionsPage() {
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const { t, i18n } = useTranslation();
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
 
   const plans = [
     { tier: 'FREE', price: 0, popular: false },
@@ -82,9 +83,12 @@ export default function SubscriptionsPage() {
             defaultValue: 'Подтвердите, что вы не бот, выполнив проверку CAPTCHA.',
           }),
         });
+        setCaptchaReset((prev) => prev + 1);
         setLoadingTier(null);
         return;
       }
+
+      const token = captchaToken;
 
       const response = await fetch(API_ENDPOINTS.PAYMENTS_CREATE, {
         method: 'POST',
@@ -99,7 +103,7 @@ export default function SubscriptionsPage() {
           payment_method: 'sbp',
           provider: 'sbp',
           description: `Подписка ${tier} для пользователя ${user.id}`,
-          captcha_token: captchaToken,
+          captcha_token: token,
         }),
       });
 
@@ -115,6 +119,10 @@ export default function SubscriptionsPage() {
       }
 
       await response.json();
+
+      // Считаем токен капчи израсходованным для платежа
+      setCaptchaToken(null);
+      setCaptchaReset((prev) => prev + 1);
       const targetUrl = `https://pattmsc.online/payment/success?subscription=${tier.toLowerCase()}`;
       window.location.href = targetUrl;
     } catch (error) {
@@ -134,7 +142,11 @@ export default function SubscriptionsPage() {
       <div className="max-w-6xl mx-auto">
         {user && (
           <div className="mb-8 flex justify-center">
-            <CaptchaWidget onTokenChange={handleCaptchaTokenChange} action="payment_create" />
+            <CaptchaWidget
+              onTokenChange={handleCaptchaTokenChange}
+              action="payment_create"
+              resetSignal={captchaReset}
+            />
           </div>
         )}
         {status && (
