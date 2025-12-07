@@ -14,11 +14,12 @@ declare global {
 interface Props {
   onTokenChange: (token: string | null) => void;
   action?: string;
+  resetSignal?: number;
 }
 
 const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
-export default function TurnstileWidget({ onTokenChange, action }: Props) {
+export default function TurnstileWidget({ onTokenChange, action, resetSignal = 0 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const widgetIdRef = useRef<string | null>(null);
 
@@ -96,6 +97,17 @@ export default function TurnstileWidget({ onTokenChange, action }: Props) {
       }
     };
   }, [action, onTokenChange]);
+
+  useEffect(() => {
+    if (!resetSignal) return;
+    try {
+      if (typeof window !== 'undefined' && window.turnstile && widgetIdRef.current) {
+        window.turnstile.reset(widgetIdRef.current);
+      }
+    } catch {
+      // ignore reset errors
+    }
+  }, [resetSignal]);
 
   if (!siteKey) {
     return null;
