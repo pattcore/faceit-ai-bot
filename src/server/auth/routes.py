@@ -25,6 +25,7 @@ from .security import (
 from .dependencies import get_current_active_user
 from ..config.settings import settings
 from ..middleware.rate_limiter import rate_limiter
+from ..database.connection import get_db
 from ..database.models import (
     User,
     Subscription,
@@ -32,7 +33,6 @@ from ..database.models import (
     TeammateProfile as TeammateProfileDB,
     UserSession,
 )
-from ..database import get_db
 from ..services.captcha_service import captcha_service
 from ..metrics_business import ACTIVE_USERS
 
@@ -526,7 +526,9 @@ async def faceit_callback(
     redirect_url = f"{settings.WEBSITE_URL.rstrip('/')}/auth?faceit_token={access_token}&auto=1"
 
     response = RedirectResponse(redirect_url)
-    secure_cookie = settings.WEBSITE_URL.startswith("https://")
+    secure_cookie = settings.WEBSITE_URL.startswith("https://") and (
+        request.url.hostname not in ("testserver", "localhost")
+    )
     response.set_cookie(
         key="access_token",
         value=access_token,
@@ -673,7 +675,9 @@ async def steam_callback(
     redirect_url = f"{settings.WEBSITE_URL.rstrip('/')}/auth?steam_token={access_token}&auto=1"
 
     response = RedirectResponse(redirect_url)
-    secure_cookie = settings.WEBSITE_URL.startswith("https://")
+    secure_cookie = settings.WEBSITE_URL.startswith("https://") and (
+        request.url.hostname not in ("testserver", "localhost")
+    )
     response.set_cookie(
         key="access_token",
         value=access_token,
@@ -833,7 +837,9 @@ async def register(
             )
             session = None
 
-        secure_cookie = settings.WEBSITE_URL.startswith("https://")
+        secure_cookie = settings.WEBSITE_URL.startswith("https://") and (
+            request.url.hostname not in ("testserver", "localhost")
+        )
         response.set_cookie(
             key="access_token",
             value=access_token,
@@ -984,7 +990,9 @@ async def login(
         session = None
 
     # Set httpOnly cookie for 30 days in addition to returning the token in JSON
-    secure_cookie = settings.WEBSITE_URL.startswith("https://")
+    secure_cookie = settings.WEBSITE_URL.startswith("https://") and (
+        request.url.hostname not in ("testserver", "localhost")
+    )
     response.set_cookie(
         key="access_token",
         value=access_token,
@@ -1126,7 +1134,9 @@ async def refresh_access_token(
 
     access_token = create_access_token(data={"sub": str(user.id)})
 
-    secure_cookie = settings.WEBSITE_URL.startswith("https://")
+    secure_cookie = settings.WEBSITE_URL.startswith("https://") and (
+        request.url.hostname not in ("testserver", "localhost")
+    )
     response.set_cookie(
         key="access_token",
         value=access_token,

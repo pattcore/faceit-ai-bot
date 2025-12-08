@@ -45,6 +45,8 @@ def create_access_token(
 ) -> str:
     """Create JWT access token"""
     to_encode = data.copy()
+    to_encode["jti"] = secrets.token_urlsafe(16)
+    to_encode["iat"] = datetime.utcnow()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
