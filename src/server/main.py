@@ -26,6 +26,7 @@ from .features.player_analysis.schemas import PlayerAnalysisResponse
 from .features.tasks.routes import router as tasks_router
 from .features.admin.routes import router as admin_router
 from .metrics_business import ANALYSIS_REQUESTS, ANALYSIS_DURATION, ACTIVE_USERS
+from .sitemap_routes import router as sitemap_router
 
 # Configure logging
 setup_logging()
@@ -147,6 +148,7 @@ app.include_router(player_router)
 app.include_router(ai_router)
 app.include_router(tasks_router)
 app.include_router(admin_router)
+app.include_router(sitemap_router)
 
 
 @app.get("/players/{nickname}/analysis", response_model=PlayerAnalysisResponse, tags=["players"])
