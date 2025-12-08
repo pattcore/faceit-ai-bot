@@ -1,5 +1,5 @@
 """JWT and password security"""
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import bcrypt
@@ -41,18 +41,23 @@ def get_password_hash(password: str) -> str:
 
 def create_access_token(
     data: dict,
-    expires_delta: Optional[timedelta] = None
+    expires_delta: Optional[timedelta] = None,
 ) -> str:
     """Create JWT access token"""
     to_encode = data.copy()
+
+    now = datetime.utcnow()
     to_encode["jti"] = secrets.token_urlsafe(16)
-    to_encode["iat"] = datetime.utcnow()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+
+    if expires_delta is not None:
+        expire = now + expires_delta
     else:
         minutes = getattr(settings, "ACCESS_TOKEN_EXPIRE_MINUTES", 60 * 24 * 30)
-        expire = datetime.utcnow() + timedelta(minutes=minutes)
-    to_encode.update({"exp": expire})
+        expire = now + timedelta(minutes=minutes)
+
+    exp_ts = int(expire.replace(tzinfo=timezone.utc).timestamp())
+    to_encode["exp"] = exp_ts
+
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
