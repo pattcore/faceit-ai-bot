@@ -1,5 +1,6 @@
 import io
 import gzip
+import logging
 import math
 import time
 from datetime import datetime
@@ -8,7 +9,13 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import Response
 from fastapi.routing import APIRoute
 
+from .config.settings import settings
+from .database.connection import SessionLocal
+from .database.models import ProDemo, TeammateProfile
+
 router = APIRouter()
+
+logger = logging.getLogger(__name__)
 
 DYNAMIC_CHUNK_SIZE = 50000
 CACHE_TTL = 600
@@ -89,7 +96,55 @@ def _get_static_routes(request: Request) -> list[dict]:
 
 
 async def _get_dynamic_routes() -> list[dict]:
-    return []
+    session = SessionLocal()
+    try:
+        routes: list[dict] = []
+        seen: set[str] = set()
+
+        demos = (
+            session.query(ProDemo)
+            .order_by(ProDemo.updated_at.desc())
+            .limit(200000)
+            .all()
+        )
+        for demo in demos:
+            nickname = demo.faceit_nickname
+            if not nickname or nickname in seen:
+                continue
+            seen.add(nickname)
+            ts = demo.updated_at or demo.created_at or datetime.utcnow()
+            routes.append(
+                {
+                    "url": f"/players/{nickname}/analysis",
+                    "lastmod": ts.strftime("%Y-%m-%d"),
+                }
+            )
+
+        profiles = (
+            session.query(TeammateProfile)
+            .order_by(TeammateProfile.updated_at.desc())
+            .limit(200000)
+            .all()
+        )
+        for profile in profiles:
+            nickname = profile.faceit_nickname
+            if not nickname or nickname in seen:
+                continue
+            seen.add(nickname)
+            ts = profile.updated_at or profile.created_at or datetime.utcnow()
+            routes.append(
+                {
+                    "url": f"/players/{nickname}/analysis",
+                    "lastmod": ts.strftime("%Y-%m-%d"),
+                }
+            )
+
+        return routes
+    except Exception:
+        logger.exception("Failed to build dynamic sitemap routes")
+        return []
+    finally:
+        session.close()
 
 
 @router.get("/robots.txt", include_in_schema=False)
@@ -185,3 +240,26 @@ async def sitemap_chunk(request: Request, chunk: int) -> Response:
     xml = _generate_sitemap_xml(base_url, dynamic_routes[start:end])
     gz = _gzip_bytes(xml)
     return Response(gz, media_type="application/gzip")
+
+
+_PRIVATE_SITEMAP_KEY = getattr(settings, "SITEMAP_PRIVATE_KEY", settings.SECRET_KEY)
+
+
+@router.get("/private_sitemap.xml", include_in_schema=False)
+async def private_sitemap(request: Request, key: str) -> Response:
+    if key != _PRIVATE_SITEMAP_KEY:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    base_url = _get_base_url(request)
+    private_paths = [
+        "/auth",
+        "/admin",
+        "/payments",
+        "/subscriptions",
+        "/dashboard",
+    ]
+    urls = [{"url": path} for path in private_paths]
+    xml = _generate_sitemap_xml(base_url, urls)
+    gz = _gzip_bytes(xml)
+    headers = {"X-Robots-Tag": "noindex, nofollow, nosnippet"}
+    return Response(gz, media_type="application/gzip", headers=headers)

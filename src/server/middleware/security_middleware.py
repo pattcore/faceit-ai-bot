@@ -15,6 +15,18 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         # Basic security headers
         response = await call_next(request)
 
+        path = request.url.path
+        sensitive_prefixes = (
+            "/auth",
+            "/admin",
+            "/payments",
+            "/subscriptions",
+            "/dashboard",
+        )
+        if path.startswith(sensitive_prefixes):
+            if "X-Robots-Tag" not in response.headers:
+                response.headers["X-Robots-Tag"] = "noindex, nofollow, nosnippet"
+
         # Security headers
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
