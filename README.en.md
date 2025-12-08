@@ -314,8 +314,8 @@ We welcome contributions to the project!
 
 ## 📄 License
 
-This project is distributed under a custom **source-available** license.
-See the [LICENSE](LICENSE) file for full terms and conditions.
+This project is distributed under a custom **source-available** license with commercial/competitive use restrictions until 2028-01-01.
+See the [LICENSE](LICENSE) file for full legal terms and the [LICENSE.ru.md](LICENSE.ru.md) file for a simplified Russian explanation.
 
 ---
 
