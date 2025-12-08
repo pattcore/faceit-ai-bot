@@ -145,13 +145,23 @@ async def steam_login(request: Request):
 
     remote_ip = request.client.host if request.client else None
     captcha_token = request.query_params.get("captcha_token")
-    captcha_ok = await captcha_service.verify_token(
-        token=captcha_token,
-        remote_ip=remote_ip,
-        action="auth_steam_login",
-        fail_open_on_error=True,
-    )
-    if not captcha_ok:
+
+    # For Steam login we do not want to hard-block users when captcha_token
+    # is missing, but we still validate it when present and CAPTCHA is enabled.
+    captcha_ok = True
+    if captcha_service.is_enabled() and captcha_token:
+        captcha_ok = await captcha_service.verify_token(
+            token=captcha_token,
+            remote_ip=remote_ip,
+            action="auth_steam_login",
+            fail_open_on_error=True,
+        )
+    elif captcha_service.is_enabled() and not captcha_token:
+        logger.warning(
+            "Steam login called without captcha_token while CAPTCHA is enabled",
+        )
+
+    if captcha_service.is_enabled() and not captcha_ok:
         raise HTTPException(
             status_code=400,
             detail="CAPTCHA verification failed",
@@ -185,13 +195,21 @@ async def faceit_login(request: Request):
 
     remote_ip = request.client.host if request.client else None
     captcha_token = request.query_params.get("captcha_token")
-    captcha_ok = await captcha_service.verify_token(
-        token=captcha_token,
-        remote_ip=remote_ip,
-        action="auth_faceit_login",
-        fail_open_on_error=True,
-    )
-    if not captcha_ok:
+
+    captcha_ok = True
+    if captcha_service.is_enabled() and captcha_token:
+        captcha_ok = await captcha_service.verify_token(
+            token=captcha_token,
+            remote_ip=remote_ip,
+            action="auth_faceit_login",
+            fail_open_on_error=True,
+        )
+    elif captcha_service.is_enabled() and not captcha_token:
+        logger.warning(
+            "Faceit login called without captcha_token while CAPTCHA is enabled",
+        )
+
+    if captcha_service.is_enabled() and not captcha_ok:
         raise HTTPException(
             status_code=400,
             detail="CAPTCHA verification failed",
