@@ -472,7 +472,7 @@ class FaceitAIMenuView(discord.ui.View):
         label="📊 Статистика игрока",
         style=discord.ButtonStyle.primary,
     )
-    async def stats_button(  # type: ignore[override]
+    async def stats_button(
         self,
         interaction: discord.Interaction,
         button: discord.ui.Button,
@@ -483,7 +483,7 @@ class FaceitAIMenuView(discord.ui.View):
         label="🤖 AI-анализ игрока",
         style=discord.ButtonStyle.primary,
     )
-    async def analyze_button(  # type: ignore[override]
+    async def analyze_button(
         self,
         interaction: discord.Interaction,
         button: discord.ui.Button,
@@ -494,7 +494,7 @@ class FaceitAIMenuView(discord.ui.View):
         label="👥 Поиск тиммейтов",
         style=discord.ButtonStyle.secondary,
     )
-    async def teammates_button(  # type: ignore[override]
+    async def teammates_button(
         self,
         interaction: discord.Interaction,
         button: discord.ui.Button,
@@ -505,7 +505,7 @@ class FaceitAIMenuView(discord.ui.View):
         label="🎮 Анализ демки",
         style=discord.ButtonStyle.secondary,
     )
-    async def demo_button(  # type: ignore[override]
+    async def demo_button(
         self,
         interaction: discord.Interaction,
         button: discord.ui.Button,
@@ -825,7 +825,7 @@ async def demo_analyze(
         return
 
     file_obj = BytesIO(data)
-    upload = UploadFile(filename=filename, file=file_obj)  # type: ignore[arg-type]
+    upload = UploadFile(filename=filename, file=file_obj)
 
     try:
         analysis = await demo_analyzer.analyze_demo(upload, language=language)

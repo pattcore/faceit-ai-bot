@@ -180,6 +180,9 @@ async def handle_main_menu_button(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
     query = update.callback_query
+    if query is None:
+        return ConversationHandler.END
+
     await query.answer()
 
     user_id = query.from_user.id if query.from_user else 0
@@ -261,6 +264,9 @@ async def handle_back_to_main(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> None:
     query = update.callback_query
+    if query is None:
+        return
+
     await query.answer()
 
     user_id = query.from_user.id if query.from_user else 0
@@ -281,7 +287,12 @@ async def handle_stats_nickname(
     nickname = message.text.strip().split()[0]
     context.args = [nickname]
     await cmd_faceit_stats(update, context)
-    await update.effective_chat.send_message(
+
+    chat = update.effective_chat
+    if chat is None:
+        return ConversationHandler.END
+
+    await chat.send_message(
         "Готово. Вернуться в главное меню:",
         reply_markup=get_main_menu_keyboard(),
     )
@@ -301,7 +312,12 @@ async def handle_analyze_params(
 
     context.args = parts[:2]
     await cmd_faceit_analyze(update, context)
-    await update.effective_chat.send_message(
+
+    chat = update.effective_chat
+    if chat is None:
+        return ConversationHandler.END
+
+    await chat.send_message(
         "Готово. Вернуться в главное меню:",
         reply_markup=get_main_menu_keyboard(),
     )
@@ -318,7 +334,12 @@ async def handle_tm_params(
     parts = message.text.strip().split()
     context.args = parts
     await cmd_tm_find(update, context)
-    await update.effective_chat.send_message(
+
+    chat = update.effective_chat
+    if chat is None:
+        return ConversationHandler.END
+
+    await chat.send_message(
         "Готово. Вернуться в главное меню:",
         reply_markup=get_main_menu_keyboard(),
     )
@@ -341,7 +362,12 @@ async def handle_demo_message(
 
     context.args = args
     await cmd_demo_analyze(update, context)
-    await update.effective_chat.send_message(
+
+    chat = update.effective_chat
+    if chat is None:
+        return ConversationHandler.END
+
+    await chat.send_message(
         "Готово. Вернуться в главное меню:",
         reply_markup=get_main_menu_keyboard(),
     )
@@ -351,7 +377,11 @@ async def handle_demo_message(
 async def cancel_conversation(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> int:
-    await update.effective_chat.send_message(
+    chat = update.effective_chat
+    if chat is None:
+        return ConversationHandler.END
+
+    await chat.send_message(
         "Диалог отменён. Главное меню:",
         reply_markup=get_main_menu_keyboard(),
     )
@@ -360,7 +390,11 @@ async def cancel_conversation(
 
 @track_telegram_command("start")
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.effective_chat.send_message(
+    chat = update.effective_chat
+    if chat is None:
+        return
+
+    await chat.send_message(
         "Привет! Я Faceit AI Bot в Telegram.\n\n"
         "Выбери нужный раздел в меню ниже.",
         reply_markup=get_main_menu_keyboard(),
@@ -371,29 +405,33 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def cmd_faceit_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     user_key = f"{user.id if user else 0}"
+
+    chat = update.effective_chat
+    if chat is None:
+        return
     if not await check_bot_rate_limit(
         user_key,
         "faceit_stats",
         limit_per_minute=20,
         limit_per_day=200,
     ):
-        await update.effective_chat.send_message(
+        await chat.send_message(
             "Превышен лимит запросов для этой команды, попробуй позже.",
         )
         return
 
     if not context.args:
-        await update.effective_chat.send_message(
+        await chat.send_message(
             "Использование: /faceit_stats <faceit_ник>"
         )
         return
 
     nickname = context.args[0]
-    await update.effective_chat.send_message("Ищу статистику, подожди...")
+    await chat.send_message("Ищу статистику, подожди...")
 
     stats = await player_service.get_player_stats(nickname)
     if not stats:
-        await update.effective_chat.send_message(
+        await chat.send_message(
             f"Не удалось найти статистику для {nickname}"
         )
         return
@@ -414,26 +452,30 @@ async def cmd_faceit_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     if winrate is not None:
         lines.append(f"Winrate %: {winrate}")
 
-    await update.effective_chat.send_message("\n".join(lines))
+    await chat.send_message("\n".join(lines))
 
 
 @track_telegram_command("faceit_analyze")
 async def cmd_faceit_analyze(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     user_key = f"{user.id if user else 0}"
+
+    chat = update.effective_chat
+    if chat is None:
+        return
     if not await check_bot_rate_limit(
         user_key,
         "faceit_analyze",
         limit_per_minute=5,
         limit_per_day=50,
     ):
-        await update.effective_chat.send_message(
+        await chat.send_message(
             "Превышен лимит AI-анализов для этой команды, попробуй позже.",
         )
         return
 
     if not context.args:
-        await update.effective_chat.send_message(
+        await chat.send_message(
             "Использование: /faceit_analyze <faceit_ник> [ru|en]"
         )
         return
@@ -443,13 +485,13 @@ async def cmd_faceit_analyze(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if len(context.args) > 1 and context.args[1] in {"ru", "en"}:
         language = context.args[1]
 
-    await update.effective_chat.send_message(
+    await chat.send_message(
         f"Делаю AI-анализ игрока {nickname} ({language})..."
     )
 
     analysis = await player_service.analyze_player(nickname, language=language)
     if not analysis:
-        await update.effective_chat.send_message(
+        await chat.send_message(
             f"Не удалось проанализировать игрока {nickname}"
         )
         return
@@ -501,43 +543,49 @@ async def cmd_faceit_analyze(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if training_plan.estimated_time:
         lines.append(f"Оценочный срок: {training_plan.estimated_time}")
 
-    await update.effective_chat.send_message("\n".join(lines))
+    await chat.send_message("\n".join(lines))
 
 
 @track_telegram_command("tm_find")
 async def cmd_tm_find(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if len(context.args) < 2:
-        await update.effective_chat.send_message(
+    chat = update.effective_chat
+    if chat is None:
+        return
+
+    args = context.args or []
+    if len(args) < 2:
+        await chat.send_message(
             "Использование: /tm_find <min_elo> <max_elo> [lang] [role]"
         )
         return
 
     user = update.effective_user
-    user_key = f"{user.id if user else 0}"
+    user_id = user.id if user else 0
+    user_key = f"{user_id}"
     if not await check_bot_rate_limit(
         user_key,
         "tm_find",
         limit_per_minute=5,
         limit_per_day=50,
     ):
-        await update.effective_chat.send_message(
+        await chat.send_message(
             "Превышен лимит запросов для этой команды, попробуй позже.",
         )
         return
 
     try:
-        min_elo = int(context.args[0])
-        max_elo = int(context.args[1])
+        min_elo = int(args[0])
+        max_elo = int(args[1])
     except ValueError:
-        await update.effective_chat.send_message(
+        await chat.send_message(
             "min_elo и max_elo должны быть целыми числами"
         )
         return
 
-    language = context.args[2] if len(context.args) > 2 else "ru"
-    role = context.args[3] if len(context.args) > 3 else "any"
+    language = args[2] if len(args) > 2 else "ru"
+    role = args[3] if len(args) > 3 else "any"
 
-    await update.effective_chat.send_message(
+    await chat.send_message(
         f"Ищу тиммейтов {min_elo}-{max_elo} ELO, язык {language}, роль {role}..."
     )
 
@@ -545,8 +593,8 @@ async def cmd_tm_find(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     try:
         user = User(
             id=0,
-            username=f"telegram_{update.effective_user.id}",
-            email=f"telegram_{update.effective_user.id}@local",
+            username=f"telegram_{user_id}",
+            email=f"telegram_{user_id}@local",
             hashed_password="",
         )
 
@@ -567,7 +615,7 @@ async def cmd_tm_find(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         )
 
         if not profiles:
-            await update.effective_chat.send_message(
+            await chat.send_message(
                 "Не нашёл подходящих тиммейтов по заданным параметрам."
             )
             return
@@ -602,7 +650,7 @@ async def cmd_tm_find(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             if p.match_summary:
                 lines.append("Кратко: " + p.match_summary[:200])
 
-        await update.effective_chat.send_message("\n".join(lines))
+        await chat.send_message("\n".join(lines))
     finally:
         db.close()
 
@@ -611,25 +659,29 @@ async def cmd_tm_find(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 async def cmd_demo_analyze(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     user_key = f"{user.id if user else 0}"
+
+    chat = update.effective_chat
+    if chat is None:
+        return
     if not await check_bot_rate_limit(
         user_key,
         "demo_analyze",
         limit_per_minute=3,
         limit_per_day=10,
     ):
-        await update.effective_chat.send_message(
+        await chat.send_message(
             "Превышен лимит анализов демок для этой команды, попробуй позже.",
         )
         return
 
     message = update.effective_message
-    args = context.args
+    args = context.args or []
     language = "ru"
     if args and args[0] in {"ru", "en"}:
         language = args[0]
 
-    if not message.document:
-        await update.effective_chat.send_message(
+    if not message or not message.document:
+        await chat.send_message(
             "Пришли команду так: /demo_analyze [ru|en] и прикрепи .dem файл в том же сообщении."
         )
         return
@@ -637,18 +689,18 @@ async def cmd_demo_analyze(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     doc = message.document
     filename = doc.file_name or ""
     if not filename.lower().endswith(".dem"):
-        await update.effective_chat.send_message(
+        await chat.send_message(
             "Нужен файл демки с расширением .dem"
         )
         return
 
     if doc.file_size and doc.file_size > MAX_DEMO_SIZE_BYTES:
-        await update.effective_chat.send_message(
+        await chat.send_message(
             f"Файл слишком большой. Максимальный размер {MAX_DEMO_SIZE_MB} МБ."
         )
         return
 
-    await update.effective_chat.send_message(
+    await chat.send_message(
         "Скачиваю и анализирую демку, это может занять время..."
     )
 
@@ -659,7 +711,7 @@ async def cmd_demo_analyze(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     snippet = buffer.read(_SNIFF_BYTES)
     if not snippet:
-        await update.effective_chat.send_message(
+        await chat.send_message(
             "Файл пустой, пришли, пожалуйста, валидную демку .dem."
         )
         return
@@ -675,28 +727,28 @@ async def cmd_demo_analyze(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         b"import sys",
     )
     if any(marker in sniff for marker in suspicious_markers):
-        await update.effective_chat.send_message(
+        await chat.send_message(
             "Похоже, это не бинарная демка CS2. Пришли корректный .dem файл."
         )
         return
 
     buffer.seek(0)
 
-    upload = UploadFile(filename=filename, file=buffer)  # type: ignore[arg-type]
+    upload = UploadFile(filename=filename, file=buffer)
     try:
         analysis = await demo_analyzer.analyze_demo(upload, language=language)
     except DemoAnalysisException as exc:
         detail = getattr(exc, "detail", None)
-        message = "Не удалось проанализировать демку."
+        error_message = "Не удалось проанализировать демку."
         if isinstance(detail, dict):
-            message = str(detail.get("error") or detail) or message
+            error_message = str(detail.get("error") or detail) or error_message
         elif isinstance(detail, str):
-            message = detail or message
-        await update.effective_chat.send_message(message)
+            error_message = detail or error_message
+        await chat.send_message(error_message)
         return
     except Exception:
         logger.exception("Telegram demo_analyze failed")
-        await update.effective_chat.send_message(
+        await chat.send_message(
             "Произошла внутренняя ошибка при анализе демки."
         )
         return
@@ -719,7 +771,7 @@ async def cmd_demo_analyze(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         for rec in analysis.recommendations[:5]:
             lines.append(f"- {rec}")
 
-    await update.effective_chat.send_message("\n".join(lines))
+    await chat.send_message("\n".join(lines))
 
 
 def main() -> None:

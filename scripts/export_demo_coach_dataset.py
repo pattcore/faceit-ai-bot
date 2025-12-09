@@ -24,7 +24,7 @@ async def analyze_demos_and_export(
         with demo_path.open("rb") as f:
             from fastapi import UploadFile
 
-            upload = UploadFile(filename=demo_path.name, file=f)  # type: ignore[arg-type]
+            upload = UploadFile(filename=demo_path.name, file=f)
             analysis = await analyzer.analyze_demo(upload, language=language)
 
         sample = build_training_sample_from_demo(analysis)
