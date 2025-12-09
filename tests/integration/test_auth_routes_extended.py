@@ -253,7 +253,10 @@ class TestAuthRoutesExtended:
 
         monkeypatch.setattr(faceit_client_module, "FaceitAPIClient", DummyFaceitClient)
 
-        response = test_client.get("/auth/faceit/callback?code=abc&state=dummy-state")
+        response = test_client.get(
+            "/auth/faceit/callback?code=abc&state=dummy-state",
+            follow_redirects=False,
+        )
 
         assert response.status_code in (302, 303, 307)
         location = response.headers.get("location") or response.headers.get("Location")
@@ -365,6 +368,7 @@ class TestAuthRoutesExtended:
 
         response = test_client.get(
             "/auth/steam/login?captcha_token=dummy",
+            follow_redirects=False,
         )
 
         assert response.status_code in (302, 303, 307)
@@ -382,6 +386,7 @@ class TestAuthRoutesExtended:
 
         response = test_client.get(
             "/auth/steam/login?captcha_token=dummy",
+            follow_redirects=False,
         )
 
         assert response.status_code in (302, 303, 307)
@@ -731,7 +736,10 @@ class TestAuthRoutesExtended:
         monkeypatch.setattr(auth_routes, "verify_steam_openid", fake_verify_steam_openid)
         monkeypatch.setattr(auth_routes, "fetch_steam_persona_name", fake_fetch_persona)
 
-        response = test_client.get("/auth/steam/callback?dummy=1")
+        response = test_client.get(
+            "/auth/steam/callback?dummy=1",
+            follow_redirects=False,
+        )
 
         assert response.status_code in (302, 303, 307)
         location = response.headers.get("location") or response.headers.get("Location")

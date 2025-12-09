@@ -136,8 +136,9 @@ def test_client(db_session, redis_client):
     # Переопределяем зависимости для тестов
     fastapi_app.dependency_overrides[get_db] = override_get_db
 
-    # Не следуем автоматически за редиректами, чтобы можно было проверять 3xx коды
-    with TestClient(fastapi_app, follow_redirects=False) as client:
+    # Создаем TestClient без нестандартных аргументов конструктора; поведение
+    # редиректов контролируем на уровне отдельных запросов (follow_redirects=...).
+    with TestClient(fastapi_app) as client:
         yield client
 
     # Очищаем переопределения

@@ -184,6 +184,135 @@ async def steam_login(request: Request):
     return RedirectResponse(url)
 
 
+@router.get("/steam/callback")
+async def steam_callback(
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    """Handle Steam OpenID callback, create/find user and issue JWT.
+
+    On success redirects back to frontend /auth with steam_token in query.
+    """
+
+    steam_id = await verify_steam_openid(request.query_params)
+    if not steam_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid Steam OpenID response",
+        )
+
+    user = db.execute(
+        select(User).where(User.steam_id == steam_id)
+    ).scalars().first()
+
+    if not user:
+        persona_name = await fetch_steam_persona_name(steam_id)
+        base_username = persona_name or f"steam_{steam_id}"
+        username = base_username
+        suffix = 1
+        while db.execute(
+            select(User).where(User.username == username)
+        ).scalars().first():
+            username = f"{base_username}_{suffix}"
+            suffix += 1
+
+        email = f"steam_{steam_id}@steam.local"
+        random_password = secrets.token_urlsafe(16)
+        hashed_password = get_password_hash(random_password)
+
+        user = User(
+            email=email,
+            username=username,
+            hashed_password=hashed_password,
+            steam_id=steam_id,
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+        subscription = Subscription(user_id=user.id, tier=SubscriptionTier.FREE)
+        db.add(subscription)
+        db.commit()
+    else:
+        updated = False
+
+        if not user.steam_id:
+            user_obj_steam: Any = user
+            user_obj_steam.steam_id = steam_id
+            updated = True
+
+        if updated:
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+
+    try:
+        user_obj: Any = user
+        user_obj.last_login = datetime.utcnow()
+        user_obj.login_count = (user_obj.login_count or 0) + 1
+        db.add(user_obj)
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        logger.error(
+            "Failed to update login activity for user %s via Steam: %s",
+            user.id,
+            exc,
+        )
+
+    access_token = create_access_token(data={"sub": str(user.id)})
+    refresh_token = create_refresh_token()
+    refresh_hash = hash_refresh_token(refresh_token)
+    now = datetime.utcnow()
+    session: UserSession | None = UserSession(
+        user_id=user.id,
+        token_hash=refresh_hash,
+        created_at=now,
+        expires_at=now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+        user_agent=(request.headers.get("user-agent") or "")[:255],
+        ip_address=request.client.host if request.client else None,
+    )
+    try:
+        db.add(session)
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        logger.error(
+            "Failed to create refresh session for user %s during Steam callback: %s",
+            user.id,
+            exc,
+        )
+        session = None
+
+    secure_cookie = settings.WEBSITE_URL.startswith("https://") and (
+        request.url.hostname not in ("testserver", "localhost")
+    )
+    redirect_url = f"{settings.WEBSITE_URL.rstrip('/')}/auth?steam_token={access_token}"
+    redirect_response = RedirectResponse(
+        url=redirect_url,
+        status_code=status.HTTP_302_FOUND,
+    )
+    redirect_response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=secure_cookie,
+        samesite="lax",
+        max_age=60 * 60 * 24 * 30,
+    )
+    if session is not None:
+        redirect_response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            secure=secure_cookie,
+            samesite="lax",
+            max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        )
+
+    return redirect_response
+
+
 @router.get("/faceit/login")
 async def faceit_login(request: Request):
     """Redirect user to FACEIT OAuth2 for authentication.
@@ -509,11 +638,68 @@ async def faceit_callback(
         user_obj.login_count = (user_obj.login_count or 0) + 1
         db.add(user_obj)
         db.commit()
-    except Exception as e:
+    except Exception as exc:
         db.rollback()
-        logger.error(f"Failed to update login activity for user {user.id}: {str(e)}")
+        logger.error(
+            "Failed to update login activity for user %s via FACEIT: %s",
+            user.id,
+            exc,
+        )
 
-# ... (rest of the code remains the same)
+    access_token = create_access_token(data={"sub": str(user.id)})
+    refresh_token = create_refresh_token()
+    refresh_hash = hash_refresh_token(refresh_token)
+    now = datetime.utcnow()
+    session: UserSession | None = UserSession(
+        user_id=user.id,
+        token_hash=refresh_hash,
+        created_at=now,
+        expires_at=now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+        user_agent=(request.headers.get("user-agent") or "")[:255],
+        ip_address=request.client.host if request.client else None,
+    )
+    try:
+        db.add(session)
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        logger.error(
+            "Failed to create refresh session for user %s during FACEIT callback: %s",
+            user.id,
+            exc,
+        )
+        session = None
+
+    secure_cookie = settings.WEBSITE_URL.startswith("https://") and (
+        request.url.hostname not in ("testserver", "localhost")
+    )
+    redirect_url = (
+        f"{settings.WEBSITE_URL.rstrip('/')}/auth?faceit_token={access_token}&auto=1"
+    )
+    redirect_response = RedirectResponse(
+        url=redirect_url,
+        status_code=status.HTTP_302_FOUND,
+    )
+    redirect_response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=secure_cookie,
+        samesite="lax",
+        max_age=60 * 60 * 24 * 30,
+    )
+    if session is not None:
+        redirect_response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            secure=secure_cookie,
+            samesite="lax",
+            max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        )
+
+    return redirect_response
+
 
 @router.post("/register", response_model=Token)
 async def register(
