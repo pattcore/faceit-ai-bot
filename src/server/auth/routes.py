@@ -34,7 +34,7 @@ from ..database.models import (
     UserSession,
 )
 from ..services.captcha_service import captcha_service
-from ..metrics_business import ACTIVE_USERS
+from ..metrics_business import ACTIVE_USERS, AUTH_FAILED, AUTH_SUCCESS
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -513,6 +513,12 @@ async def faceit_callback(
     except Exception:
         pass
 
+    try:
+        remote_ip = request.client.host if request.client else "unknown"
+        AUTH_SUCCESS.labels(ip=remote_ip, method="faceit").inc()
+    except Exception:
+        pass
+
     access_token = create_access_token(data={"sub": str(user.id)})
 
     # Issue refresh token session for Faceit login as well
@@ -955,12 +961,28 @@ async def login(
         except Exception:
             logger.exception("Failed to register login rate limit violation")
 
+        try:
+            AUTH_FAILED.labels(
+                ip=remote_ip or "unknown",
+                reason="bad_credentials",
+            ).inc()
+        except Exception:
+            pass
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
         )
 
     if not user.is_active:
+        try:
+            AUTH_FAILED.labels(
+                ip=remote_ip or "unknown",
+                reason="inactive_user",
+            ).inc()
+        except Exception:
+            pass
+
         raise HTTPException(
             status_code=400, detail="User account is inactive"
         )

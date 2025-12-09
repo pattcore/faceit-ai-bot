@@ -28,6 +28,13 @@ HTTP_REQUEST_DURATION_SECONDS = Histogram(
 )
 
 
+API_ERRORS_TOTAL = Counter(
+    "api_errors_total",
+    "Total API error responses (4xx and 5xx)",
+    ["route", "status"],
+)
+
+
 class StructuredLoggingMiddleware(BaseHTTPMiddleware):
     """Middleware to log HTTP requests and responses with structlog."""
 
@@ -72,6 +79,11 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
                     method=request.method,
                     route=route_path,
                 ).observe(duration_seconds)
+                if 400 <= response.status_code < 600:
+                    API_ERRORS_TOTAL.labels(
+                        route=route_path,
+                        status=str(response.status_code),
+                    ).inc()
             except Exception:
                 logger.exception("Failed to update HTTP Prometheus metrics")
 
@@ -98,6 +110,10 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
                     method=request.method,
                     route=route_path,
                 ).observe(duration_seconds)
+                API_ERRORS_TOTAL.labels(
+                    route=route_path,
+                    status="500",
+                ).inc()
             except Exception:
                 logger.exception("Failed to update HTTP Prometheus metrics on error")
 

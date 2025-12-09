@@ -44,3 +44,17 @@ RATE_LIMIT_EXCEEDED = Counter(
     "Number of times per-user operation rate limit was exceeded",
     ["operation", "tier", "window"],
 )
+
+
+AUTH_FAILED = Counter(
+    "faceit_auth_failed_total",
+    "Total failed authentication attempts",
+    ["ip", "reason"],
+)
+
+
+AUTH_SUCCESS = Counter(
+    "faceit_auth_success_total",
+    "Total successful authentication events",
+    ["ip", "method"],
+)

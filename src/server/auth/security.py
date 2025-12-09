@@ -1,6 +1,6 @@
 """JWT and password security"""
 from datetime import datetime, timedelta, timezone
-from typing import Optional
+from typing import Any, Dict, Optional, cast
 
 import bcrypt
 import jwt
@@ -62,11 +62,11 @@ def create_access_token(
     return encoded_jwt
 
 
-def decode_access_token(token: str) -> Optional[dict]:
+def decode_access_token(token: str) -> Optional[Dict[str, Any]]:
     """Decode and verify JWT token"""
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload
+        return cast(Dict[str, Any], payload)
     except InvalidTokenError:
         return None
 
