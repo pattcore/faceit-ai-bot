@@ -83,6 +83,11 @@ services:
       - STEAM_WEB_API_KEY=${STEAM_WEB_API_KEY}
     volumes:
       - ./src:/app/src
+    deploy:
+      resources:
+        limits:
+          cpus: '0.70'
+          memory: 600M
     networks:
       - faceit-network
 
@@ -104,6 +109,11 @@ services:
       - LOCAL_LLM_MODEL=${LOCAL_LLM_MODEL}
       - LOCAL_LLM_API_KEY=${LOCAL_LLM_API_KEY}
       - FACEIT_API_KEY=${FACEIT_API_KEY}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.40'
+          memory: 300M
     networks:
       - faceit-network
 
@@ -156,6 +166,11 @@ services:
       - NEXT_PUBLIC_CAPTCHA_PROVIDER=${NEXT_PUBLIC_CAPTCHA_PROVIDER}
       - NEXT_PUBLIC_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_TURNSTILE_SITE_KEY}
       - NEXT_PUBLIC_SMARTCAPTCHA_SITE_KEY=${NEXT_PUBLIC_SMARTCAPTCHA_SITE_KEY}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
     networks:
       - faceit-network
 

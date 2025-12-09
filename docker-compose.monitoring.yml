@@ -11,13 +11,18 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=30d'
+      - '--storage.tsdb.retention.time=12h'
       - '--web.listen-address=0.0.0.0:9090'
     networks:
       - monitoring
       - faceit-network
     ports:
       - "9090:9090"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.40'
+          memory: 400M
 
   grafana:
     image: grafana/grafana:10.0.0
@@ -35,6 +40,11 @@ services:
       - "3000:3000"
     depends_on:
       - prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: 256M
 
   node_exporter:
     image: prom/node-exporter:v1.6.1
@@ -51,6 +61,11 @@ services:
       - monitoring
     ports:
       - "9100:9100"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 128M
 
 volumes:
   prometheus_data:
