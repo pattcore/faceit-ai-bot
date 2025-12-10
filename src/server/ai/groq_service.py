@@ -47,7 +47,7 @@ class GroqService:
     def _is_openrouter_base_url(self) -> bool:
         """Return True if groq_base_url points to openrouter.ai host."""
         try:
-            parsed = urlparse(self.groq_base_url)
+            parsed = urlparse(str(self.groq_base_url))
             return parsed.netloc == "openrouter.ai"
         except Exception:
             return False
@@ -163,9 +163,8 @@ class GroqService:
                 ) as response:
                     if response.status == 200:
                         data = await response.json()
-                        content = data["choices"][0]["message"][
-                            "content"
-                        ]
+                        raw_content = data["choices"][0]["message"]["content"]
+                        content = str(raw_content)
                         self._log_sample(
                             task="analysis",
                             language=lang,
@@ -465,7 +464,7 @@ class GroqService:
                             ]
                             text = "\n".join(cleaned_lines).strip()
 
-                        plan = None
+                        plan: Dict | None = None
 
                         try:
                             plan = json.loads(text)
@@ -755,6 +754,7 @@ class GroqService:
         lang = self._normalize_language(language)
         if lang == "en":
             return {
+                "focus_areas": ["aim", "game sense", "consistency"],
                 "daily_exercises": [
                     {
                         "name": "Aim Training",
@@ -775,6 +775,7 @@ class GroqService:
             }
         else:
             return {
+                "focus_areas": ["aim", "game sense", "consistency"],
                 "daily_exercises": [
                     {
                         "name": "Тренировка аима",

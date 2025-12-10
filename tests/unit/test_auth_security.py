@@ -54,9 +54,9 @@ def test_create_access_token_uses_settings_default_expire(monkeypatch) -> None:
 
     fixed_now = datetime(2030, 1, 1, 12, 0, 0)
 
-    class _FixedDatetime(datetime):  # type: ignore[misc]
+    class _FixedDatetime(datetime):
         @classmethod
-        def utcnow(cls):  # type: ignore[override]
+        def utcnow(cls):
             return fixed_now
 
     # Patch datetime used inside security module so exp is deterministic

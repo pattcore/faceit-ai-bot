@@ -9,14 +9,14 @@ class DummyRedis:
     def __init__(self) -> None:
         self.store: dict[str, str] = {}
 
-    def get(self, key: str) -> str | None:  # type: ignore[override]
+    def get(self, key: str) -> str | None:
         return self.store.get(key)
 
-    def setex(self, key: str, ttl: int, value: str) -> None:  # type: ignore[override]
+    def setex(self, key: str, ttl: int, value: str) -> None:
         # TTL is ignored in the dummy implementation
         self.store[key] = value
 
-    def keys(self, pattern: str) -> list[str]:  # type: ignore[override]
+    def keys(self, pattern: str) -> list[str]:
         # Support patterns used by invalidate_cache / clear_all_cache
         if pattern == "api_cache:*":
             return [k for k in self.store.keys() if k.startswith("api_cache:")]
@@ -29,7 +29,7 @@ class DummyRedis:
             ]
         return []
 
-    def delete(self, *keys: str) -> int:  # type: ignore[override]
+    def delete(self, *keys: str) -> int:
         deleted = 0
         for key in keys:
             if key in self.store:
@@ -39,13 +39,13 @@ class DummyRedis:
 
 
 class DummyRedisError(DummyRedis):
-    def setex(self, key: str, ttl: int, value: str) -> None:  # type: ignore[override]
+    def setex(self, key: str, ttl: int, value: str) -> None:
         raise RuntimeError("setex error")
 
 
 def create_app_with_cache(dummy_redis: DummyRedis) -> FastAPI:
     app = FastAPI()
-    cache_mw.redis_client = dummy_redis
+    cache_mw.redis_client = dummy_redis  # type: ignore[assignment]
     app.add_middleware(CacheMiddleware, cache_ttl=60)
 
     @app.get("/items")
@@ -74,7 +74,7 @@ def test_cache_middleware_miss_then_hit() -> None:
 def test_cache_middleware_skips_auth_and_metrics_paths() -> None:
     dummy = DummyRedis()
     app = FastAPI()
-    cache_mw.redis_client = dummy
+    cache_mw.redis_client = dummy  # type: ignore[assignment]
     app.add_middleware(CacheMiddleware, cache_ttl=60)
 
     @app.get("/auth/login")
@@ -106,7 +106,7 @@ def test_cache_middleware_marks_error_on_redis_failure() -> None:
 
 def test_cache_invalidation_helpers_use_redis_client() -> None:
     dummy = DummyRedis()
-    cache_mw.redis_client = dummy
+    cache_mw.redis_client = dummy  # type: ignore[assignment]
 
     dummy.setex("api_cache:foo1", 60, "{}")
     dummy.setex("api_cache:foo2", 60, "{}")

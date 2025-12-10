@@ -1,4 +1,5 @@
 import pytest
+from typing import Any
 
 from src.server.services.cache_service import (
     CacheService,
@@ -12,29 +13,29 @@ class DummyRedis:
     def __init__(self) -> None:
         self.store: dict[str, str] = {}
 
-    async def get(self, key: str) -> str | None:  # type: ignore[override]
+    async def get(self, key: str) -> str | None:
         return self.store.get(key)
 
-    async def setex(self, key: str, ttl: int, value: str) -> None:  # type: ignore[override]
+    async def setex(self, key: str, ttl: int, value: str) -> None:
         # TTL is ignored in the dummy implementation
         self.store[key] = value
 
-    async def delete(self, key: str) -> int:  # type: ignore[override]
+    async def delete(self, key: str) -> int:
         self.store.pop(key, None)
         return 1
 
-    async def exists(self, key: str) -> int:  # type: ignore[override]
+    async def exists(self, key: str) -> int:
         return 1 if key in self.store else 0
 
 
 class DummyRedisError(DummyRedis):
-    async def setex(self, key: str, ttl: int, value: str) -> None:  # type: ignore[override]
+    async def setex(self, key: str, ttl: int, value: str) -> None:
         raise RuntimeError("setex error")
 
-    async def delete(self, key: str) -> int:  # type: ignore[override]
+    async def delete(self, key: str) -> int:
         raise RuntimeError("delete error")
 
-    async def exists(self, key: str) -> int:  # type: ignore[override]
+    async def exists(self, key: str) -> int:
         raise RuntimeError("exists error")
 
 
@@ -79,8 +80,8 @@ async def test_cache_metrics_incremented_for_hits_and_misses() -> None:
     child_miss = CACHE_MISSES_TOTAL.labels(cache="player_analysis")
 
     try:
-        child_hit._value.set(0)  # type: ignore[attr-defined]
-        child_miss._value.set(0)  # type: ignore[attr-defined]
+        child_hit._value.set(0)
+        child_miss._value.set(0)
     except Exception:
         # If prometheus internals change, we still want the behavior test to run
         pass
@@ -94,8 +95,8 @@ async def test_cache_metrics_incremented_for_hits_and_misses() -> None:
     await service.get("player:analysis:missing")
 
     try:
-        assert child_hit._value.get() >= 1  # type: ignore[attr-defined]
-        assert child_miss._value.get() >= 1  # type: ignore[attr-defined]
+        assert child_hit._value.get() >= 1
+        assert child_miss._value.get() >= 1
     except Exception:
         # If direct inspection fails, at least ensure calls didn't crash
         pass
@@ -111,11 +112,12 @@ async def test_redis_latency_metric_observed_for_get() -> None:
     service.redis_client.store["player:analysis:latency"] = "{\"v\": 1}"
 
     child = REDIS_OPERATION_DURATION_SECONDS.labels(operation="get")
+    metric: Any = child
 
     # Best-effort reset of histogram internals, guarded by try/except
     try:
-        child._sum.set(0)  # type: ignore[attr-defined]
-        child._count.set(0)  # type: ignore[attr-defined]
+        metric._sum.set(0)
+        metric._count.set(0)
     except Exception:
         pass
 
@@ -123,7 +125,7 @@ async def test_redis_latency_metric_observed_for_get() -> None:
 
     # Verify that at least one observation was recorded, if internals are accessible
     try:
-        assert child._count.get() >= 1  # type: ignore[attr-defined]
+        assert metric._count.get() >= 1
     except Exception:
         # If direct inspection fails, we still ensure the call path succeeded
         pass

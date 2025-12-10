@@ -53,7 +53,7 @@ class TestGroqServiceHelpers:
                 {"round": 10, "description": "clutch 1v2"},
                 {"round": 25, "description": "multi-kill on A site"},
             ],
-        
+        }
 
         prompt_ru = service._build_analysis_prompt(stats, match_history=[], language="ru")
         prompt_en = service._build_analysis_prompt(stats, match_history=[], language="en")
