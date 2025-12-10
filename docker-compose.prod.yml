@@ -91,7 +91,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.50'
+          cpus: '0.60'
           memory: 640M
     networks:
       - faceit-network
@@ -117,7 +117,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.30'
+          cpus: '0.35'
           memory: 320M
     networks:
       - faceit-network
