@@ -54,6 +54,8 @@ services:
     restart: always
     volumes:
       - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_KEEP_ALIVE=5m
     networks:
       - faceit-network
     deploy:
@@ -98,8 +100,8 @@ services:
 
   celery_worker:
     image: ghcr.io/pat1one/faceit-ai-bot/api:latest
-    command: celery -A src.server.celery_app worker --loglevel=info --concurrency=4 --queues=demo_analysis,notifications,webhooks
-    restart: always
+    command: celery -A src.server.celery_app worker --loglevel=info --concurrency=4 --max-tasks-per-child=50 --queues=demo_analysis,notifications,webhooks
+    restart: on-failure
     depends_on:
       - redis
       - db
@@ -118,7 +120,7 @@ services:
       resources:
         limits:
           cpus: '0.35'
-          memory: 320M
+          memory: 1024M
     networks:
       - faceit-network
 
