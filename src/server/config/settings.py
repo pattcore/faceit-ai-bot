@@ -4,12 +4,13 @@ from functools import lru_cache
 from typing import List, Optional
 
 try:
-    from pydantic_settings import BaseSettings
+    import pydantic_settings as _pydantic_settings
 except ImportError:
-    # Fallback for older pydantic versions
-    from pydantic import BaseSettings
+    import pydantic as _pydantic_settings
 
 from pydantic import validator
+
+BaseSettings = _pydantic_settings.BaseSettings
 
 # Load environment variables from .env
 env_path = Path(__file__).resolve().parent.parent.parent.parent / ".env"
