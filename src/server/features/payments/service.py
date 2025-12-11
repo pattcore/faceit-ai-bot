@@ -473,13 +473,13 @@ class PaymentService:
             ):
                 # Extend existing active subscription
                 subscription.expires_at = subscription.expires_at + timedelta(days=30)  # type: ignore[assignment]
-                subscription.tier = tier  # type: ignore[assignment]
+                subscription.tier = tier
             elif subscription:
                 # Reactivate / reset existing subscription
                 subscription.started_at = now  # type: ignore[assignment]
                 subscription.expires_at = now + timedelta(days=30)  # type: ignore[assignment]
                 subscription.is_active = True  # type: ignore[assignment]
-                subscription.tier = tier  # type: ignore[assignment]
+                subscription.tier = tier
             else:
                 # Create new subscription
                 subscription = DBSubscription(
@@ -609,12 +609,12 @@ class PaymentService:
                 and subscription.expires_at is not None
                 and subscription.expires_at > now
             ):
-                subscription.expires_at = subscription.expires_at + timedelta(days=30)
+                subscription.expires_at = subscription.expires_at + timedelta(days=30)  # type: ignore[assignment]
                 subscription.tier = tier
             elif subscription:
-                subscription.started_at = now
-                subscription.expires_at = now + timedelta(days=30)
-                subscription.is_active = True
+                subscription.started_at = now  # type: ignore[assignment]
+                subscription.expires_at = now + timedelta(days=30)  # type: ignore[assignment]
+                subscription.is_active = True  # type: ignore[assignment]
                 subscription.tier = tier
             else:
                 subscription = DBSubscription(
