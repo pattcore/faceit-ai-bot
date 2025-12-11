@@ -105,6 +105,11 @@ services:
     depends_on:
       - redis
       - db
+    healthcheck:
+      test: ["CMD", "celery", "-A", "src.server.celery_app", "inspect", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     environment:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379

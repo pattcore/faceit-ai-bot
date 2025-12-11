@@ -13,6 +13,7 @@ rule_files:
   - "alerts-http-db-bots.yml"
   - "alerts-cache.yml"
   - "alerts-business.yml"
+  - "alerts-memory.yml"
 
 scrape_configs:
   - job_name: 'faceit-api'
@@ -40,3 +41,11 @@ scrape_configs:
   - job_name: 'telegram-bot'
     static_configs:
       - targets: ['telegram_bot:9102']
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['faceit_node_exporter:9100']
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['faceit_cadvisor:8080']

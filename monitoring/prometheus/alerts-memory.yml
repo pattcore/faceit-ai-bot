@@ -1,0 +1,26 @@
+groups:
+  - name: memory-and-restarts
+    rules:
+      - alert: HighContainerMemoryUsage
+        expr: |
+          container_memory_usage_bytes
+            / clamp_min(container_spec_memory_limit_bytes, 1) > 0.9
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокое потребление памяти контейнером"
+          description: |
+            Контейнер {{ $labels.container }} использует более 90% доступной памяти
+            в течение последних 10 минут.
+
+      - alert: ContainerRestartsSpike
+        expr: |
+          changes(container_start_time_seconds[10m]) > 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Частые рестарты контейнера"
+          description: |
+            Контейнер {{ $labels.container }} неоднократно перезапускался за последние 10 минут.
