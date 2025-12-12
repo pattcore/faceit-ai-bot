@@ -1,20 +1,16 @@
 [Unit]
-Description=Faceit AI Bot API Service
-After=network.target postgresql.service redis.service
-Wants=postgresql.service redis.service
+Description=Faceit AI Bot Docker Stack
+After=network.target docker.service
+Wants=docker.service
 
 [Service]
-Type=simple
-User=www-data
-Group=www-data
+Type=oneshot
 WorkingDirectory=/opt/faceit-ai-bot
-Environment="PATH=/opt/faceit-ai-bot/venv/bin"
 EnvironmentFile=/opt/faceit-ai-bot/.env
-ExecStart=/opt/faceit-ai-bot/venv/bin/uvicorn src.server.main:app --host 0.0.0.0 --port 8000 --workers 4
-Restart=always
-RestartSec=10
-StandardOutput=journal
-StandardError=journal
+ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml up -d
+ExecStop=/usr/bin/docker compose -f docker-compose.prod.yml down
+RemainAfterExit=yes
+TimeoutStartSec=0
 
 [Install]
 WantedBy=multi-user.target
