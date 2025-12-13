@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, cast
 from datetime import datetime
 
 from fastapi import HTTPException
@@ -134,41 +134,45 @@ class TeammateService:
 
             if not candidates and current_profile is not None:
                 langs = (
-                    current_profile.languages.split(",")
+                    cast(str, current_profile.languages).split(",")
                     if current_profile.languages
                     else []
                 )
                 roles = (
-                    current_profile.roles.split(",")
+                    cast(str, current_profile.roles).split(",")
                     if current_profile.roles
                     else []
                 )
 
+                elo_value = int(current_profile.elo) if current_profile.elo is not None else 0
+
                 stats = PlayerStats(
-                    faceit_elo=current_profile.elo or 0,
+                    faceit_elo=elo_value,
                     matches_played=0,
                     win_rate=0.5,
                     avg_kd=1.0,
                     avg_hs=0.5,
                     favorite_maps=(
-                        current_profile.preferred_maps.split(",")
+                        cast(str, current_profile.preferred_maps).split(",")
                         if current_profile.preferred_maps
                         else []
                     ),
                     last_20_matches=[],
                 )
 
+                elo_for_range = int(current_profile.elo) if current_profile.elo is not None else 0
+
                 candidate_prefs = TeammatePreferences(
-                    min_elo=(current_profile.elo - 200) if current_profile.elo else 0,
-                    max_elo=(current_profile.elo + 200) if current_profile.elo else 10000,
+                    min_elo=elo_for_range - 200 if elo_for_range else 0,
+                    max_elo=elo_for_range + 200 if elo_for_range else 10000,
                     preferred_maps=(
-                        current_profile.preferred_maps.split(",")
+                        cast(str, current_profile.preferred_maps).split(",")
                         if current_profile.preferred_maps
                         else []
                     ),
                     preferred_roles=roles,
                     communication_lang=langs,
-                    play_style=current_profile.play_style or "unknown",
+                    play_style=cast(str, current_profile.play_style) if current_profile.play_style else "unknown",
                     time_zone="unknown",
                 )
 
@@ -295,14 +299,14 @@ class TeammateService:
             # Prefer stored Faceit-based profile data for the player when available
             player_langs = list(preferences.communication_lang or [])
             player_roles = list(preferences.preferred_roles or [])
-            player_elo = preferences.max_elo
-            player_style = preferences.play_style
+            player_elo: int = preferences.max_elo
+            player_style: str = preferences.play_style
             player_maps = list(preferences.preferred_maps or [])
             player_time_zone = preferences.time_zone
 
             if current_profile is not None:
                 if current_profile.elo is not None:
-                    player_elo = current_profile.elo
+                    player_elo = int(current_profile.elo)
                 if current_profile.languages:
                     langs = [
                         l.strip()
@@ -320,11 +324,11 @@ class TeammateService:
                     if roles:
                         player_roles = roles
                 if current_profile.play_style:
-                    player_style = current_profile.play_style
+                    player_style = cast(str, current_profile.play_style)
                 if getattr(current_profile, "preferred_maps", None):
                     maps = [
                         m.strip()
-                        for m in (current_profile.preferred_maps or "").split(",")
+                        for m in (cast(str, current_profile.preferred_maps) or "").split(",")
                         if m.strip()
                     ]
                     if maps:
