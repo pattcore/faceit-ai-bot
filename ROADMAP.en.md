@@ -4,10 +4,10 @@
 
 ### Project Development Plan 2026
 
-[![Version](https://img.shields.io/badge/version-v0.4.0-blue.svg)](https://github.com/pat1one/faceit-ai-bot/releases/tag/v0.4.0)
+[![Version](https://img.shields.io/badge/version-v0.4.8-blue.svg)](https://github.com/pat1one/faceit-ai-bot/releases/tag/v0.4.8)
 [![Status](https://img.shields.io/badge/status-Active_Development-green.svg)](https://github.com/pat1one/faceit-ai-bot)
 
-**Last Update:** November 2025
+**Last Update:** December 2025
 
 **[Русская версия](ROADMAP.md)**
 
@@ -25,7 +25,7 @@
 
 ---
 
-## 📊 Current Status (v0.4.0)
+## 📊 Current Status (v0.4.8)
 
 ### ✅ What Works
 
