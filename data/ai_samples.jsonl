@@ -1,0 +1,8 @@
+{"task": "analysis", "language": "en", "input": {"stats": {"kd_ratio": 1.0, "win_rate": 60.0, "hs_percentage": 40.0, "matches_played": 20}, "match_history": []}, "output": "analysis result"}
+{"task": "demo_coach_report", "language": "en", "input": {"demo_input": {"match_id": "123", "players": []}}, "output": {"overview": "ok", "strengths": [], "weaknesses": [], "key_moments": [], "training_plan": {}, "summary": "done"}}
+{"task": "training_plan", "language": "en", "input": {"player_stats": {"kd_ratio": 1.0}, "focus_areas": ["aim"]}, "output": {"daily_exercises": [{"name": "aim", "duration": "30m", "description": "do aim"}], "weekly_goals": ["improve aim"], "estimated_time": "4 weeks"}}
+{"task": "teammates", "language": "en", "input": {"player": {"id": "p1"}, "candidates": []}, "output": {"candidate1": {"score": 0.9, "summary": "good fit"}}}
+{"task": "analysis", "language": "en", "input": {"stats": {"kd_ratio": 1.0, "win_rate": 60.0, "hs_percentage": 40.0, "matches_played": 20}, "match_history": []}, "output": "analysis result"}
+{"task": "demo_coach_report", "language": "en", "input": {"demo_input": {"match_id": "123", "players": []}}, "output": {"overview": "ok", "strengths": [], "weaknesses": [], "key_moments": [], "training_plan": {}, "summary": "done"}}
+{"task": "training_plan", "language": "en", "input": {"player_stats": {"kd_ratio": 1.0}, "focus_areas": ["aim"]}, "output": {"daily_exercises": [{"name": "aim", "duration": "30m", "description": "do aim"}], "weekly_goals": ["improve aim"], "estimated_time": "4 weeks"}}
+{"task": "teammates", "language": "en", "input": {"player": {"id": "p1"}, "candidates": []}, "output": {"candidate1": {"score": 0.9, "summary": "good fit"}}}
