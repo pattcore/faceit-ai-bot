@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 from functools import lru_cache
 from typing import List, Optional
 
-from pydantic_settings import BaseSettings
-from pydantic import validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
 
 # Load environment variables from .env
 env_path = Path(__file__).resolve().parent.parent.parent.parent / ".env"
@@ -71,8 +71,9 @@ class Settings(BaseSettings):
     WEBSITE_URL: str = "http://localhost:3000"
     API_URL: str = "http://localhost:8000"
 
-    @validator("DATABASE_URL")
-    def validate_database_url(cls, v):
+    @field_validator("DATABASE_URL")
+    @classmethod
+    def validate_database_url(cls, v: str) -> str:
         allowed_prefixes = (
             "postgresql://",
             "postgresql+asyncpg://",
@@ -85,8 +86,9 @@ class Settings(BaseSettings):
             )
         return v
 
-    @validator("SECRET_KEY")
-    def validate_secret_key(cls, v):
+    @field_validator("SECRET_KEY")
+    @classmethod
+    def validate_secret_key(cls, v: str) -> str:
         if len(v) < 32:
             raise ValueError(
                 "SECRET_KEY must be at least 32 characters long for security"
@@ -174,11 +176,12 @@ class Settings(BaseSettings):
     # Test settings
     TEST_ENV: bool = False
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = True
-        extra = "ignore"  # Ignore extra fields from .env
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="ignore",  # Ignore extra fields from .env
+    )
 
 
 @lru_cache()
