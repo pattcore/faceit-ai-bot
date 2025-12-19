@@ -25,6 +25,7 @@ from .features.player_analysis.service import PlayerAnalysisService
 from .features.player_analysis.schemas import PlayerAnalysisResponse
 from .features.tasks.routes import router as tasks_router
 from .features.admin.routes import router as admin_router
+from .features.demo_analyzer.routes import router as demo_router
 from .metrics_business import ANALYSIS_REQUESTS, ANALYSIS_DURATION, ACTIVE_USERS
 from .sitemap_routes import router as sitemap_router
 
@@ -146,6 +147,7 @@ app.include_router(subscriptions_router)
 app.include_router(teammates_router)
 app.include_router(player_router)
 app.include_router(ai_router)
+app.include_router(demo_router)
 app.include_router(tasks_router)
 app.include_router(admin_router)
 app.include_router(sitemap_router)
