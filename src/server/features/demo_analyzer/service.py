@@ -203,6 +203,36 @@ class DemoAnalyzer:
                         return []
                 return []
 
+            def _call_parser(*, method_name: str, args: tuple[Any, ...] = (), kwargs: Dict[str, Any] | None = None) -> Any:
+                kwargs = kwargs or {}
+                method = getattr(parser, method_name, None)
+                if method is None:
+                    return None
+                try:
+                    return method(*args, **kwargs)
+                except TypeError:
+                    return None
+                except Exception:
+                    return None
+
+            def _parse_event(event_name: str) -> Any:
+                value = _call_parser(method_name="parse_event", args=(event_name,))
+                if value is not None:
+                    return value
+                value = _call_parser(method_name="parse_event", kwargs={"event": event_name})
+                if value is not None:
+                    return value
+                value = _call_parser(method_name="parse_events", args=([event_name],))
+                if value is not None:
+                    return value
+                value = _call_parser(method_name="parse_events", kwargs={"events": [event_name]})
+                if value is not None:
+                    return value
+                value = _call_parser(method_name="parse_events", args=(event_name,))
+                if value is not None:
+                    return value
+                return None
+
             parser = DemoParser(tmp_path)
 
             # Parse header
@@ -212,21 +242,50 @@ class DemoAnalyzer:
             duration = int(header.get('duration', 0))
 
             # Parse rounds for score and total_rounds
-            rounds_data = parser.parse_rounds()
+            rounds_data = _call_parser(method_name="parse_rounds")
+            if rounds_data is None:
+                rounds_data = _parse_event("round_end")
+            if rounds_data is None:
+                rounds_data = _parse_event("round_officially_ended")
             rounds_records = _to_records(rounds_data)
             total_rounds = len(rounds_records)
+
+            # Parse kills for player stats
+            kills_data = _call_parser(method_name="parse_kills")
+            if kills_data is None:
+                kills_data = _parse_event("player_death")
+            kills_records = _to_records(kills_data)
+
+            # Parse damage
+            damage_data = _call_parser(method_name="parse_damage")
+            if damage_data is None:
+                damage_data = _parse_event("player_hurt")
+            damage_records = _to_records(damage_data)
+
+            if total_rounds <= 0:
+                def _max_round(records: List[Dict[str, Any]]) -> int:
+                    candidates = ("round", "round_num", "roundnum", "round_number", "roundNumber")
+                    best = 0
+                    for rec in records:
+                        for key in candidates:
+                            value = rec.get(key)
+                            if isinstance(value, int) and value > best:
+                                best = value
+                            elif isinstance(value, str) and value.isdigit():
+                                best = max(best, int(value))
+                    return best
+
+                total_rounds = max(_max_round(kills_records), _max_round(damage_records))
+
             team1_rounds = sum(
                 1
                 for r in rounds_records
-                if (r.get("winning_team") or r.get("winner") or r.get("winningteam")) == "T"
-            )  # Approximate
-            team2_rounds = total_rounds - team1_rounds
+                if (r.get("winning_team") or r.get("winner") or r.get("winningteam") or r.get("winner_side")) == "T"
+            ) if rounds_records else 0
 
-            # Parse kills for player stats
-            kills_data = parser.parse_kills()
-
-            # Parse damage
-            damage_data = parser.parse_damage()
+            if team1_rounds <= 0 and total_rounds > 0:
+                team1_rounds = max(0, (total_rounds + 1) // 2)
+            team2_rounds = max(0, total_rounds - team1_rounds)
     
             # Match ID from filename or header
             match_id = stem or header.get('matchid', 'unknown_match')
@@ -241,9 +300,9 @@ class DemoAnalyzer:
                 'total_rounds': total_rounds,
                 'file_size': len(content),
                 'tickrate': tickrate,
-                'kills_data': _to_records(kills_data),
+                'kills_data': kills_records,
                 'rounds_data': rounds_records,
-                'damage_data': _to_records(damage_data),
+                'damage_data': damage_records,
             }
     
         except Exception as e:
@@ -353,23 +412,45 @@ class DemoAnalyzer:
         
         if kills_data and pd is not None:
             df_kills = pd.DataFrame(kills_data)
-            player_kills = df_kills[df_kills['attackername'] == main_player]
-            player_deaths = df_kills[df_kills['victimname'] == main_player]
-            
-            stats['kills'] = len(player_kills)
-            stats['deaths'] = len(player_deaths)
-            stats['headshots'] = (
-                len(player_kills[player_kills.get('headshot', False) is True])
-                if not player_kills.empty
-                else 0
+            attacker_col = next(
+                (c for c in ("attackername", "attacker_name", "attacker", "attackerName") if c in df_kills.columns),
+                None,
             )
+            victim_col = next(
+                (c for c in ("victimname", "victim_name", "victim", "victimName") if c in df_kills.columns),
+                None,
+            )
+            headshot_col = next(
+                (c for c in ("headshot", "is_headshot", "isHeadshot") if c in df_kills.columns),
+                None,
+            )
+
+            if attacker_col is not None:
+                player_kills = df_kills[df_kills[attacker_col] == main_player]
+                stats['kills'] = len(player_kills)
+                if headshot_col is not None and not player_kills.empty:
+                    stats['headshots'] = int((player_kills[headshot_col] == True).sum())
+
+            if victim_col is not None:
+                player_deaths = df_kills[df_kills[victim_col] == main_player]
+                stats['deaths'] = len(player_deaths)
 
         if damage_data and pd is not None:
             df_damage = pd.DataFrame(damage_data)
-            player_damage = df_damage[df_damage['attackername'] == main_player]
-            stats['total_damage'] = (
-                player_damage['hp_damage'].sum() if not player_damage.empty else 0
+            attacker_col = next(
+                (c for c in ("attackername", "attacker_name", "attacker", "attackerName") if c in df_damage.columns),
+                None,
             )
+            dmg_col = next(
+                (c for c in ("hp_damage", "dmg_health", "hpDamage", "damage") if c in df_damage.columns),
+                None,
+            )
+
+            if attacker_col is not None and dmg_col is not None:
+                player_damage = df_damage[df_damage[attacker_col] == main_player]
+                stats['total_damage'] = (
+                    float(player_damage[dmg_col].sum()) if not player_damage.empty else 0
+                )
         
         # Headshot percentage
         if stats['kills'] > 0:
