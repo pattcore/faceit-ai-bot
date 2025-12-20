@@ -76,7 +76,8 @@ player_service = PlayerAnalysisService()
 demo_analyzer = DemoAnalyzer()
 teammate_service = TeammateService()
 
-MAX_DEMO_SIZE_MB = settings.MAX_DEMO_FILE_MB
+_ds_limit_mb = int(os.getenv("DISCORD_MAX_DEMO_FILE_MB", "25"))
+MAX_DEMO_SIZE_MB = min(settings.MAX_DEMO_FILE_MB, _ds_limit_mb)
 MAX_DEMO_SIZE_BYTES = MAX_DEMO_SIZE_MB * 1024 * 1024
 _SNIFF_BYTES = 4096
 

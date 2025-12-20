@@ -9,6 +9,7 @@ from typing import Optional
 from fastapi import UploadFile
 from prometheus_client import Counter, Histogram, start_http_server
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.error import BadRequest
 from telegram.ext import (
     ApplicationBuilder,
     CommandHandler,
@@ -65,7 +66,8 @@ player_service = PlayerAnalysisService()
 demo_analyzer = DemoAnalyzer()
 teammate_service = TeammateService()
 
-MAX_DEMO_SIZE_MB = settings.MAX_DEMO_FILE_MB
+_tg_limit_mb = int(os.getenv("TELEGRAM_MAX_DEMO_FILE_MB", "50"))
+MAX_DEMO_SIZE_MB = min(settings.MAX_DEMO_FILE_MB, _tg_limit_mb)
 MAX_DEMO_SIZE_BYTES = MAX_DEMO_SIZE_MB * 1024 * 1024
 _SNIFF_BYTES = 4096
 
@@ -704,7 +706,15 @@ async def cmd_demo_analyze(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         "Скачиваю и анализирую демку, это может занять время..."
     )
 
-    telegram_file = await doc.get_file()
+    try:
+        telegram_file = await doc.get_file()
+    except BadRequest as exc:
+        if "File is too big" in str(exc):
+            await chat.send_message(
+                f"Файл слишком большой для скачивания через Telegram. Максимальный размер {MAX_DEMO_SIZE_MB} МБ."
+            )
+            return
+        raise
     buffer = BytesIO()
     await telegram_file.download_to_memory(out=buffer)
     buffer.seek(0)
