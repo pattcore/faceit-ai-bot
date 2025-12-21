@@ -1,12 +1,14 @@
 import logging
 import os
 import time
+import asyncio
 from datetime import datetime
 from functools import wraps
 from io import BytesIO
 from typing import Optional
 
 from fastapi import UploadFile
+import httpx
 from prometheus_client import Counter, Histogram, start_http_server
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.error import BadRequest
@@ -70,6 +72,8 @@ _tg_limit_mb = int(os.getenv("TELEGRAM_MAX_DEMO_FILE_MB", "50"))
 MAX_DEMO_SIZE_MB = min(settings.MAX_DEMO_FILE_MB, _tg_limit_mb)
 MAX_DEMO_SIZE_BYTES = MAX_DEMO_SIZE_MB * 1024 * 1024
 _SNIFF_BYTES = 4096
+
+API_INTERNAL_URL = os.getenv("API_INTERNAL_URL", "http://api:8000").rstrip("/")
 
 WAITING_NICKNAME, WAITING_ANALYZE_PARAMS, WAITING_TM_PARAMS, WAITING_DEMO = range(4)
 user_session_data: dict[int, dict] = {}
@@ -926,6 +930,7 @@ def main() -> None:
     app.add_handler(CommandHandler("faceit_analyze", cmd_faceit_analyze))
     app.add_handler(CommandHandler("tm_find", cmd_tm_find))
     app.add_handler(CommandHandler("demo_analyze", cmd_demo_analyze))
+    app.add_handler(CommandHandler("demo_analyze_url", cmd_demo_analyze_url))
 
     conv_handler = ConversationHandler(
         entry_points=[
