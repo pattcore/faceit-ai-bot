@@ -4,7 +4,7 @@ import tempfile
 import socket
 import ipaddress
 from urllib.parse import urlparse
-from typing import Optional
+from typing import Optional, Union
 
 from fastapi import APIRouter, File, UploadFile, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -54,7 +54,7 @@ async def enforce_demo_analyze_rate_limit(
 class DemoAnalyzeUrlRequest(BaseModel):
     url: str
     language: str = "ru"
-    user_id: Optional[str] = None
+    user_id: Optional[Union[str, int]] = None
 
 
 def _is_private_address(host: str) -> bool:
@@ -385,9 +385,14 @@ async def analyze_demo_url_background(
     tmp_path: Optional[str] = None
     try:
         tmp_path = await _download_demo_to_shared_tmp(request.url)
+
+        user_id_value: Optional[str] = None
+        if request.user_id is not None:
+            user_id_value = str(request.user_id)
+
         task = analyze_demo_task.delay(
             demo_file_path=tmp_path,
-            user_id=request.user_id,
+            user_id=user_id_value,
             language=request.language,
         )
         return {
