@@ -832,7 +832,9 @@ async def cmd_demo_analyze(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     if doc.file_size and doc.file_size > MAX_DEMO_SIZE_BYTES:
         await chat.send_message(
-            f"Файл слишком большой. Максимальный размер {MAX_DEMO_SIZE_MB} МБ."
+            f"Файл слишком большой. Максимальный размер {MAX_DEMO_SIZE_MB} МБ.\n"
+            "Если демка больше — загрузи её по ссылке и используй /demo_analyze_url.\n"
+            "Пример: /demo_analyze_url https://uploads.pattmsc.online/demos/your_demo.dem"
         )
         return
 
@@ -845,7 +847,9 @@ async def cmd_demo_analyze(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     except BadRequest as exc:
         if "File is too big" in str(exc):
             await chat.send_message(
-                f"Файл слишком большой для скачивания через Telegram. Максимальный размер {MAX_DEMO_SIZE_MB} МБ."
+                f"Файл слишком большой для скачивания через Telegram. Максимальный размер {MAX_DEMO_SIZE_MB} МБ.\n"
+                "Если демка больше — загрузи её по ссылке и используй /demo_analyze_url.\n"
+                "Пример: /demo_analyze_url https://uploads.pattmsc.online/demos/your_demo.dem"
             )
             return
         raise

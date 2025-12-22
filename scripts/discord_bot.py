@@ -941,7 +941,9 @@ async def demo_analyze(
 
     if demo.size and demo.size > MAX_DEMO_SIZE_BYTES:
         await interaction.followup.send(
-            f"Файл слишком большой. Максимальный размер {MAX_DEMO_SIZE_MB} МБ.",
+            f"Файл слишком большой. Максимальный размер {MAX_DEMO_SIZE_MB} МБ.\n"
+            "Если демка больше — загрузи её по ссылке и используй /demo_analyze_url.\n"
+            "Пример: /demo_analyze_url https://uploads.pattmsc.online/demos/your_demo.dem",
             ephemeral=True,
         )
         return
