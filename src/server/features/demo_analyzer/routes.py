@@ -1,12 +1,16 @@
 import logging
+import json
 import os
 import tempfile
 import socket
 import ipaddress
+import hashlib
+import secrets
+import time
 from urllib.parse import urlparse
 from typing import Optional, Union
 
-from fastapi import APIRouter, File, UploadFile, Depends, HTTPException, status
+from fastapi import APIRouter, File, UploadFile, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 import httpx
@@ -36,6 +40,51 @@ MAX_DEMO_SIZE_BYTES = MAX_DEMO_SIZE_MB * 1024 * 1024
 _SNIFF_BYTES = 4096
 _SHARED_TMP_DIR = "/tmp_demos"
 
+_UPLOAD_SESSION_TTL_SECONDS = int(os.getenv("UPLOAD_SESSION_TTL_SECONDS", "1200"))
+_BOT_UPLOAD_SESSION_SECRET = os.getenv("BOT_UPLOAD_SESSION_SECRET")
+_DEMO_PUBLIC_BASE_URL = os.getenv(
+    "DEMO_PUBLIC_BASE_URL",
+    "https://uploads.pattmsc.online/demos",
+).rstrip("/")
+
+
+def _upload_session_key(token: str) -> str:
+    digest = hashlib.sha256(token.encode("utf-8")).hexdigest()
+    return f"upload_session:{digest}"
+
+
+async def _get_redis_client():
+    try:
+        import redis.asyncio as redis  # type: ignore
+    except ImportError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Redis is not available",
+        ) from exc
+
+    redis_url = os.getenv("REDIS_URL")
+    if not redis_url:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="REDIS_URL is not configured",
+        )
+
+    return redis.from_url(redis_url, encoding="utf-8", decode_responses=True)
+
+
+def _require_bot_secret(request: Request) -> None:
+    if not _BOT_UPLOAD_SESSION_SECRET:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="BOT_UPLOAD_SESSION_SECRET is not configured",
+        )
+    provided = request.headers.get("X-Bot-Secret")
+    if not provided or provided != _BOT_UPLOAD_SESSION_SECRET:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid bot secret",
+        )
+
 
 async def enforce_demo_analyze_rate_limit(
     db: Session = Depends(get_db),
@@ -55,6 +104,16 @@ class DemoAnalyzeUrlRequest(BaseModel):
     url: str
     language: str = "ru"
     user_id: Optional[Union[str, int]] = None
+
+
+class CreateUploadSessionRequest(BaseModel):
+    platform: str
+    platform_user_id: str
+    language: str = "ru"
+
+
+class UploadDemoResponse(BaseModel):
+    demo_url: str
 
 
 def _is_private_address(host: str) -> bool:
@@ -371,6 +430,186 @@ async def analyze_demo_background(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to submit demo analysis task",
+        )
+
+
+@router.post(
+    "/upload-sessions",
+    summary="Create one-time upload session for bot demo upload",
+)
+async def create_upload_session(
+    payload: CreateUploadSessionRequest,
+    http_request: Request,
+    _: None = Depends(rate_limiter),
+):
+    _require_bot_secret(http_request)
+    language = payload.language
+    if language not in {"ru", "en"}:
+        language = "ru"
+    token = secrets.token_urlsafe(32)
+    key = _upload_session_key(token)
+    redis_client = await _get_redis_client()
+    value = {
+        "status": "pending",
+        "platform": payload.platform,
+        "platform_user_id": payload.platform_user_id,
+        "language": language,
+        "created_at": int(time.time()),
+    }
+    await redis_client.setex(key, _UPLOAD_SESSION_TTL_SECONDS, json.dumps(value))
+    return {
+        "token": token,
+        "expires_in_seconds": _UPLOAD_SESSION_TTL_SECONDS,
+    }
+
+
+@router.post(
+    "/upload-sessions/{token}/claim",
+    summary="Claim completed upload session (bot-only)",
+)
+async def claim_upload_session(
+    token: str,
+    http_request: Request,
+    _: None = Depends(rate_limiter),
+):
+    _require_bot_secret(http_request)
+    key = _upload_session_key(token)
+    redis_client = await _get_redis_client()
+    raw = await redis_client.get(key)
+    if not raw:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+    try:
+        data = json.loads(raw)
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid session")
+    if data.get("status") != "ready":
+        return {"status": data.get("status", "pending")}
+    demo_url = data.get("demo_url")
+    if not demo_url:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing demo_url")
+    await redis_client.delete(key)
+    return {
+        "status": "ready",
+        "demo_url": demo_url,
+        "language": data.get("language", "ru"),
+        "platform": data.get("platform"),
+        "platform_user_id": data.get("platform_user_id"),
+    }
+
+
+@router.post(
+    "/upload",
+    response_model=UploadDemoResponse,
+    summary="Upload demo file to shared storage (token required)",
+)
+async def upload_demo_file(
+    demo: UploadFile = File(...),
+    token: str = "",
+    _: None = Depends(rate_limiter),
+):
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing token")
+
+    key = _upload_session_key(token)
+    redis_client = await _get_redis_client()
+    raw = await redis_client.get(key)
+    if not raw:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+
+    try:
+        session_data = json.loads(raw)
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid session")
+
+    if session_data.get("status") != "pending":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Session is not pending",
+        )
+
+    filename = (demo.filename or "").lower()
+    if not filename.endswith(".dem"):
+        raise DemoAnalysisException(
+            detail="Invalid file format. Only .dem files are supported.",
+            error_code="INVALID_FILE_FORMAT",
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+
+    os.makedirs(_SHARED_TMP_DIR, exist_ok=True)
+
+    tmp_path: Optional[str] = None
+    total = 0
+    first_bytes = b""
+    try:
+        with tempfile.NamedTemporaryFile(
+            dir=_SHARED_TMP_DIR,
+            prefix="demo_upload_",
+            suffix=".dem",
+            delete=False,
+        ) as tmp_file:
+            tmp_path = tmp_file.name
+            while True:
+                chunk = await demo.read(1024 * 1024)
+                if not chunk:
+                    break
+                if not first_bytes:
+                    first_bytes = chunk[:_SNIFF_BYTES]
+                total += len(chunk)
+                if total > MAX_DEMO_SIZE_BYTES:
+                    raise DemoAnalysisException(
+                        detail=f"File too large. Maximum allowed size is {MAX_DEMO_SIZE_MB} MB.",
+                        error_code="FILE_TOO_LARGE",
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                    )
+                tmp_file.write(chunk)
+
+        lowered_sniff = (first_bytes or b"").lower()
+        suspicious_markers = [
+            b"<html",
+            b"<script",
+            b"<?php",
+            b"#!/bin/bash",
+            b"#!/usr/bin/env",
+            b"import os",
+            b"import sys",
+        ]
+        if any(marker in lowered_sniff for marker in suspicious_markers):
+            raise DemoAnalysisException(
+                detail="Invalid file content. Expected a binary CS2 demo file.",
+                error_code="INVALID_FILE_CONTENT",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        public_name = os.path.basename(tmp_path)
+        demo_url = f"{_DEMO_PUBLIC_BASE_URL}/{public_name}"
+
+        session_data["status"] = "ready"
+        session_data["demo_url"] = demo_url
+        session_data["ready_at"] = int(time.time())
+        await redis_client.setex(key, _UPLOAD_SESSION_TTL_SECONDS, json.dumps(session_data))
+
+        return {"demo_url": demo_url}
+
+    except DemoAnalysisException as exc:
+        if tmp_path is not None and os.path.exists(tmp_path):
+            try:
+                os.unlink(tmp_path)
+            except Exception:
+                pass
+        raise HTTPException(
+            status_code=getattr(exc, "status_code", status.HTTP_400_BAD_REQUEST),
+            detail=getattr(exc, "detail", "Upload failed"),
+        )
+    except Exception:
+        logger.exception("Failed to upload demo")
+        if tmp_path is not None and os.path.exists(tmp_path):
+            try:
+                os.unlink(tmp_path)
+            except Exception:
+                pass
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to upload demo",
         )
 
 
