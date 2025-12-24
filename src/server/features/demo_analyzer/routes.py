@@ -536,6 +536,10 @@ async def upload_demo_file(
         )
 
     os.makedirs(_SHARED_TMP_DIR, exist_ok=True)
+    try:
+        os.chmod(_SHARED_TMP_DIR, 0o755)
+    except Exception:
+        pass
 
     tmp_path: Optional[str] = None
     total = 0
