@@ -8,15 +8,16 @@ resources:
 - statefulset-postgres.yml
 - deployment-redis.yml
 - deployment-api.yml
+- deployment-celery-worker.yml
+- deployment-celery-beat.yml
 - deployment-web.yml
-- hpa.yml
 - ingress.yml
 
 commonLabels:
   environment: production
 
 images:
-- name: faceit-api
+- name: registry.pattmsc.online/faceit-api
   newTag: v0.4.0
-- name: faceit-web
+- name: registry.pattmsc.online/faceit-web
   newTag: v0.4.0

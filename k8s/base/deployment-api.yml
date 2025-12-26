@@ -23,31 +23,27 @@ spec:
         image: registry.pattmsc.online/faceit-api:latest
         ports:
         - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: faceit-config
+        - secretRef:
+            name: faceit-secrets
         env:
-        - name: ENVIRONMENT
-          valueFrom:
-            configMapKeyRef:
-              name: faceit-config
-              key: ENVIRONMENT
         - name: DATABASE_URL
-          value: "postgresql://faceit:$(DB_PASSWORD)@postgres:5432/faceit"
+          valueFrom:
+            secretKeyRef:
+              name: faceit-secrets
+              key: DATABASE_URL
         - name: REDIS_URL
-          value: "redis://:$(REDIS_PASSWORD)@redis:6379"
-        - name: SECRET_KEY
           valueFrom:
             secretKeyRef:
               name: faceit-secrets
-              key: SECRET_KEY
-        - name: GROQ_API_KEY
+              key: REDIS_URL
+        - name: TURNSTILE_SECRET_KEY
           valueFrom:
             secretKeyRef:
               name: faceit-secrets
-              key: GROQ_API_KEY
-        - name: FACEIT_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: faceit-secrets
-              key: FACEIT_API_KEY
+              key: TURNSTILE_SECRET_KEY
         resources:
           requests:
             memory: "256Mi"
