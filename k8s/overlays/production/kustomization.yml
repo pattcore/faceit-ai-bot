@@ -26,7 +26,7 @@ images:
 
 configMapGenerator:
   - name: faceit-config
-    behavior: replace
+    behavior: merge
     literals:
       - NEXT_PUBLIC_API_URL=/api
 
