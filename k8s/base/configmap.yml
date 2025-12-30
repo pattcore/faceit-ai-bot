@@ -8,6 +8,8 @@ data:
   API_PORT: "8000"
   NODE_ENV: "production"
   DOMAIN: "pattmsc.online"
+  WEBSITE_URL: "https://pattmsc.online"
+  API_URL: "https://pattmsc.online/api"
   ALLOWED_ORIGINS: "[\"https://pattmsc.online\",\"https://www.pattmsc.online\",\"https://pattmsc.ru\",\"https://www.pattmsc.ru\",\"https://pattcs.pro\",\"https://www.pattcs.pro\"]"
   LOG_LEVEL: "INFO"
   REDIS_MAX_CONNECTIONS: "20"
