@@ -15,11 +15,10 @@ interface Props {
   onTokenChange: (token: string | null) => void;
   action?: string;
   resetSignal?: number;
+  siteKey: string;
 }
 
-const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
-
-export default function TurnstileWidget({ onTokenChange, action, resetSignal = 0 }: Props) {
+export default function TurnstileWidget({ onTokenChange, action, resetSignal = 0, siteKey }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const widgetIdRef = useRef<string | null>(null);
 
@@ -108,10 +107,6 @@ export default function TurnstileWidget({ onTokenChange, action, resetSignal = 0
       // ignore reset errors
     }
   }, [resetSignal]);
-
-  if (!siteKey) {
-    return null;
-  }
 
   return <div ref={containerRef} className="flex justify-center mt-4" />;
 }

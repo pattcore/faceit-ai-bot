@@ -4,11 +4,10 @@ import React, { useEffect, useRef } from 'react';
 
 interface Props {
   onTokenChange: (token: string | null) => void;
+  siteKey: string;
 }
 
-const siteKey = process.env.NEXT_PUBLIC_SMARTCAPTCHA_SITE_KEY;
-
-export default function SmartCaptchaWidget({ onTokenChange }: Props) {
+export default function SmartCaptchaWidget({ onTokenChange, siteKey }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const renderedRef = useRef(false);
 

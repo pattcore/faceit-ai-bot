@@ -147,25 +147,23 @@ async def steam_login(request: Request):
     remote_ip = request.client.host if request.client else None
     captcha_token = request.query_params.get("captcha_token")
 
-    # For Steam login we do not want to hard-block users when captcha_token
-    # is missing, but we still validate it when present and CAPTCHA is enabled.
-    captcha_ok = True
-    if captcha_service.is_enabled() and captcha_token:
+    if captcha_service.is_enabled() and not captcha_token:
+        raise HTTPException(
+            status_code=400,
+            detail="Missing captcha_token",
+        )
+    if captcha_service.is_enabled():
         captcha_ok = await captcha_service.verify_token(
             token=captcha_token,
             remote_ip=remote_ip,
             action="auth_steam_login",
-            fail_open_on_error=True,
+            fail_open_on_error=False,
         )
-    elif captcha_service.is_enabled() and not captcha_token:
-        logger.warning(
-            "Steam login called without captcha_token while CAPTCHA is enabled",
-        )
-
-    if captcha_service.is_enabled() and not captcha_ok:
-        logger.warning(
-            "Steam login CAPTCHA verification failed, but proceeding fail-open",
-        )
+        if not captcha_ok:
+            raise HTTPException(
+                status_code=400,
+                detail="CAPTCHA verification failed",
+            )
 
     realm = settings.WEBSITE_URL.rstrip("/")
     # Nginx adds /api prefix for backend, so callback is exposed as /api/auth/steam/callback
@@ -325,23 +323,23 @@ async def faceit_login(request: Request):
     remote_ip=  request.client.host if request.client else None
     captcha_token = request.query_params.get("captcha_token")
 
-    captcha_ok = True
-    if captcha_service.is_enabled() and captcha_token:
+    if captcha_service.is_enabled() and not captcha_token:
+        raise HTTPException(
+            status_code=400,
+            detail="Missing captcha_token",
+        )
+    if captcha_service.is_enabled():
         captcha_ok = await captcha_service.verify_token(
             token=captcha_token,
             remote_ip=remote_ip,
             action="auth_faceit_login",
-            fail_open_on_error=True,
+            fail_open_on_error=False,
         )
-    elif captcha_service.is_enabled() and not captcha_token:
-        logger.warning(
-            "Faceit login called without captcha_token while CAPTCHA is enabled",
-        )
-
-    if captcha_service.is_enabled() and not captcha_ok:
-        logger.warning(
-            "Faceit login CAPTCHA verification failed, but proceeding fail-open",
-        )
+        if not captcha_ok:
+            raise HTTPException(
+                status_code=400,
+                detail="CAPTCHA verification failed",
+            )
 
     client_id = getattr(settings, "FACEIT_CLIENT_ID", None)
     client_secret = getattr(settings, "FACEIT_CLIENT_SECRET", None)
@@ -947,11 +945,16 @@ async def login(
 
     remote_ip = request.client.host if request.client else None
     if not skip_captcha_for_extension:
+        if captcha_service.is_enabled() and not captcha_token:
+            raise HTTPException(
+                status_code=400,
+                detail="Missing captcha_token",
+            )
         captcha_ok = await captcha_service.verify_token(
             token=captcha_token,
             remote_ip=remote_ip,
             action="auth_login",
-            fail_open_on_error=True,
+            fail_open_on_error=False,
         )
         if not captcha_ok:
             raise HTTPException(

@@ -40,6 +40,10 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: Optional[str] = None
     HUGGINGFACE_TOKEN: Optional[str] = None
 
+    OLLAMA_BASE_URL: Optional[str] = None
+    OLLAMA_MODEL: Optional[str] = None
+    OLLAMA_API_KEY: Optional[str] = None
+
     LOCAL_LLM_BASE_URL: Optional[str] = None
     LOCAL_LLM_MODEL: Optional[str] = None
     LOCAL_LLM_API_KEY: Optional[str] = None

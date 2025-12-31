@@ -54,8 +54,13 @@ def validate_env() -> None:
     required_vars = [
         "DATABASE_URL",
         "SECRET_KEY",
-        "TURNSTILE_SECRET_KEY",
     ]
+
+    captcha_provider = (os.getenv("CAPTCHA_PROVIDER") or "").strip().lower()
+    if captcha_provider == "turnstile":
+        required_vars.append("TURNSTILE_SECRET_KEY")
+    elif captcha_provider in ("smartcaptcha", "yandex_smartcaptcha", "yandex"):
+        required_vars.append("SMARTCAPTCHA_SECRET_KEY")
 
     missing = [var for var in required_vars if not os.getenv(var)]
     if missing:
@@ -196,6 +201,34 @@ def health_check_api():
 @app.get("/me", response_model=UserResponse, tags=["auth"])
 async def me(current_user: User = Depends(get_current_active_user)):
     return current_user
+
+
+@app.get("/public-config", tags=["public"])
+async def public_config():
+    captcha_provider = (
+        os.getenv("CAPTCHA_PROVIDER")
+        or os.getenv("NEXT_PUBLIC_CAPTCHA_PROVIDER")
+        or ""
+    ).strip().lower()
+
+    turnstile_site_key = (
+        os.getenv("TURNSTILE_SITE_KEY")
+        or os.getenv("NEXT_PUBLIC_TURNSTILE_SITE_KEY")
+        or ""
+    ).strip()
+    smartcaptcha_site_key = (
+        os.getenv("SMARTCAPTCHA_SITE_KEY")
+        or os.getenv("NEXT_PUBLIC_SMARTCAPTCHA_SITE_KEY")
+        or ""
+    ).strip()
+
+    return {
+        "captcha": {
+            "provider": captcha_provider or None,
+            "turnstile_site_key": turnstile_site_key or None,
+            "smartcaptcha_site_key": smartcaptcha_site_key or None,
+        }
+    }
 
 
 @app.get("/metrics")
