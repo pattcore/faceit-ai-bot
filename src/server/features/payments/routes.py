@@ -57,10 +57,17 @@ async def create_payment(
     stores the payment in the database linked to the user and subscription tier.
     """
     remote_ip = request.client.host if request.client else None
+
+    if captcha_service.is_enabled() and not payment_request.captcha_token:
+        raise HTTPException(
+            status_code=400,
+            detail="Missing captcha_token",
+        )
     captcha_ok = await captcha_service.verify_token(
         token=payment_request.captcha_token,
         remote_ip=remote_ip,
         action="payment_create",
+        fail_open_on_error=False,
     )
     if not captcha_ok:
         raise HTTPException(

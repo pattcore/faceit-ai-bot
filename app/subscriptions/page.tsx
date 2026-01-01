@@ -7,6 +7,12 @@ import API_ENDPOINTS from '../../src/config/api';
 import { useTranslation } from 'react-i18next';
 import CaptchaWidget from '../../src/components/CaptchaWidget';
 
+type PublicConfig = {
+  captcha?: {
+    provider?: string | null;
+  };
+};
+
 export default function SubscriptionsPage() {
   const { user } = useAuth();
   const router = useRouter();
@@ -15,6 +21,7 @@ export default function SubscriptionsPage() {
   const { t, i18n } = useTranslation();
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaReset, setCaptchaReset] = useState(0);
+  const [captchaEnabled, setCaptchaEnabled] = useState(false);
 
   const plans = [
     { tier: 'FREE', price: 0, popular: false },
@@ -53,6 +60,37 @@ export default function SubscriptionsPage() {
       cancelled = true;
     };
   }, [i18n.language]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetch('/api/public-config', {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            Accept: 'application/json',
+          },
+        });
+
+        if (!res.ok) {
+          if (!cancelled) setCaptchaEnabled(false);
+          return;
+        }
+
+        const cfg = (await res.json()) as PublicConfig;
+        const provider = (cfg?.captcha?.provider || '').toLowerCase().trim();
+        if (!cancelled) setCaptchaEnabled(!!provider);
+      } catch {
+        if (!cancelled) setCaptchaEnabled(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleCaptchaTokenChange = useCallback((token: string | null) => {
     setCaptchaToken(token);
@@ -93,9 +131,6 @@ export default function SubscriptionsPage() {
     try {
       setLoadingTier(tier);
 
-      const captchaProvider = process.env.NEXT_PUBLIC_CAPTCHA_PROVIDER?.toLowerCase();
-      const captchaEnabled = !!captchaProvider;
-
       if (captchaEnabled && !captchaToken) {
         setStatus({
           type: 'error',
@@ -112,6 +147,7 @@ export default function SubscriptionsPage() {
 
       const response = await fetch(API_ENDPOINTS.PAYMENTS_CREATE, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
