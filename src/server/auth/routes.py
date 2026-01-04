@@ -5,6 +5,7 @@ import logging
 import secrets
 import hashlib
 import base64
+import re
 from urllib.parse import urlencode
 from typing import Any, cast
 
@@ -46,6 +47,26 @@ STEAM_API_PLAYER_SUMMARIES_URL = "https://api.steampowered.com/ISteamUser/GetPla
 FACEIT_AUTHORIZATION_URL = "https://accounts.faceit.com"
 FACEIT_TOKEN_URL = "https://api.faceit.com/auth/v1/oauth/token"
 FACEIT_USERINFO_URL = "https://api.faceit.com/auth/v1/resources/userinfo"
+
+
+def _make_unique_username(
+    db: Session,
+    base_username: str,
+    *,
+    exclude_user_id: int | None = None,
+) -> str:
+    username = base_username
+    suffix = 1
+    while True:
+        existing = db.execute(
+            select(User).where(User.username == username)
+        ).scalars().first()
+        if not existing:
+            return username
+        if exclude_user_id is not None and getattr(existing, "id", None) == exclude_user_id:
+            return username
+        username = f"{base_username}_{suffix}"
+        suffix += 1
 
 
 async def verify_steam_openid(query_params) -> str | None:
@@ -206,13 +227,7 @@ async def steam_callback(
     if not user:
         persona_name = await fetch_steam_persona_name(steam_id)
         base_username = persona_name or f"steam_{steam_id}"
-        username = base_username
-        suffix = 1
-        while db.execute(
-            select(User).where(User.username == username)
-        ).scalars().first():
-            username = f"{base_username}_{suffix}"
-            suffix += 1
+        username = _make_unique_username(db, base_username)
 
         email = f"steam_{steam_id}@steam.local"
         random_password = secrets.token_urlsafe(16)
@@ -238,6 +253,20 @@ async def steam_callback(
             user_obj_steam: Any = user
             user_obj_steam.steam_id = steam_id
             updated = True
+
+        persona_name = await fetch_steam_persona_name(steam_id)
+        if persona_name and user.username:
+            legacy_pattern = rf"steam_{re.escape(steam_id)}(?:_\d+)?$"
+            if re.fullmatch(legacy_pattern, user.username):
+                candidate = _make_unique_username(
+                    db,
+                    persona_name,
+                    exclude_user_id=user.id,
+                )
+                if candidate != user.username:
+                    user_obj_username: Any = user
+                    user_obj_username.username = candidate
+                    updated = True
 
         if updated:
             db.add(user)
@@ -320,7 +349,7 @@ async def faceit_login(request: Request):
     state token.
     """
 
-    remote_ip=  request.client.host if request.client else None
+    remote_ip = request.client.host if request.client else None
     captcha_token = request.query_params.get("captcha_token")
 
     if captcha_service.is_enabled() and not captcha_token:
@@ -540,13 +569,7 @@ async def faceit_callback(
 
         # Ensure unique username
         base_username = nickname
-        username = base_username
-        suffix = 1
-        while db.execute(
-            select(User).where(User.username == username)
-        ).scalars().first():
-            username = f"{base_username}_{suffix}"
-            suffix += 1
+        username = _make_unique_username(db, base_username)
 
         random_password = secrets.token_urlsafe(16)
         hashed_password = get_password_hash(random_password)
@@ -573,21 +596,18 @@ async def faceit_callback(
             user_obj_faceit.faceit_id = faceit_guid
             updated = True
 
-        # If user still has legacy faceit_<id> username, try to replace it with nickname
         if nickname and user.username:
-            legacy_prefix = f"faceit_{faceit_guid}"
-            if user.username == legacy_prefix:
-                base_username = nickname
-                username = base_username
-                suffix = 1
-                while db.execute(
-                    select(User).where(User.username == username)
-                ).scalars().first():
-                    username = f"{base_username}_{suffix}"
-                    suffix += 1
-                user_obj_username: Any = user
-                user_obj_username.username = username
-                updated = True
+            legacy_pattern = rf"faceit_{re.escape(faceit_guid)}(?:_\d+)?$"
+            if re.fullmatch(legacy_pattern, user.username):
+                candidate = _make_unique_username(
+                    db,
+                    nickname,
+                    exclude_user_id=user.id,
+                )
+                if candidate != user.username:
+                    user_obj_username: Any = user
+                    user_obj_username.username = candidate
+                    updated = True
 
         if updated:
             db.add(user)
