@@ -41,7 +41,19 @@ export default function TurnstileWidget({ onTokenChange, action, resetSignal = 0
         ) as HTMLScriptElement | null;
 
         if (existing) {
-          resolve();
+          if (existing.getAttribute('data-turnstile-loaded') === 'true' || window.turnstile) {
+            resolve();
+            return;
+          }
+
+          const onLoad = () => {
+            existing.setAttribute('data-turnstile-loaded', 'true');
+            resolve();
+          };
+          const onError = () => reject(new Error('Failed to load Turnstile script'));
+
+          existing.addEventListener('load', onLoad, { once: true });
+          existing.addEventListener('error', onError, { once: true });
           return;
         }
 
@@ -50,7 +62,10 @@ export default function TurnstileWidget({ onTokenChange, action, resetSignal = 0
         script.async = true;
         script.defer = true;
         script.setAttribute('data-turnstile-script', 'true');
-        script.onload = () => resolve();
+        script.onload = () => {
+          script.setAttribute('data-turnstile-loaded', 'true');
+          resolve();
+        };
         script.onerror = () => reject(new Error('Failed to load Turnstile script'));
         document.head.appendChild(script);
       });
