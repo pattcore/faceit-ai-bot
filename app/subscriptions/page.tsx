@@ -10,6 +10,8 @@ import CaptchaWidget from '../../src/components/CaptchaWidget';
 type PublicConfig = {
   captcha?: {
     provider?: string | null;
+    turnstile_site_key?: string | null;
+    smartcaptcha_site_key?: string | null;
   };
 };
 
@@ -81,7 +83,15 @@ export default function SubscriptionsPage() {
 
         const cfg = (await res.json()) as PublicConfig;
         const provider = (cfg?.captcha?.provider || '').toLowerCase().trim();
-        if (!cancelled) setCaptchaEnabled(!!provider);
+        const hasTurnstileKey = !!cfg?.captcha?.turnstile_site_key;
+        const hasSmartKey = !!cfg?.captcha?.smartcaptcha_site_key;
+
+        const enabled =
+          (provider === 'turnstile' && hasTurnstileKey) ||
+          ((provider === 'smartcaptcha' || provider === 'yandex_smartcaptcha' || provider === 'yandex') &&
+            hasSmartKey);
+
+        if (!cancelled) setCaptchaEnabled(enabled);
       } catch {
         if (!cancelled) setCaptchaEnabled(false);
       }

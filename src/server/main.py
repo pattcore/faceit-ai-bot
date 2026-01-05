@@ -59,8 +59,10 @@ def validate_env() -> None:
     captcha_provider = (os.getenv("CAPTCHA_PROVIDER") or "").strip().lower()
     if captcha_provider == "turnstile":
         required_vars.append("TURNSTILE_SECRET_KEY")
+        required_vars.append("TURNSTILE_SITE_KEY")
     elif captcha_provider in ("smartcaptcha", "yandex_smartcaptcha", "yandex"):
         required_vars.append("SMARTCAPTCHA_SECRET_KEY")
+        required_vars.append("SMARTCAPTCHA_SITE_KEY")
 
     missing = [var for var in required_vars if not os.getenv(var)]
     if missing:
@@ -229,6 +231,11 @@ async def public_config():
             "smartcaptcha_site_key": smartcaptcha_site_key or None,
         }
     }
+
+
+@app.get("/api/public-config", tags=["public"])
+async def public_config_api_alias():
+    return await public_config()
 
 
 @app.get("/metrics")

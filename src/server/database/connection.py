@@ -15,7 +15,9 @@ from sqlalchemy.pool import Pool, StaticPool
 # Load environment variables from .env - use absolute path
 project_root = Path(__file__).resolve().parent.parent.parent.parent
 env_path = project_root / ".env"
-load_dotenv(dotenv_path=str(env_path))
+_runtime_env = (os.getenv("NODE_ENV") or os.getenv("ENVIRONMENT") or "").strip().lower()
+if _runtime_env not in ("production", "prod"):
+    load_dotenv(dotenv_path=str(env_path))
 
 # Use DATABASE_URL from environment
 DATABASE_URL = os.getenv(

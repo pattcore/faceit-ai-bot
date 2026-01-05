@@ -10,6 +10,8 @@ import CaptchaWidget from '../../src/components/CaptchaWidget';
 type PublicConfig = {
   captcha?: {
     provider?: string | null;
+    turnstile_site_key?: string | null;
+    smartcaptcha_site_key?: string | null;
   };
 };
 
@@ -93,7 +95,15 @@ export default function AuthPage() {
 
         const cfg = (await res.json()) as PublicConfig;
         const provider = (cfg?.captcha?.provider || '').toLowerCase().trim();
-        if (!cancelled) setCaptchaEnabled(!!provider);
+        const hasTurnstileKey = !!cfg?.captcha?.turnstile_site_key;
+        const hasSmartKey = !!cfg?.captcha?.smartcaptcha_site_key;
+
+        const enabled =
+          (provider === 'turnstile' && hasTurnstileKey) ||
+          ((provider === 'smartcaptcha' || provider === 'yandex_smartcaptcha' || provider === 'yandex') &&
+            hasSmartKey);
+
+        if (!cancelled) setCaptchaEnabled(enabled);
       } catch {
         if (!cancelled) setCaptchaEnabled(false);
       }
@@ -326,7 +336,7 @@ export default function AuthPage() {
               placeholder={t('auth.password_placeholder')}
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
               required
-              minLength={6}
+              minLength={8}
             />
           </div>
 
