@@ -6,6 +6,7 @@ import sys
 from fastapi import FastAPI, Request, Response, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 from prometheus_client import generate_latest, Counter
 
 from .config.settings import settings
@@ -74,6 +75,16 @@ def validate_env() -> None:
 validate_env()
 
 
+class ApiPrefixStripMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        path = request.scope.get("path") or ""
+        if path == "/api":
+            request.scope["path"] = "/"
+        elif path.startswith("/api/"):
+            request.scope["path"] = path[len("/api"):]
+        return await call_next(request)
+
+
 app = FastAPI(
     title=settings.APP_TITLE,
     version=settings.APP_VERSION,
@@ -112,6 +123,9 @@ app = FastAPI(
         "name": "Source-available (see LICENSE)",
     },
 )
+
+
+app.add_middleware(ApiPrefixStripMiddleware)
 
 # Add structured logging middleware
 app.add_middleware(StructuredLoggingMiddleware)
