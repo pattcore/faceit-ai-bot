@@ -7,8 +7,11 @@ Wants=docker.service
 Type=oneshot
 WorkingDirectory=/opt/faceit-ai-bot
 EnvironmentFile=/opt/faceit-ai-bot/.env
-ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml up -d
-ExecStop=/usr/bin/docker compose -f docker-compose.prod.yml down
+
+ExecStart=/usr/bin/docker compose -f /opt/faceit-ai-bot/docker-compose.prod.yml up -d nginx db redis
+ExecStart=/usr/bin/docker compose -f /opt/faceit-ai-bot/docker-compose.prod.yml up -d --no-deps discord_bot telegram_bot
+ExecStop=/usr/bin/docker compose -f /opt/faceit-ai-bot/docker-compose.prod.yml down
+
 RemainAfterExit=yes
 TimeoutStartSec=0
 
