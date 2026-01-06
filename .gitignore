@@ -49,3 +49,6 @@ NUL
 faceit-celery.service
 install-v2ray.sh
 scripts/backup_full_to_s3.sh
+
+# secrets
+nginx/.htpasswd
