@@ -20,7 +20,7 @@ redis = "^5.0.1"
 celery = "^5.3.4"
 groq = "^0.4.2"
 httpx = "^0.25.2"
-aiohttp = "^3.9.1"
+aiohttp = "^3.13.3"
 requests = "^2.31.0"
 python-jose = {version = "^3.3.0", extras = ["cryptography"]}
 passlib = {version = "^1.7.4", extras = ["bcrypt"]}
