@@ -13,11 +13,13 @@ services:
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention.time=12h'
       - '--web.listen-address=0.0.0.0:9090'
+      - '--web.external-url=/monitoring/prometheus'
+      - '--web.route-prefix=/monitoring/prometheus'
     networks:
       - monitoring
       - faceit-network
     ports:
-      - "9090:9090"
+      - "127.0.0.1:9090:9090"
     deploy:
       resources:
         limits:
@@ -30,15 +32,18 @@ services:
     restart: unless-stopped
     environment:
       - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin12345
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
       - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/monitoring/grafana/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     volumes:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
     networks:
       - monitoring
+      - faceit-network
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     depends_on:
       - prometheus
     deploy:
@@ -60,8 +65,9 @@ services:
       - /:/rootfs:ro
     networks:
       - monitoring
+      - faceit-network
     ports:
-      - "9100:9100"
+      - "127.0.0.1:9100:9100"
     deploy:
       resources:
         limits:
@@ -79,8 +85,9 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
     networks:
       - monitoring
+      - faceit-network
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     deploy:
       resources:
         limits:
@@ -95,10 +102,13 @@ services:
       - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/config.yml:ro
     command:
       - '--config.file=/etc/alertmanager/config.yml'
+      - '--web.external-url=/monitoring/alertmanager'
+      - '--web.route-prefix=/monitoring/alertmanager'
     networks:
       - monitoring
+      - faceit-network
     ports:
-      - "9093:9093"
+      - "127.0.0.1:9093:9093"
 
   loki:
     image: grafana/loki:latest
@@ -112,8 +122,9 @@ services:
       - '-config.file=/etc/loki/local-config.yaml'
     networks:
       - monitoring
+      - faceit-network
     ports:
-      - "3100:3100"
+      - "127.0.0.1:3100:3100"
 
 volumes:
   prometheus_data:
@@ -127,4 +138,5 @@ networks:
   monitoring:
     driver: bridge
   faceit-network:
-    driver: bridge
+    external: true
+    name: faceit-network

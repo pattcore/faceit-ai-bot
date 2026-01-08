@@ -292,7 +292,8 @@ services:
 
 networks:
   faceit-network:
-    driver: bridge
+    external: true
+    name: faceit-network
 
 volumes:
   db_data:
