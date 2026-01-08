@@ -55,7 +55,7 @@ services:
     volumes:
       - ollama_data:/root/.ollama
     environment:
-      - OLLAMA_HOST=http://0.0.0.0:11434
+      - OLLAMA_HOST=0.0.0.0:11434
       - OLLAMA_KEEP_ALIVE=5m
     networks:
       - faceit-network
@@ -106,6 +106,28 @@ services:
   celery_worker:
     image: ghcr.io/pat1one/faceit-ai-bot/api:latest
     
+  discord_bot:
+    image: ghcr.io/pat1one/faceit-ai-bot/api:latest
+    restart: always
+    env_file:
+      - ./.env
+    environment:
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+    command: python -m scripts.discord_bot
+    networks:
+      - faceit-network
+
+  telegram_bot:
+    image: ghcr.io/pat1one/faceit-ai-bot/api:latest
+    restart: always
+    env_file:
+      - ./.env
+    environment:
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+    command: python -m scripts.telegram_bot
+    networks:
+      - faceit-network
+
 networks:
   faceit-network:
     external: true
