@@ -59,14 +59,18 @@ services:
       - OLLAMA_KEEP_ALIVE=5m
     sysctls:
       net.ipv6.bindv6only: "0"
+
     networks:
       - faceit-network
-    deploy:
-      resources:
-        limits:
-          cpus: "0.80"
-          memory: 1400M
 
+  ollama_ipv4_proxy:
+    image: alpine/socat
+    restart: always
+    network_mode: "service:ollama"
+    depends_on:
+      - ollama
+    entrypoint: ["socat"]
+    command: ["-d","-d","TCP4-LISTEN:11435,fork,reuseaddr,bind=0.0.0.0","TCP6:[::1]:11434"]
   api:
     image: ghcr.io/pat1one/faceit-ai-bot/api:latest
     restart: always
