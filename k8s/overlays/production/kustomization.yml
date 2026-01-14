@@ -37,4 +37,4 @@ secretGenerator:
   - name: faceit-secrets
     behavior: replace
     envs:
-      - ../../../k8s.secrets.env
+      - faceit-secrets.env

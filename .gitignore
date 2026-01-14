@@ -33,6 +33,7 @@ docker-compose*.bak*
 .env.*
 !.env.example
 k8s.secrets.env
+k8s/overlays/production/faceit-secrets.env
 letsencrypt/
 
 # Local junk
