@@ -32,6 +32,7 @@ configMapGenerator:
     literals:
       - NEXT_PUBLIC_API_URL=/api
       - NEXT_PUBLIC_DEMO_UPLOAD_URL=https://uploads.pattmsc.online/api
+      - NEXT_PUBLIC_MAX_DEMO_SIZE_MB=700
 
 secretGenerator:
   - name: faceit-secrets
