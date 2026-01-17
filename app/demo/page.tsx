@@ -159,6 +159,8 @@ export default function DemoPage() {
       const pollDelayMs = 2000;
       const maxWaitMs = 30 * 60 * 1000;
       const startedAt = Date.now();
+      let consecutiveStatusErrors = 0;
+      const maxConsecutiveStatusErrors = 5;
 
       while (true) {
         if (Date.now() - startedAt > maxWaitMs) {
@@ -173,21 +175,44 @@ export default function DemoPage() {
 
         await new Promise((resolve) => setTimeout(resolve, pollDelayMs));
 
-        const statusResponse = await fetch(API_ENDPOINTS.TASK_STATUS(taskId), {
-          cache: 'no-store',
-        });
+        let statusResponse: Response;
+        let statusData: any;
+        try {
+          statusResponse = await fetch(API_ENDPOINTS.TASK_STATUS(taskId), {
+            cache: 'no-store',
+          });
 
-        if (!statusResponse.ok) {
-          setError(
-            t('demo.error_sbp', {
-              defaultValue:
-                'Произошла ошибка при анализе демо. Попробуйте ещё раз позже.',
-            }),
-          );
-          return;
+          if (!statusResponse.ok) {
+            consecutiveStatusErrors += 1;
+            if (consecutiveStatusErrors >= maxConsecutiveStatusErrors) {
+              setError(
+                t('demo.error_sbp', {
+                  defaultValue:
+                    'Произошла ошибка при анализе демо. Попробуйте ещё раз позже.',
+                }),
+              );
+              return;
+            }
+            continue;
+          }
+
+          statusData = await statusResponse.json();
+        } catch (err) {
+          console.warn('Task status polling error', err);
+          consecutiveStatusErrors += 1;
+          if (consecutiveStatusErrors >= maxConsecutiveStatusErrors) {
+            setError(
+              t('demo.error_sbp', {
+                defaultValue:
+                  'Произошла ошибка при анализе демо. Попробуйте ещё раз позже.',
+              }),
+            );
+            return;
+          }
+          continue;
         }
 
-        const statusData: any = await statusResponse.json();
+        consecutiveStatusErrors = 0;
         const taskStatus = String(statusData?.status || '').toUpperCase();
 
         if (taskStatus === 'SUCCESS') {
