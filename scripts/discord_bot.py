@@ -1246,6 +1246,15 @@ async def on_ready() -> None:
     global GUILD_ID
 
     try:
+        try:
+            tree.remove_command("admin_bind")
+        except Exception:
+            pass
+        try:
+            tree.remove_command("sub_bind")
+        except Exception:
+            pass
+
         synced_global = await tree.sync()
         logger.info("Синхронизировано %s глобальных команд", len(synced_global))
 

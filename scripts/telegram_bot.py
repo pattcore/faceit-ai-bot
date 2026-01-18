@@ -1079,8 +1079,6 @@ def main() -> None:
     app = ApplicationBuilder().token(token).build()
 
     app.add_handler(CommandHandler("start", cmd_start))
-    app.add_handler(CommandHandler("admin_bind", cmd_admin_bind))
-    app.add_handler(CommandHandler("sub_bind", cmd_sub_bind))
     app.add_handler(CommandHandler("faceit_stats", cmd_faceit_stats))
     app.add_handler(CommandHandler("faceit_analyze", cmd_faceit_analyze))
     app.add_handler(CommandHandler("tm_find", cmd_tm_find))
