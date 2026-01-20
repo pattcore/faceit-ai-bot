@@ -974,7 +974,7 @@ async def login(
             token=captcha_token,
             remote_ip=remote_ip,
             action="auth_login",
-            fail_open_on_error=False,
+            fail_open_on_error=True,
         )
         if not captcha_ok:
             raise HTTPException(

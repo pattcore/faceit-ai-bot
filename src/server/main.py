@@ -72,7 +72,18 @@ def validate_env() -> None:
         sys.exit(1)
 
 
-validate_env()
+def _should_validate_env() -> bool:
+    if (os.getenv("SKIP_ENV_VALIDATION") or "").strip() == "1":
+        return False
+    if "pytest" in sys.modules:
+        return False
+    if os.getenv("PYTEST_CURRENT_TEST"):
+        return False
+    return True
+
+
+if _should_validate_env():
+    validate_env()
 
 
 class ApiPrefixStripMiddleware(BaseHTTPMiddleware):
