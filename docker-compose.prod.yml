@@ -74,7 +74,7 @@ services:
     entrypoint: ["socat"]
     command: ["-d","-d","TCP4-LISTEN:11435,fork,reuseaddr,bind=0.0.0.0","TCP6:[::1]:11434"]
   api:
-    image: ghcr.io/pat1one/faceit-ai-bot/api:latest
+    image: ghcr.io/pattcore/faceit-ai-bot/api:latest
     restart: always
     depends_on:
       db:
@@ -112,7 +112,7 @@ services:
           memory: 640M
 
   celery_worker:
-    image: ghcr.io/pat1one/faceit-ai-bot/api:latest
+    image: ghcr.io/pattcore/faceit-ai-bot/api:latest
     restart: always
     depends_on:
       redis:
@@ -126,7 +126,7 @@ services:
       - faceit-network
 
   discord_bot:
-    image: ghcr.io/pat1one/faceit-ai-bot/api:latest
+    image: ghcr.io/pattcore/faceit-ai-bot/api:latest
     restart: always
     env_file:
       - ./.env
@@ -149,7 +149,7 @@ services:
         condition: service_healthy
 
   telegram_bot:
-    image: ghcr.io/pat1one/faceit-ai-bot/api:latest
+    image: ghcr.io/pattcore/faceit-ai-bot/api:latest
     restart: always
     env_file:
       - ./.env
