@@ -31,15 +31,24 @@ from src.server.features.demo_analyzer.models import DemoTrainingSample
 
 
 class MockUploadFile:
-    """Mock UploadFile for CLI usage."""
+    """Mock UploadFile for CLI usage that mimics FastAPI's UploadFile interface."""
 
     def __init__(self, filename: str, file_data: bytes):
         self.filename = filename
-        self.file = file_data
+        self._data = file_data
+        self._position = 0
         self.content_type = "application/octet-stream"
 
-    async def read(self) -> bytes:
-        return self.file
+    async def read(self, size: int = -1) -> bytes:
+        """Read data from file. If size is -1, read all remaining data."""
+        if size == -1:
+            result = self._data[self._position:]
+            self._position = len(self._data)
+            return result
+        else:
+            result = self._data[self._position:self._position + size]
+            self._position += len(result)
+            return result
 
     async def close(self):
         pass
