@@ -5,6 +5,7 @@ resources:
 - namespace.yml
 - configmap.yml
 - secret.yml
+- deployment-ollama.yml
 - statefulset-postgres.yml
 - deployment-redis.yml
 - deployment-api.yml

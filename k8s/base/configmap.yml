@@ -15,3 +15,5 @@ data:
   REDIS_MAX_CONNECTIONS: "20"
   DB_POOL_SIZE: "20"
   CELERY_CONCURRENCY: "4"
+  LOCAL_LLM_BASE_URL: "http://ollama:11434/v1/chat/completions"
+  LOCAL_LLM_MODEL: "llama3.2:1b"
