@@ -800,7 +800,7 @@ async def github(interaction: discord.Interaction) -> None:
     embed = discord.Embed(
         title="💻 GitHub репозиторий",
         description="faceit-ai-bot на GitHub",
-        url="https://github.com/pat1one/faceit-ai-bot",
+        url="https://github.com/pattcore/faceit-ai-bot",
         color=discord.Color.dark_grey(),
     )
     await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -817,7 +817,7 @@ async def links(interaction: discord.Interaction) -> None:
     )
     embed.add_field(
         name="GitHub",
-        value="[faceit-ai-bot](https://github.com/pat1one/faceit-ai-bot)",
+        value="[faceit-ai-bot](https://github.com/pattcore/faceit-ai-bot)",
         inline=False,
     )
     await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -833,7 +833,7 @@ async def project(interaction: discord.Interaction) -> None:
     )
     embed.add_field(
         name="GitHub",
-        value="[Репозиторий](https://github.com/pat1one/faceit-ai-bot)",
+        value="[Репозиторий](https://github.com/pattcore/faceit-ai-bot)",
         inline=False,
     )
     embed.add_field(

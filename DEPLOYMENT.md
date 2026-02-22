@@ -12,7 +12,7 @@ sudo usermod -aG docker $USER
 ### 2. Setup Environment
 ```bash
 # Clone repository
-git clone https://github.com/pat1one/faceit-ai-bot.git
+git clone https://github.com/pattcore/faceit-ai-bot.git
 cd faceit-ai-bot
 
 # Copy and configure environment
@@ -53,7 +53,7 @@ sudo chown $USER:$USER /opt/faceit-ai-bot
 ### 2. Application Setup
 ```bash
 cd /opt/faceit-ai-bot
-git clone https://github.com/pat1one/faceit-ai-bot.git .
+git clone https://github.com/pattcore/faceit-ai-bot.git .
 
 # Create virtual environment
 python3 -m venv venv
@@ -274,5 +274,5 @@ redis-cli CONFIG SET maxmemory-policy allkeys-lru
 
 ## Support
 
-- GitHub Issues: https://github.com/pat1one/faceit-ai-bot/issues
-- Documentation: https://github.com/pat1one/faceit-ai-bot
+- GitHub Issues: https://github.com/pattcore/faceit-ai-bot/issues
+- Documentation: https://github.com/pattcore/faceit-ai-bot
