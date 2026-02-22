@@ -52,7 +52,7 @@ export default function ExtensionPage() {
                   rel="noreferrer"
                   className="text-orange-400 hover:text-orange-300 underline"
                 >
-                  GitHub: pat1one/faceit-ai-bot
+                  GitHub: pattcore/faceit-ai-bot
                 </a>{' '}
                 — {t('extensionPage.step_download_repo')}
               </li>
@@ -102,12 +102,12 @@ export default function ExtensionPage() {
               </li>
               <li>
                 <a
-                  href="https://github.com/pat1one/faceit-ai-bot"
+                  href="https://github.com/pattcore/faceit-ai-bot"
                   target="_blank"
                   rel="noreferrer"
                   className="text-orange-400 hover:text-orange-300 underline"
                 >
-                  {t('extensionPage.repo_link')}: github.com/pat1one/faceit-ai-bot
+                  {t('extensionPage.repo_link')}: github.com/pattcore/faceit-ai-bot
                 </a>
               </li>
             </ul>

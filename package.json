@@ -14,11 +14,11 @@
   ],
   "homepage": "https://pattmsc.online",
   "bugs": {
-    "url": "https://github.com/pat1one/faceit-ai-bot/issues"
+    "url": "https://github.com/pattcore/faceit-ai-bot/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/pat1one/faceit-ai-bot.git"
+    "url": "https://github.com/pattcore/faceit-ai-bot.git"
   },
   "license": "Source-available (see LICENSE)",
   "author": "pattmsc",

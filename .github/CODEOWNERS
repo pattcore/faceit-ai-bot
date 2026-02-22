@@ -2,45 +2,45 @@
 # Все изменения требуют review от владельца
 
 # Default owner
-* @pat1one
+* @pattcore
 
 # Documentation
-*.md @pat1one
-docs/ @pat1one
+*.md @pattcore
+docs/ @pattcore
 
 # GitHub workflows
-.github/ @pat1one
+.github/ @pattcore
 
 # Configuration files
-*.json @pat1one
-*.yml @pat1one
-*.yaml @pat1one
+*.json @pattcore
+*.yml @pattcore
+*.yaml @pattcore
 
 # Frontend
-/app/ @pat1one
-/src/components/ @pat1one
+/app/ @pattcore
+/src/components/ @pattcore
 
 # Backend
-/src/server/ @pat1one
-main.py @pat1one
-requirements.txt @pat1one
+/src/server/ @pattcore
+main.py @pattcore
+requirements.txt @pattcore
 
 # Docker
-Dockerfile* @pat1one
-docker-compose.yml @pat1one
+Dockerfile* @pattcore
+docker-compose.yml @pattcore
 
-/alembic/ @pat1one
-/app/ @pat1one
-/deployment/ @pat1one
-/docs/ @pat1one
-/examples/ @pat1one
-/k8s/ @pat1one
-/locales/ @pat1one
-/monitoring/ @pat1one
-/nginx/ @pat1one
-/public/ @pat1one
-/redis-config/ @pat1one
-/scripts/ @pat1one
-/security/ @pat1one
-/src/ @pat1one
-/tests/ @pat1one
+/alembic/ @pattcore
+/app/ @pattcore
+/deployment/ @pattcore
+/docs/ @pattcore
+/examples/ @pattcore
+/k8s/ @pattcore
+/locales/ @pattcore
+/monitoring/ @pattcore
+/nginx/ @pattcore
+/public/ @pattcore
+/redis-config/ @pattcore
+/scripts/ @pattcore
+/security/ @pattcore
+/src/ @pattcore
+/tests/ @pattcore
