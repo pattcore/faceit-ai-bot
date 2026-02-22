@@ -12,7 +12,7 @@ Check documentation first:
 ### 💬 Ask a Question
 
 **GitHub Issues** - for bugs and questions:
-- [Create issue](https://github.com/pat1one/faceit-ai-bot/issues/new)
+- [Create issue](https://github.com/pattcore/faceit-ai-bot/issues/new)
 
 ### 📧 Contacts
 
@@ -21,11 +21,11 @@ Check documentation first:
 
 ### 🐛 Found a Bug?
 
-Use [bug report template](https://github.com/pat1one/faceit-ai-bot/issues/new?template=bug_report.md)
+Use [bug report template](https://github.com/pattcore/faceit-ai-bot/issues/new?template=bug_report.md)
 
 ### 💡 Have an Idea?
 
-Use [feature request template](https://github.com/pat1one/faceit-ai-bot/issues/new?template=feature_request.md)
+Use [feature request template](https://github.com/pattcore/faceit-ai-bot/issues/new?template=feature_request.md)
 
 ### 🔒 Security Issue?
 

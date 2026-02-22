@@ -12,7 +12,7 @@
 ### 💬 Задать вопрос
 
 **GitHub Issues** - для багов и вопросов:
-- [Создать issue](https://github.com/pat1one/faceit-ai-bot/issues/new)
+- [Создать issue](https://github.com/pattcore/faceit-ai-bot/issues/new)
 
 ### 📧 Контакты
 
@@ -21,11 +21,11 @@
 
 ### 🐛 Нашли баг?
 
-Используйте [шаблон bug report](https://github.com/pat1one/faceit-ai-bot/issues/new?template=bug_report.md)
+Используйте [шаблон bug report](https://github.com/pattcore/faceit-ai-bot/issues/new?template=bug_report.md)
 
 ### 💡 Есть идея?
 
-Используйте [шаблон feature request](https://github.com/pat1one/faceit-ai-bot/issues/new?template=feature_request.md)
+Используйте [шаблон feature request](https://github.com/pattcore/faceit-ai-bot/issues/new?template=feature_request.md)
 
 ### 🔒 Проблема безопасности?
 
