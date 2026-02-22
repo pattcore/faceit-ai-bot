@@ -2,37 +2,37 @@
 
 <div align="center">
 
-![Faceit AI Bot](https://img.shields.io/badge/Faceit_AI_Bot-v0.5.0-2E9EF7?style=for-the-badge)
+![Faceit AI Bot](https://img.shields.io/badge/Faceit_AI_Bot-v0.5.1-2E9EF7?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 [![License](https://img.shields.io/badge/License-Source--available-blue?style=for-the-badge)](LICENSE)
 [![2028 License](https://img.shields.io/badge/2028_License-AGPL--3.0-orange?style=for-the-badge)](LICENSE)
 
-[![Site Status](https://img.shields.io/badge/Site-Online-brightgreen?style=for-the-badge)](https://pattmsc.online)
-[![Documentation](https://img.shields.io/badge/Documentation-Available-blue?style=for-the-badge)](https://pat1one.github.io/faceit-ai-bot/)
-[![CI](https://github.com/pat1one/faceit-ai-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/pat1one/faceit-ai-bot/actions/workflows/ci.yml)
-[![Coverage](https://github.com/pat1one/faceit-ai-bot/actions/workflows/coverage.yml/badge.svg)](https://github.com/pat1one/faceit-ai-bot/actions/workflows/coverage.yml)
-[![Lint](https://img.shields.io/badge/linting-eslint%20%2B%20ruff-4B32C3?style=for-the-badge)](https://github.com/pat1one/faceit-ai-bot/actions)
+[![Site Status](https://img.shields.io/badge/Site-Online-brightgreen?style=for-the-badge)](https://pattcore.online)
+[![Documentation](https://img.shields.io/badge/Documentation-Available-blue?style=for-the-badge)](https://pattcore.github.io/faceit-ai-bot/)
+[![CI](https://github.com/pattcore/faceit-ai-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/pattcore/faceit-ai-bot/actions/workflows/ci.yml)
+[![Coverage](https://github.com/pattcore/faceit-ai-bot/actions/workflows/coverage.yml/badge.svg)](https://github.com/pattcore/faceit-ai-bot/actions/workflows/coverage.yml)
+[![Lint](https://img.shields.io/badge/linting-eslint%20%2B%20ruff-4B32C3?style=for-the-badge)](https://github.com/pattcore/faceit-ai-bot/actions)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-k3s-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)](https://k3s.io/)
-[![codecov](https://codecov.io/gh/pat1one/faceit-ai-bot/branch/main/graph/badge.svg)](https://codecov.io/gh/pat1one/faceit-ai-bot)
-[![Code Quality](https://img.shields.io/badge/code%20quality-A-brightgreen)](https://github.com/pat1one/faceit-ai-bot)
-[![GitHub issues](https://img.shields.io/github/issues/pat1one/faceit-ai-bot)](https://github.com/pat1one/faceit-ai-bot/issues)
-[![GitHub stars](https://img.shields.io/github/stars/pat1one/faceit-ai-bot)](https://github.com/pat1one/faceit-ai-bot/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/pat1one/faceit-ai-bot)](https://github.com/pat1one/faceit-ai-bot/network)
+[![codecov](https://codecov.io/gh/pattcore/faceit-ai-bot/branch/main/graph/badge.svg)](https://codecov.io/gh/pattcore/faceit-ai-bot)
+[![Code Quality](https://img.shields.io/badge/code%20quality-A-brightgreen)](https://github.com/pattcore/faceit-ai-bot)
+[![GitHub issues](https://img.shields.io/github/issues/pattcore/faceit-ai-bot)](https://github.com/pattcore/faceit-ai-bot/issues)
+[![GitHub stars](https://img.shields.io/github/stars/pattcore/faceit-ai-bot)](https://github.com/pattcore/faceit-ai-bot/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/pattcore/faceit-ai-bot)](https://github.com/pattcore/faceit-ai-bot/network)
 
 **AI‑коуч для анализа CS2 демок на Faceit (обученная модель + Ollama)**
 **CS2 demo analysis AI coach for Faceit (trained model + Ollama).**
 
-✅ **Сайт активно работает: [pattmsc.online](https://pattmsc.online)**  
-📚 **Документация доступна на GitHub Pages: [pat1one.github.io/faceit-ai-bot](https://pat1one.github.io/faceit-ai-bot/)**
+✅ **Сайт активно работает: [pattcore.online](https://pattcore.online)**  
+📚 **Документация доступна на GitHub Pages: [pattcore.github.io/faceit-ai-bot](https://pattcore.github.io/faceit-ai-bot/)**
 
-[🚀 Демо](https://pattmsc.online) • [📚 Документация](https://pat1one.github.io/faceit-ai-bot/) • [📦 Релиз v0.5.0](https://github.com/pat1one/faceit-ai-bot/releases/tag/v0.5.0) • [🐛 Баг-репорты](https://github.com/pat1one/faceit-ai-bot/issues) • [💡 Идеи](https://github.com/pat1one/faceit-ai-bot/issues/new?template=feature_request.md)
+[🚀 Демо](https://pattcore.online) • [📚 Документация](https://pattcore.github.io/faceit-ai-bot/) • [📦 Релиз v0.5.1](https://github.com/pattcore/faceit-ai-bot/releases/tag/v0.5.1) • [🐛 Баг-репорты](https://github.com/pattcore/faceit-ai-bot/issues) • [💡 Идеи](https://github.com/pattcore/faceit-ai-bot/issues/new?template=feature_request.md)
 
-**⬇️ Загрузки (v0.5.0):**
+**⬇️ Загрузки (v0.5.1):**
 
-- 🧩 `faceit-ai-bot-extension-v0.5.0.zip` — браузерное расширение (Chrome/Edge).
+- 🧩 `faceit-ai-bot-extension-v0.5.1.zip` — браузерное расширение (Chrome/Edge).
 
-Все файлы доступны в разделе **Assets** на странице релиза v0.5.0 в GitHub.
+Все файлы доступны в разделе **Assets** на странице релиза v0.5.1 в GitHub.
 
 **[English version](README.en.md)** | **[Contributing](CONTRIBUTING.md)** | **[Changelog](CHANGELOG.md)** | **[FAQ](FAQ.md)**
 
@@ -46,7 +46,7 @@
 
 Платформа для анализа CS2 демок и игровых паттернов на Faceit с помощью AI‑коуча (обученная модель + Ollama). Поиск тиммейтов и социальные фичи — вторичный модуль и часть roadmap.
 
-🌍 **Доступен онлайн:** [pattmsc.online](https://pattmsc.online)
+🌍 **Доступен онлайн:** [pattcore.online](https://pattcore.online)
 
 ### ✨ Основные возможности
 
@@ -132,8 +132,8 @@
 
 ✅ **Сайт успешно запущен и работает!**
 
-🌍 **Основной сайт:** [pattmsc.online](https://pattmsc.online)
-📚 **Документация:** [GitHub Pages](https://pat1one.github.io/faceit-ai-bot/)
+🌍 **Основной сайт:** [pattcore.online](https://pattcore.online)
+📚 **Документация:** [GitHub Pages](https://pattcore.github.io/faceit-ai-bot/)
 
 **Возможности:**
 - 🎯 Анализ игроков CS2 по никнейму
@@ -159,14 +159,14 @@
 
 #### Самостоятельная установка браузерного расширения (Chrome/Edge)
 
-1. Откройте релиз v0.5.0 на GitHub (https://github.com/pat1one/faceit-ai-bot/releases/tag/v0.5.0) и скачайте архив с расширением в разделе **Assets**, затем распакуйте его (или скачайте весь репозиторий как ZIP).
+1. Откройте релиз v0.5.1 на GitHub (https://github.com/pattcore/faceit-ai-bot/releases/tag/v0.5.1) и скачайте архив с расширением в разделе **Assets**, затем распакуйте его (или скачайте весь репозиторий как ZIP).
 2. Откройте в браузере `chrome://extensions` (для Chrome) или `edge://extensions` (для Edge).
 3. Включите **режим разработчика** (Developer mode).
 4. Нажмите **«Загрузить распакованное»** и выберите папку `extension` внутри проекта `faceit-ai-bot`.
 5. Убедитесь, что расширение **Faceit AI Bot Assistant** включено, при желании закрепите иконку на панели.
 6. Авторизуйтесь
 
-Следите за обновлениями на [GitHub](https://github.com/pat1one/faceit-ai-bot)
+Следите за обновлениями на [GitHub](https://github.com/pattcore/faceit-ai-bot)
 
 ---
 
@@ -207,7 +207,7 @@ PWA приложение будет доступно после деплоя с�
 
 ```bash
 # Клонируйте репозиторий
-git clone https://github.com/pat1one/faceit-ai-bot.git
+git clone https://github.com/pattcore/faceit-ai-bot.git
 cd faceit-ai-bot
 
 # Скопируйте .env файл
@@ -254,7 +254,7 @@ npm run dev
 ## 🗺️ Roadmap
 
 <details>
-<summary><b>📍 Текущая версия: v0.5.0</b></summary>
+<summary><b>📍 Текущая версия: v0.5.1</b></summary>
 
 ### ✅ Реализовано в v0.4.1
 
@@ -279,7 +279,7 @@ npm run dev
 ### 🧩 Браузерное расширение (статус)
 
 - ✅ **Базовая версия расширения доступна** (Chrome/Edge, ручная установка папки `extension`)
-- 🚧 Публикация в Chrome Web Store / Opera Addons и улучшения UX запланированы на v0.5.0
+- 🚧 Публикация в Chrome Web Store / Opera Addons и улучшения UX запланированы на v0.5.1
 
 </details>
 
@@ -325,7 +325,7 @@ npm run dev
 
 > Идеи вроде мобильного приложения, поддержки других игр, marketplace тренеров и сложных социальных фич будут рассматриваться **после** достижения product‑market fit и стабильной выручки.
 
-**Хотите предложить фичу?** [Создайте issue](https://github.com/pat1one/faceit-ai-bot/issues/new) с тегом `feature-request`
+**Хотите предложить фичу?** [Создайте issue](https://github.com/pattcore/faceit-ai-bot/issues/new) с тегом `feature-request`
 
 ---
 
@@ -350,10 +350,10 @@ npm run dev
 
 ## 📊 Статистика проекта
 
-![GitHub Stars](https://img.shields.io/github/stars/pat1one/faceit-ai-bot?style=social)
-![GitHub Forks](https://img.shields.io/github/forks/pat1one/faceit-ai-bot?style=social)
-![GitHub Issues](https://img.shields.io/github/issues/pat1one/faceit-ai-bot)
-![GitHub Pull Requests](https://img.shields.io/github/issues-pr/pat1one/faceit-ai-bot)
+![GitHub Stars](https://img.shields.io/github/stars/pattcore/faceit-ai-bot?style=social)
+![GitHub Forks](https://img.shields.io/github/forks/pattcore/faceit-ai-bot?style=social)
+![GitHub Issues](https://img.shields.io/github/issues/pattcore/faceit-ai-bot)
+![GitHub Pull Requests](https://img.shields.io/github/issues-pr/pattcore/faceit-ai-bot)
 
 ---
 
@@ -368,11 +368,11 @@ npm run dev
 
 <div align="center">
 
-[![Telegram](https://img.shields.io/badge/Business-Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/prdrow)
+[![Telegram](https://img.shields.io/badge/Business-Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/pattcore)
 [![Email](https://img.shields.io/badge/Advertising-Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:drow.battle.2025@gmail.com)
-[![Taplink](https://img.shields.io/badge/All_Links-Taplink-00D9FF?style=for-the-badge&logo=linktree&logoColor=white)](https://taplink.cc/mscpat)
-[![Twitch](https://img.shields.io/badge/Stream-Twitch-9146FF?style=for-the-badge&logo=twitch&logoColor=white)](https://www.twitch.tv/pattmsc)
-[![GitHub](https://img.shields.io/badge/Code-GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/pat1one)
+[![Taplink](https://img.shields.io/badge/All_Links-Taplink-00D9FF?style=for-the-badge&logo=linktree&logoColor=white)](https://taplink.cc/pattcore)
+[![Twitch](https://img.shields.io/badge/Stream-Twitch-9146FF?style=for-the-badge&logo=twitch&logoColor=white)](https://www.twitch.tv/pattcore)
+[![GitHub](https://img.shields.io/badge/Code-GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/pattcore)
 
 </div>
 

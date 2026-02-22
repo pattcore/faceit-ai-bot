@@ -47,7 +47,7 @@ export default function ExtensionPage() {
             <ol className="list-decimal list-inside space-y-2 text-gray-200 text-sm md:text-base">
               <li>
                 <a
-                  href="https://github.com/pat1one/faceit-ai-bot"
+                  href="https://github.com/pattcore/faceit-ai-bot"
                   target="_blank"
                   rel="noreferrer"
                   className="text-orange-400 hover:text-orange-300 underline"
