@@ -1,6 +1,6 @@
 {
   "name": "faceit-stats-bot",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "AI-коуч для анализа CS2 демок (обученная модель + Ollama) для Faceit",
   "keywords": [
     "faceit",

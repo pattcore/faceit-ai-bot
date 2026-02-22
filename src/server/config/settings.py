@@ -15,7 +15,7 @@ load_dotenv(dotenv_path=env_path)
 class Settings(BaseSettings):
     # App settings
     APP_TITLE: str = "Faceit AI Bot Service"
-    APP_VERSION: str = "0.4.0"
+    APP_VERSION: str = "0.5.1"
     NODE_ENV: str = "production"
     REPLIT_DEV_DOMAIN: Optional[str] = None
 
@@ -193,7 +193,7 @@ class Settings(BaseSettings):
     SENTRY_DSN: Optional[str] = None
     JAEGER_HOST: str = "localhost"
     JAEGER_PORT: int = 6831
-    VERSION: str = "0.4.0"
+    VERSION: str = "0.5.1"
 
     # Debug flag (used in tests and local development)
     DEBUG: bool = False

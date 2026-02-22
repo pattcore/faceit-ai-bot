@@ -2,6 +2,13 @@
 
 **[Русская версия](CHANGELOG.md)**
 
+## Version 0.5.1 — February 22, 2026
+
+- Rebranding: migration from pattmsc to pattcore throughout the project
+- Updated versions in pyproject.toml, package.json and config
+- Fixed Let's Encrypt certificate paths in nginx configuration
+- Automated SSL certificate renewal via certbot webroot
+
 ## Version 0.5.0 — January 24, 2026
 
 - Fixed API ↔ PostgreSQL connectivity in production (Steam callback no longer returns 500).

@@ -65,7 +65,7 @@ class TestSettingsDefaults:
 
         settings = Settings()
         assert settings.APP_TITLE == "Faceit AI Bot Service"
-        assert settings.APP_VERSION == "0.4.0"
+        assert settings.APP_VERSION == "0.5.1"
         assert settings.NODE_ENV == "production"
 
     def test_database_settings_defaults(self):
